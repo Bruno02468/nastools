@@ -1,0 +1,39 @@
+//! This module defines the different kinds of elements that can be found in
+//! Nastran output so that output fields can be taken generically over elements
+//! and so the code is easier to expand.
+
+use std::fmt::Debug as DebugTrait;
+
+use serde::{Serialize, Deserialize};
+
+/// Broadly-defined element categories.
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
+pub enum ElementType {
+  /// Rigid-body elements, like RBE2.
+  RigidBody,
+  /// Scalar spring elements, like ELAS1.
+  ScalarSpring,
+  /// Bushing elements, like BUSH.
+  Bushing,
+  /// Rod elements, like ROD.
+  Rod,
+  /// Bar elements, like BAR.
+  Bar,
+  /// Plate elements, like QUAD4.
+  Plate,
+  /// Solid elements, like HEXA.
+  Solid
+}
+
+/// Elements must implement this object-safe trait.
+pub trait Element: Clone + DebugTrait {
+  /// Number of grid points this element is connected to.
+  const ELGP: u8;
+  /// Type of element.
+  const ELTYPE: ElementType;
+  /// The name of the element, fitting in at most eight characters.
+  const ELNAME: [u8; 8];
+  
+  /// Returns the ID of the element.
+  fn eid(&self) -> u32;
+}

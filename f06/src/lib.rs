@@ -1,4 +1,4 @@
-//! his library implements types and functions to parse and manipulate the
+//! This library implements types and functions to parse and manipulate the
 //! data within formatted text output files from Nastran-like FEA solvers.
 //! 
 //! It was created with the main intent being the development of a tool to
@@ -14,7 +14,10 @@
 #![allow(clippy::needless_return)]
 #![allow(dead_code)] // temporary
 
+pub mod elements;
+pub mod fields;
 pub mod flavour;
+pub mod geometry;
 pub mod util;
 
 #[cfg(test)]
