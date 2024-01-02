@@ -14,7 +14,9 @@
 #![allow(clippy::needless_return)] // i'll never forgive rust for this
 #![allow(dead_code)] // temporary
 
+pub mod blocks;
 pub mod elements;
+pub mod f06file;
 pub mod fields;
 pub mod flavour;
 pub mod geometry;

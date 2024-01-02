@@ -1,10 +1,32 @@
 //! This submodule implements several indexing types used to acces values in an
 //! output block.
 
+use const_format::concatcp;
 use serde::{Deserialize, Serialize};
 
-use crate::fields::IndexType;
 use crate::geometry::{Axis, Dof};
+
+/// All field indexing types must implement this trait.
+pub trait IndexType: Copy + Ord + Eq {
+  /// The name of this type of index, all caps.
+  const INDEX_NAME: &'static str;
+}
+
+/// This struct allows one to combine two indexing types into one, like a
+/// "combined key" of sorts.
+#[derive(
+  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq
+)]
+pub struct PairIndex<A: IndexType, B: IndexType> {
+  /// The primary, leading index.
+  pub primary: A,
+  /// The secondary index.
+  pub secondary: B
+} 
+
+impl<A: IndexType, B: IndexType> IndexType for PairIndex<A, B> {
+  const INDEX_NAME: &'static str = A::INDEX_NAME;
+}
 
 impl IndexType for Axis {
   const INDEX_NAME: &'static str = "AXIS";
@@ -42,7 +64,7 @@ impl IndexType for ForceOrigin {
 )]
 pub struct GridPointRef {
   /// The ID of the grid point.
-  gid: usize
+  pub gid: usize
 }
 
 impl IndexType for GridPointRef {
@@ -55,7 +77,7 @@ impl IndexType for GridPointRef {
 )]
 pub struct ElementRef {
   /// The ID of the element.
-  eid: usize
+  pub eid: usize
 }
 
 impl IndexType for ElementRef {
@@ -68,7 +90,7 @@ impl IndexType for ElementRef {
 )]
 pub struct CsysRef {
   /// The ID of the coordinate system.
-  cid: usize
+  pub cid: usize
 }
 
 impl IndexType for CsysRef {
