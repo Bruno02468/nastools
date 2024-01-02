@@ -8,11 +8,13 @@ use serde::{Deserialize, Serialize};
 const SIXDOF: usize = 6;
 
 /// The two type of degree of freedom.
-#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(
+  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq
+)]
 pub enum DofType {
   /// Translational DOF.
   Translational,
-  //// Rotational DOF.
+  /// Rotational DOF.
   Rotational
 }
 
@@ -51,7 +53,9 @@ impl DofType {
 }
 
 /// The three axes.
-#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(
+  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq
+)]
 pub enum Axis {
   /// The X axis.
   X,
@@ -107,7 +111,9 @@ impl Axis {
 }
 
 /// The six degrees of freedom.
-#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(
+  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq
+)]
 pub struct Dof {
   /// The type of DOF (translational or rotational).
   pub dof_type: DofType,

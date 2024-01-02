@@ -9,9 +9,9 @@
 //! support parsing different "flavours" of text output, different solvers,
 //! more elements/formulations, etc.
 
-#![warn(missing_docs)]
-#![warn(clippy::missing_docs_in_private_items)]
-#![allow(clippy::needless_return)]
+#![warn(missing_docs)] // almost sure this is default but whatever
+#![warn(clippy::missing_docs_in_private_items)] // sue me
+#![allow(clippy::needless_return)] // i'll never forgive rust for this
 #![allow(dead_code)] // temporary
 
 pub mod elements;

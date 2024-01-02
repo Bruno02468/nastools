@@ -6,9 +6,11 @@ use std::fmt::Debug as DebugTrait;
 
 use serde::{Serialize, Deserialize};
 
+use crate::fields::SMALL_FIELD_BYTES;
+
 /// Broadly-defined element categories.
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
-pub enum ElementType {
+pub enum ElementCategory {
   /// Rigid-body elements, like RBE2.
   RigidBody,
   /// Scalar spring elements, like ELAS1.
@@ -30,10 +32,10 @@ pub trait Element: Clone + DebugTrait {
   /// Number of grid points this element is connected to.
   const ELGP: u8;
   /// Type of element.
-  const ELTYPE: ElementType;
+  const ELTYPE: ElementCategory;
   /// The name of the element, fitting in at most eight characters.
-  const ELNAME: [u8; 8];
+  const ELNAME: [u8; SMALL_FIELD_BYTES];
   
   /// Returns the ID of the element.
-  fn eid(&self) -> u32;
+  fn eid(&self) -> usize;
 }
