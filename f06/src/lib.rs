@@ -20,6 +20,7 @@ pub mod f06file;
 pub mod fields;
 pub mod flavour;
 pub mod geometry;
+pub mod parser;
 pub mod util;
 
 #[cfg(test)]

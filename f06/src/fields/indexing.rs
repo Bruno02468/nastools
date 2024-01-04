@@ -1,7 +1,6 @@
 //! This submodule implements several indexing types used to acces values in an
 //! output block.
 
-use const_format::concatcp;
 use serde::{Deserialize, Serialize};
 
 use crate::geometry::{Axis, Dof};
@@ -10,22 +9,26 @@ use crate::geometry::{Axis, Dof};
 pub trait IndexType: Copy + Ord + Eq {
   /// The name of this type of index, all caps.
   const INDEX_NAME: &'static str;
+
+  /// Returns a more complex name for the index. Useful if the name is beyond
+  /// the reach of const generics.
+  fn dyn_name(&self) -> String {
+    return Self::INDEX_NAME.to_owned();
+  }
 }
 
-/// This struct allows one to combine two indexing types into one, like a
-/// "combined key" of sorts.
+/// This enum encapsulates all index types, taken generally.
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq
+  Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord
 )]
-pub struct PairIndex<A: IndexType, B: IndexType> {
-  /// The primary, leading index.
-  pub primary: A,
-  /// The secondary index.
-  pub secondary: B
-} 
-
-impl<A: IndexType, B: IndexType> IndexType for PairIndex<A, B> {
-  const INDEX_NAME: &'static str = A::INDEX_NAME;
+#[allow(missing_docs)] // I refuse.
+pub enum NasIndex {
+  Axis(Axis),
+  Dof(Dof),
+  ForceOrigin(ForceOrigin),
+  GridPointRef(GridPointRef),
+  ElementRef(ElementRef),
+  CsysRef(CsysRef)
 }
 
 impl IndexType for Axis {
@@ -45,8 +48,8 @@ pub enum ForceOrigin {
   Load,
   /// The force was applied by another element.
   Element {
-    /// The element ID.
-    eid: usize
+    /// A reference to the element.
+    elem: ElementRef
   },
   /// The force was applied by a single-point constraint.
   SinglePointConstraint,
@@ -78,6 +81,8 @@ impl IndexType for GridPointRef {
 pub struct ElementRef {
   /// The ID of the element.
   pub eid: usize
+  // The type of element, if known.
+  
 }
 
 impl IndexType for ElementRef {
@@ -95,4 +100,15 @@ pub struct CsysRef {
 
 impl IndexType for CsysRef {
   const INDEX_NAME: &'static str = "CSYS ID";
+}
+
+/// A grid point within a coordinate system.
+#[derive(
+  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq
+)]
+pub struct GridInCsys {
+  /// The ID of the grid point.
+  pub gid: usize,
+  /// The ID of the coordinate system.
+  pub cid: usize
 }
