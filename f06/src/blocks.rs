@@ -244,11 +244,11 @@ pub(crate) trait BlockDecoder {
   /// Initializes the decoder.
   fn new(flavour: Flavour) -> Self;
 
-  /// Consumes a line into the underlying data.
-  fn consume(&mut self, line: &str) -> LineResponse;
-
   /// Unwraps the underlying data.
   fn unwrap(self, subcase: usize) -> FinalBlock;
+
+  /// Consumes a line into the underlying data.
+  fn consume(&mut self, line: &str) -> LineResponse;
 }
 
 /// This trait is used to hide implementation details of a block decoder.

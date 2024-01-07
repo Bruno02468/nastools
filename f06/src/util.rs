@@ -3,6 +3,8 @@
 
 use std::cell::Cell;
 
+use serde::{Serialize, Deserialize};
+
 use crate::elements::ElementType;
 
 /// Decodes a Nastran-format floating point number. Hyper-lenient and doesn't
@@ -55,6 +57,7 @@ pub(crate) fn decode_nasfloat(s: &str) -> Option<f64> {
 }
 
 /// A line field as decoded.
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub(crate) enum LineField<'s> {
   /// Managed to parse an integer out of it.
   Integer(isize),
@@ -96,4 +99,63 @@ pub(crate) fn line_breakdown(
   return s.split(' ')
     .filter(|subs| !subs.is_empty())
     .map(LineField::parse);
+}
+
+/// Gets a certain number of reals from a line.
+pub(crate) fn extract_reals<const N: usize>(line: &str) -> Option<[f64; N]> {
+  let mut arr: [f64; N] = [0.0; N];
+  let mut found = 0;
+  for field in line_breakdown(line) {
+    match field {
+      LineField::Real(x) if found < N => {
+        arr[found] = x;
+        found += 1;
+      },
+      LineField::Real(_) if found == N => {
+        return None;
+      },
+      _ => continue
+    }
+  }
+  if found == N {
+    return Some(arr);
+  } else {
+    return None;
+  }
+}
+
+/// Gets the N-th integer in a line.
+pub(crate) fn nth_integer(line: &str, n: usize) -> Option<isize> {
+  return line_breakdown(line)
+    .filter_map(|field| {
+      if let LineField::Integer(x) = field {
+        return Some(x)
+      } else {
+        None
+      }
+    }).nth(n);
+}
+
+/// Gets the N-th string in a line.
+pub(crate) fn nth_string(line: &str, n: usize) -> Option<&str> {
+  return line_breakdown(line)
+    .filter_map(|field| {
+      if let LineField::NoIdea(s) = field {
+        return Some(s)
+      } else {
+        None
+      }
+    }).nth(n);
+}
+
+/// Gets the N-th element type in a line.
+pub(crate) fn nth_etype(line: &str, n: usize) -> Option<ElementType> {
+  return line_breakdown(line)
+    .filter_map(|field| {
+      if let LineField::ElementType(etype) = field {
+        return Some(etype)
+      } else {
+        None
+      }
+    }).nth(n);
 }

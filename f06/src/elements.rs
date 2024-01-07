@@ -3,7 +3,7 @@
 //! and so the code is easier to expand.
 
 use std::fmt::Display;
-
+use core::str::FromStr;
 use serde::{Serialize, Deserialize};
 
 /// Broadly-defined element categories.
@@ -58,6 +58,19 @@ macro_rules! gen_elems {
         return &[
           $(Self::$vn,)*
         ];
+      }
+    }
+
+    impl FromStr for ElementType {
+      type Err = ();
+
+      fn from_str(s: &str) -> Result<Self, Self::Err> {
+        return match s {
+          $(
+            $nm => Ok(Self::$vn),
+          )*
+          _ => return Err(())
+        };
       }
     }
   };

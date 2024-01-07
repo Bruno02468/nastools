@@ -114,10 +114,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "f06csv"
-version = "0.1.0"
-
-[[package]]
 name = "f06dump"
 version = "0.1.0"
 dependencies = [

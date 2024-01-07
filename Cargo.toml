@@ -2,6 +2,5 @@
 resolver = "2"
 members = [
 	"f06",
-	"f06csv",
 	"f06dump"
 ]
