@@ -1,24 +1,67 @@
 //! This submodule defines the blocks that make up an F06 file.
 
-pub mod known;
-mod decoders;
+pub(crate) mod decoders;
+pub mod indexing;
+pub mod types;
 
 use std::collections::BTreeMap;
+use std::fmt::Display;
 
-use nalgebra::{Matrix, Const, VecStorage, Dyn, Scalar};
+use nalgebra::{Matrix, Const, VecStorage, Dyn, Scalar, DMatrix};
 use num::Zero;
 use serde::{Serialize, Deserialize};
 
-use crate::fields::indexing::{IndexType, NasIndex};
+use indexing::{IndexType, NasIndex};
+use crate::blocks::types::BlockType;
+use crate::flavour::Flavour;
 
 /// This trait encapsulates the necessary properties for a scalar that can exist
 /// in the data matrices.
 pub trait NasScalar: Copy + Scalar + Zero {}
 
+impl NasScalar for f64 {}
+impl NasScalar for isize {}
+impl NasScalar for usize {}
+
 /// This type encapsulates a dynamic matrix of scalar type S and width W.
 pub type DynMatx<S, const W: usize> = Matrix<
   S, Dyn, Const<W>, VecStorage<S, Dyn, Const<W>>
 >;
+
+/// Full-dynamic matrix used in finalised blocks.
+#[derive(Clone, Debug, Serialize, Deserialize, derive_more::From)]
+pub enum FinalDMat {
+  /// Matrix with real values.
+  Reals(DMatrix<f64>),
+  /// Matrix with integer values.
+  Integers(DMatrix<isize>),
+  /// Matrix with natural values.
+  Naturals(DMatrix<usize>),
+}
+
+/// Value inside a FinalDMat.
+#[derive(
+  Copy, Clone, Debug, Serialize, Deserialize, PartialEq, PartialOrd,
+  derive_more::From
+)]
+pub enum F06Number {
+  /// Real value.
+  Real(f64),
+  /// Integer value.
+  Integer(isize),
+  /// Natural value.
+  Natural(usize)
+}
+
+impl Display for F06Number {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    return match self {
+      F06Number::Real(x) => x.fmt(f),
+      F06Number::Integer(i) => i.fmt(f),
+      F06Number::Natural(n) => n.fmt(f),
+    };
+  }
+}
 
 /// A block that contains an indexing type, some details, and a data matrix.
 /// The number of columns is fixed -- F06 data don't grow horizontally. Types:
@@ -26,8 +69,10 @@ pub type DynMatx<S, const W: usize> = Matrix<
 ///   - R: the type of abstract index for the rows.
 ///   - C: the type of abstract index for the columns.
 ///   - W: the width of the matrix, a constant.
-#[derive(Clone, Serialize, Deserialize)]
-pub struct RowBlock<S: NasScalar, R: IndexType, C: IndexType, const W: usize> {
+#[derive(Clone, Debug)]
+pub(crate) struct RowBlock<
+  S: NasScalar, R: IndexType, C: IndexType, const W: usize
+> {
   /// The row indexes.
   row_indexes: BTreeMap<R, usize>,
   /// The column indexes.
@@ -43,16 +88,16 @@ impl<S, R, C, const W: usize> RowBlock<S, R, C, W>
     let row_indexes: BTreeMap<R, usize> = BTreeMap::new();
     return Self { row_indexes, col_indexes, data: None }
   }
-  
+
   /// Inserts a line raw into the data matrix, without fixing indexes. Returns
   /// the row within the underlying matrixes this was put in.
-  pub(crate) fn insert_row_raw(&mut self, row_index: R, row: &[S; W]) -> usize {
+  pub(crate) fn insert_raw(&mut self, row_index: R, row: &[S; W]) -> usize {
     let irow: usize;
     if let Some(mut mat) = self.data.take() {
       if let Some(fnd) = self.row_indexes.get(&row_index) {
         irow = *fnd;
       } else {
-        irow = mat.shape().0;
+        irow = mat.nrows();
         mat = mat.insert_row(irow, S::zero());
       }
       mat.row_mut(irow).copy_from_slice(row);
@@ -71,8 +116,8 @@ impl<S, R, C, const W: usize> RowBlock<S, R, C, W>
   /// which is much, much faster.
   pub(crate) fn col_indexes(&self) -> &BTreeMap<C, usize> {
     return &self.col_indexes;
-  } 
-  
+  }
+
   /// Returns the row indexes.
   pub(crate) fn row_indexes(&self) -> &BTreeMap<R, usize> {
     return &self.row_indexes;
@@ -90,42 +135,74 @@ impl<S, R, C, const W: usize> RowBlock<S, R, C, W>
       let ri = self.col_indexes.get(c).expect("bad col index");
       raw_data[*ri] = *s;
     });
-    return self.insert_row_raw(row_index, &raw_data);
+    return self.insert_raw(row_index, &raw_data);
   }
+}
 
-  /// Returns a reference to an item in the matrix.
-  pub fn get(&self, row: &R, col: &C) -> Option<&S> {
-    if let Some(i) = self.row_indexes.get(row) {
-      if let Some(j) = self.col_indexes.get(col) {
-        if let Some(ref matx) = self.data {
-          return matx.get((*i, *j));
-        }
-      }
-    }
-    return None;
-  }
-
-  /// Returns a mutable view into an item in the matrix.
-  pub fn get_mut(&mut self, row: &R, col: &C) -> Option<&mut S> {
-    if let Some(i) = self.row_indexes.get(row) {
-      if let Some(j) = self.col_indexes.get(col) {
-        if let Some(ref mut matx) = self.data {
-          return matx.get_mut((*i, *j));
-        }
-      }
-    }
-    return None;
-  }
-
+impl<S, R, C, const W: usize> RowBlock<S, R, C, W>
+  where S: NasScalar, R: IndexType, C: IndexType, FinalDMat: From<DMatrix<S>> {
   /// Consumes this data structure and unwraps the matrix within. This is to
   /// avoid inconsistent data ever residing within this block.
-  pub fn unwrap_matrix(self) -> Option<DynMatx<S, W>> {
-    return self.data;
+  pub(crate) fn finalise(
+    self,
+    block_type: BlockType,
+    subcase: usize
+  ) -> FinalBlock {
+    let row_indexes: BTreeMap<NasIndex, usize> = self.row_indexes.into_iter()
+      .map(|(k, v)| (k.into(), v))
+      .collect();
+    let col_indexes: BTreeMap<NasIndex, usize> = self.col_indexes.into_iter()
+      .map(|(k, v)| (k.into(), v))
+      .collect();
+    let data: Option<FinalDMat> = self.data.map(|m| {
+      let nr = m.nrows();
+      let nc = m.ncols();
+      return FinalDMat::from(m.reshape_generic(Dyn(nr), Dyn(nc)));
+    });
+    return FinalBlock { block_type, subcase, row_indexes, col_indexes, data };
+  }
+}
+
+/// Immutable view into a result block once it's finalised.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct FinalBlock {
+  /// The block type that originated the data.
+  pub block_type: BlockType,
+  /// The subcase where this block appears.
+  pub subcase: usize,
+  /// The row indexes.
+  pub row_indexes: BTreeMap<NasIndex, usize>,
+  /// The column indexes.
+  pub col_indexes: BTreeMap<NasIndex, usize>,
+  /// The data within.
+  pub data: Option<FinalDMat>
+}
+
+impl FinalBlock {
+  /// Returns the data at a certain location.
+  pub fn get<R: Into<NasIndex>, C: Into<NasIndex>>(
+    &self, row: R,
+    col: C
+  ) -> Option<F06Number> {
+    let ri = self.row_indexes.get(&row.into())?;
+    let ci = self.col_indexes.get(&col.into())?;
+    return Some(match self.data {
+      Some(FinalDMat::Reals(ref m)) => F06Number::Real(
+        *m.get((*ri, *ci))?
+      ),
+      Some(FinalDMat::Integers(ref m)) => F06Number::Integer(
+        *m.get((*ri, *ci))?
+      ),
+      Some(FinalDMat::Naturals(ref m)) => F06Number::Natural(
+        *m.get((*ri, *ci))?
+      ),
+      None => return None
+    });
   }
 }
 
 /// Response of a block parser upon receiving a line.
-#[derive(Copy, Clone, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub enum LineResponse {
   /// The supplied line contained no useful information.
   Useless,
@@ -135,6 +212,8 @@ pub enum LineResponse {
   Data,
   /// The supplied line makes me think this block is finished.
   Done,
+  /// The flavour is incompatible (e.g. unknown solver)
+  BadFlavour,
   /// The supplied line looks like it contains data but I lack the necessary
   /// metadata to decode it.
   MissingMetadata,
@@ -142,6 +221,8 @@ pub enum LineResponse {
   WrongDecoder,
   /// The supplied line makes me think you got the solver wrong.
   WrongSolver,
+  /// Unsupported data format.
+  Unsupported,
   /// Something's done terribly wrong.
   Abort
 }
@@ -157,22 +238,45 @@ pub(crate) trait BlockDecoder {
   type ColumnIndex: IndexType;
   /// The width of the actual data matrix -- doesn't count indexes.
   const MATWIDTH: usize;
+  /// The block type this decoder is for.
+  const BLOCK_TYPE: BlockType;
 
-  /// Inserts a row into the underlying data matrix.
-  fn insert_row(&mut self, data: Vec<Self::MatScalar>);
+  /// Initializes the decoder.
+  fn new(flavour: Flavour) -> Self;
+
+  /// Consumes a line into the underlying data.
+  fn consume(&mut self, line: &str) -> LineResponse;
+
+  /// Unwraps the underlying data.
+  fn unwrap(self, subcase: usize) -> FinalBlock;
 }
 
 /// This trait is used to hide implementation details of a block decoder.
 pub trait OpaqueDecoder {
+  /// Returns the block type this decoder is for.
+  fn block_type(&self) -> BlockType;
+
   /// This function takes in a line and loads it into the decoder.
+  fn consume(&mut self, line: &str) -> LineResponse;
+
+  /// Extracts the data within.
+  fn finalise(self: Box<Self>, subcase: usize) -> FinalBlock;
+}
+
+impl<T> OpaqueDecoder for T
+  where T: BlockDecoder, FinalDMat: From<DMatrix<T::MatScalar>> {
+  fn block_type(&self) -> BlockType {
+    return Self::BLOCK_TYPE;
+  }
+
+  fn finalise(self: Box<Self>, subcase: usize) -> FinalBlock {
+    return self.unwrap(subcase);
+  }
+
   fn consume(
     &mut self,
     line: &str
-  ) -> LineResponse;
-
-  /// Returns a vector with the row indexes.
-  fn row_indexes(&self) -> Vec<NasIndex>;
-
-  /// Returns a vector with the column indexes.
-  fn col_indexes(&self) -> Vec<NasIndex>;
+  ) -> LineResponse {
+    return BlockDecoder::consume(self, line);
+  }
 }

@@ -1,10 +1,10 @@
 //! This library implements types and functions to parse and manipulate the
 //! data within formatted text output files from Nastran-like FEA solvers.
-//! 
+//!
 //! It was created with the main intent being the development of a tool to
 //! convert output from the MYSTRAN solver.to a CSV for use in automated
 //! verification of the solver's correctness.
-//! 
+//!
 //! However, the code is modular -- one can easily expand the library to
 //! support parsing different "flavours" of text output, different solvers,
 //! more elements/formulations, etc.
@@ -17,7 +17,6 @@
 pub mod blocks;
 pub mod elements;
 pub mod f06file;
-pub mod fields;
 pub mod flavour;
 pub mod geometry;
 pub mod parser;

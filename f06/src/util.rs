@@ -3,11 +3,13 @@
 
 use std::cell::Cell;
 
+use crate::elements::ElementType;
+
 /// Decodes a Nastran-format floating point number. Hyper-lenient and doesn't
 /// require pulling a whole regex library.
 pub(crate) fn decode_nasfloat(s: &str) -> Option<f64> {
   // mantissa start/end, exponent start/end
-  let mut ixs: [usize; 4] = [0, 0, 0, 0]; 
+  let mut ixs: [usize; 4] = [0, 0, 0, 0];
   // 0-1 = looking for mantissa start/end, 2-3 = looking for exponent start/end
   let step: Cell<usize> = 0.into();
   let mut mark = |i| { ixs[step.get()] = i; step.replace(step.get() + 1); };
@@ -50,4 +52,48 @@ pub(crate) fn decode_nasfloat(s: &str) -> Option<f64> {
     // should be unreachable
     _ => panic!("unreachable branch 2 in returning nasfloat \"{}\"", s)
   };
+}
+
+/// A line field as decoded.
+pub(crate) enum LineField<'s> {
+  /// Managed to parse an integer out of it.
+  Integer(isize),
+  /// Managed to parse a real out of it.
+  Real(f64),
+  /// Field is a single character.
+  Character(char),
+  /// Field is an element type.
+  ElementType(ElementType),
+  /// Couldn't parse it.
+  NoIdea(&'s str)
+}
+
+impl<'s> LineField<'s> {
+  /// Parses a single field into a LineField.
+  fn parse(s: &'s str) -> Self {
+    if let Ok(i) = s.parse::<isize>() {
+      return Self::Integer(i);
+    }
+    if let Ok(x) = s.parse::<f64>()/*.or(decode_nasfloat(s))*/ {
+      return Self::Real(x);
+    }
+    if s.len() == 1 {
+      return Self::Character(s.chars().nth(0).unwrap());
+    }
+    for cand in ElementType::all() {
+      if s == cand.name() {
+        return Self::ElementType(*cand);
+      }
+    }
+    return Self::NoIdea(s);
+  }
+}
+
+/// Breaks down a line into an iterator of fields.
+pub(crate) fn line_breakdown(
+  s: &str
+) -> impl Iterator<Item = LineField<'_>> {
+  return s.split(' ')
+    .filter(|subs| !subs.is_empty())
+    .map(LineField::parse);
 }

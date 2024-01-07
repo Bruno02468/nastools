@@ -3,22 +3,16 @@
 
 use std::fmt::Display;
 
+use serde::{Serialize, Deserialize};
+
 /// The different supported solvers.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Solver {
-  /// The default: unknown solver -- we'll do our best to decode.
-  Unknown,
   /// The MYSTRAN solver originally developed by Dr. Bill Case.
   Mystran,
   /// The Simcenter Nastran solver, formerly known as NX Nastran.
   Simcenter
-}
-
-impl Default for Solver {
-  fn default() -> Self {
-    return Self::Unknown;
-  }
 }
 
 impl Display for Solver {
@@ -28,10 +22,14 @@ impl Display for Solver {
 }
 
 impl Solver {
+  /// Returns all known solvers.
+  pub const fn all() -> &'static [Self] {
+    return &[Self::Mystran, Self::Simcenter];
+  }
+
   /// Returns a constant display name for the solver.
   pub const fn name(&self) -> &'static str {
     return match self {
-      Solver::Unknown => "unknown",
       Solver::Mystran => "MYSTRAN",
       Solver::Simcenter => "Simcenter Nastran"
     };
@@ -39,11 +37,9 @@ impl Solver {
 }
 
 /// The known solution types.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum SolType {
-  /// Unknown solution type.
-  Unknown,
   /// Linear static analysis, also known as SOL STATIC or SOL 101.
   LinearStatic,
   /// Eigenvalue/modes analyssis, also known as SOL MODES or SOL 103.
@@ -56,35 +52,39 @@ pub enum SolType {
   NonLinearStatic
 }
 
-impl Default for SolType {
-  fn default() -> Self {
-    return Self::Unknown;
-  }
-}
-
 impl From<SolType> for usize {
   fn from(value: SolType) -> Self {
     return match value {
-      SolType::Unknown => 0,
       SolType::LinearStatic => 101,
       SolType::Eigenvalue => 103,
       SolType::LinearStaticDiffStiff => 104,
       SolType::LinearBuckling => 105,
-      SolType::NonLinearStatic => 106,
+      SolType::NonLinearStatic => 106
     };
   }
 }
 
-impl From<usize> for SolType {
-  fn from(sol: usize) -> Self {
-    return match sol {
-      0 => Self::Unknown,
+impl TryFrom<usize> for SolType {
+  type Error = ();
+  fn try_from(sol: usize) -> Result<SolType, ()> {
+    return Ok(match sol {
       1 | 101 => Self::LinearStatic,
       3 | 103 => Self::Eigenvalue,
       4 | 104 => Self::LinearStaticDiffStiff,
       5 | 105 => Self::LinearBuckling,
       106 => Self::NonLinearStatic,
-      _ => Self::Unknown
-    };
+      _ => return Err(())
+    });
   }
+
+}
+
+/// This structure encapsulates what we currently take to be the "flavour" of
+/// F06 file.
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Default)]
+pub struct Flavour {
+  /// The solver that produced the file, if known.
+  pub solver: Option<Solver>,
+  /// The solution type that resulted in the file, if known.
+  pub soltype: Option<SolType>
 }

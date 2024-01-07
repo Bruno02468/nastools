@@ -2,6 +2,8 @@
 //! Nastran output so that output fields can be taken generically over elements
 //! and so the code is easier to expand.
 
+use std::fmt::Display;
+
 use serde::{Serialize, Deserialize};
 
 /// Broadly-defined element categories.
@@ -98,3 +100,21 @@ gen_elems!(
   (Penta, "PENTA", ThreeDimensionalElastic),
   (Hexa, "HEXA", ThreeDimensionalElastic),
 );
+
+impl PartialOrd for ElementType {
+  fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+    Some(self.cmp(other))
+  }
+}
+
+impl Ord for ElementType {
+  fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+    return self.name().cmp(other.name());
+  }
+}
+
+impl Display for ElementType {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    return write!(f, "{}", self.name());
+  }
+}

@@ -5,7 +5,7 @@ use nalgebra::{Vector3, Scalar};
 use serde::{Deserialize, Serialize};
 
 /// Stupid constant so the code is more readable.
-const SIXDOF: usize = 6;
+pub const SIXDOF: usize = 6;
 
 /// The two type of degree of freedom.
 #[derive(
@@ -90,6 +90,12 @@ impl TryFrom<usize> for Axis {
   }
 }
 
+impl Display for Axis {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    return write!(f, "{}", self.letter());
+  }
+}
+
 impl Axis {
   /// Returns this axis' lowercase letter.
   pub const fn letter(&self) -> char {
@@ -164,6 +170,18 @@ impl Display for Dof {
 }
 
 impl Dof {
+  /// Returns all DOF in order.
+  pub const fn all() -> &'static [Self; SIXDOF] {
+    return &[
+      Self { dof_type: DofType::Translational, axis: Axis::X },
+      Self { dof_type: DofType::Translational, axis: Axis::Y },
+      Self { dof_type: DofType::Translational, axis: Axis::Z },
+      Self { dof_type: DofType::Rotational, axis: Axis::X },
+      Self { dof_type: DofType::Rotational, axis: Axis::Y },
+      Self { dof_type: DofType::Rotational, axis: Axis::Z },
+    ];
+  }
+
   /// Returns a two-character name for the DOF, like Tx or Rz.
   pub const fn name(&self) -> [char; 2] {
     return [self.dof_type.letter(), self.axis.letter()];

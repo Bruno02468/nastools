@@ -1,10 +1,13 @@
 [package]
 name = "f06"
+authors = ["Bruno Borges Paschoalinoto <bruno@paschoalinoto.com>"]
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 csv = "1.3"
+derive_more = "0.99"
+log = "0.4.20"
 num = { version = "0.4", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 
