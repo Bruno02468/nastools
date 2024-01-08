@@ -5,7 +5,7 @@ use std::collections::BTreeSet;
 
 use serde::{Serialize, Deserialize};
 
-use crate::blocks::FinalBlock;
+use crate::blocks::*;
 use crate::flavour::Flavour;
 
 /// This is the output of an F06 parser.
@@ -36,5 +36,35 @@ impl F06File {
       warnings: BTreeSet::new(),
       fatal_errors: BTreeSet::new()
     };
+  }
+
+  /// Locates blocks that can be merged and merges them. Returns the number of
+  /// done merges. Only does clean merges (no row conflicts).
+  pub fn merge_blocks(&mut self) -> usize {
+    let mut new_blocks: Vec<FinalBlock> = Vec::new();
+    let mut num_merges = 0;
+    while let Some(primary) = self.blocks.pop() {
+      // look for merge candidates
+      let sio: Option<usize> = self.blocks.iter()
+        .enumerate()
+        .find(|(_, s)| {
+          primary.can_merge(s).is_ok() && primary.row_conflicts(s).is_empty()
+        }).map(|t| t.0);
+      if let Some(si) = sio {
+        // at least one to merge
+        let secondary = self.blocks.remove(si);
+        let merged = match primary.try_merge(secondary) {
+          Ok(MergeResult::Success { merged }) => merged,
+          _ => panic!("pre-merge check failed!")
+        };
+        num_merges += 1;
+        // put it back since it could have other potential merges
+        self.blocks.push(merged);
+      } else {
+        // unmergeable, put it in the new ones
+        new_blocks.push(primary);
+      }
+    }
+    return num_merges;
   }
 }

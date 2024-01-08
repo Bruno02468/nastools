@@ -4,8 +4,9 @@ pub(crate) mod decoders;
 pub mod indexing;
 pub mod types;
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Display;
+use std::mem::discriminant;
 
 use nalgebra::{Matrix, Const, VecStorage, Dyn, Scalar, DMatrix};
 use num::Zero;
@@ -37,6 +38,26 @@ pub enum FinalDMat {
   Integers(DMatrix<isize>),
   /// Matrix with natural values.
   Naturals(DMatrix<usize>),
+}
+
+impl FinalDMat {
+  /// Swaps two rows.
+  pub fn swap_rows(&mut self, a: usize, b: usize) {
+    match self {
+      FinalDMat::Reals(m) => m.swap_rows(a, b),
+      FinalDMat::Integers(m) => m.swap_rows(a, b),
+      FinalDMat::Naturals(m) => m.swap_rows(a, b)
+    };
+  }
+
+  /// Swaps two columns.
+  pub fn swap_columns(&mut self, a: usize, b: usize) {
+    match self {
+      FinalDMat::Reals(m) => m.swap_columns(a, b),
+      FinalDMat::Integers(m) => m.swap_columns(a, b),
+      FinalDMat::Naturals(m) => m.swap_columns(a, b)
+    };
+  }
 }
 
 /// Value inside a FinalDMat.
@@ -163,6 +184,42 @@ impl<S, R, C, const W: usize> RowBlock<S, R, C, W>
   }
 }
 
+/// Contains the result of an attempt to merge two blocks.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum MergeResult {
+  /// Merge was successful.
+  Success {
+    /// The block with the merged data.
+    merged: FinalBlock,
+  },
+  /// Found conflicting rows -- non-conflicting were put in the the primary.
+  Partial {
+    /// The block with the merged data.
+    merged: FinalBlock,
+    /// The block with the remaining data.
+    residue: FinalBlock,
+    /// The rows skipped due to their already being in the primary.
+    skipped: BTreeSet<NasIndex>
+  }
+}
+
+/// The incompatibilities that can happen when attempting to merge two
+/// FinalBlocks.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum MergeIncompatible {
+  /// Merge found conflicting columns and did nothing.
+  ColumnConflict {
+    /// Columns missing in the primary.
+    missing_in_primary: BTreeSet<NasIndex>,
+    /// Columns missing in the secondary.
+    missing_in_secondary: BTreeSet<NasIndex>
+  },
+  /// Blocks were not the same type.
+  BlockTypeMismatch,
+  /// Matrices did not have the same type of scalar.
+  ScalarMismatch
+}
+
 /// Immutable view into a result block once it's finalised.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct FinalBlock {
@@ -198,6 +255,196 @@ impl FinalBlock {
       ),
       None => return None
     });
+  }
+
+  /// Swaps two columns and updates the column indexes array.
+  pub fn swap_columns(&mut self, a: NasIndex, b: NasIndex) {
+    let aio = self.col_indexes.get(&a).copied();
+    let bio = self.col_indexes.get(&b).copied();
+    match (&mut self.data, aio, bio) {
+      (Some(ref mut fdm), Some(ai), Some(bi)) => {
+        fdm.swap_columns(ai, bi);
+        self.col_indexes.insert(a, bi);
+        self.col_indexes.insert(b, ai);
+      }
+      _ => return
+    };
+  }
+
+  /// Swaps two rows and updates the row indexes array.
+  pub fn swap_rows(&mut self, a: NasIndex, b: NasIndex) {
+    let aio = self.row_indexes.get(&a).copied();
+    let bio = self.row_indexes.get(&b).copied();
+    match (&mut self.data, aio, bio) {
+      (Some(ref mut fdm), Some(ai), Some(bi)) => {
+        fdm.swap_rows(ai, bi);
+        self.row_indexes.insert(a, bi);
+        self.row_indexes.insert(b, ai);
+      }
+      _ => return
+    };
+  }
+
+  /// Swaps columns in the underlying matrix (updating the column indexes map
+  /// accordingly) so that the real row indexes grow monotonically with the
+  /// high-level indexes.
+  pub fn sort_columns(&mut self) {
+    let nixes: Vec<NasIndex> = self.col_indexes.keys().copied().collect();
+    let mut ns: Vec<usize> = self.col_indexes.values().copied().collect();
+    ns.sort();
+    for (nix, i) in nixes.into_iter().zip(ns.into_iter()) {
+      let nswap = self.col_indexes.iter()
+        .find(|p| p.1 == &i)
+        .map(|p| *(p.0))
+        .expect("couldn't reverse index when sorting columns");
+      self.swap_columns(nix, nswap);
+    }
+  }
+
+  /// Swaps rows in the underlying matrix (updating the row indexes map
+  /// accordingly) so that the real row indexes grow monotonically with the
+  /// high-level indexes.
+  pub fn sort_rows(&mut self) {
+    let nixes: Vec<NasIndex> = self.row_indexes.keys().copied().collect();
+    let mut ns: Vec<usize> = self.row_indexes.values().copied().collect();
+    ns.sort();
+    for (nix, i) in nixes.into_iter().zip(ns.into_iter()) {
+      let nswap = self.row_indexes.iter()
+        .find(|p| p.1 == &i)
+        .map(|p| *(p.0))
+        .expect("couldn't reverse index when sorting rows");
+      self.swap_rows(nix, nswap);
+    }
+  }
+
+  /// Checks for merge compatibility.
+  pub fn can_merge(&self, other: &Self) -> Result<(), MergeIncompatible> {
+    // check for same type
+    if self.block_type != other.block_type {
+      return Err(MergeIncompatible::BlockTypeMismatch);
+    }
+    // check for same columns
+    let primary_col_set: BTreeSet<NasIndex> = self.col_indexes.keys()
+      .copied()
+      .collect();
+    let secondary_col_set: BTreeSet<NasIndex> = other.col_indexes.keys()
+      .copied()
+      .collect();
+    let missing_in_primary = &secondary_col_set - &primary_col_set;
+    let missing_in_secondary = &primary_col_set - &secondary_col_set;
+    if !missing_in_primary.is_empty() || !missing_in_secondary.is_empty() {
+      return Err(MergeIncompatible::ColumnConflict {
+        missing_in_primary,
+        missing_in_secondary
+      });
+    }
+    match (&self.data, &other.data) {
+      (Some(ms), Some(mo)) if discriminant(ms) != discriminant(mo) => {
+        return Err(MergeIncompatible::ScalarMismatch);
+      }
+      _ => return Ok(())
+    };
+  }
+
+  /// Returns the row indexes this has in common with another.
+  pub fn row_conflicts(&self, other: &Self) -> BTreeSet<NasIndex> {
+    let primary_row_set: BTreeSet<&NasIndex> = self.col_indexes.keys()
+      .collect();
+    let secondary_row_set: BTreeSet<&NasIndex> = other.col_indexes.keys()
+      .collect();
+    return primary_row_set.intersection(&secondary_row_set)
+      .copied()
+      .copied()
+      .collect();
+  }
+
+  /// Copies lines from another block into this one.
+  pub fn try_merge(
+    mut self,
+    mut other: FinalBlock
+  ) -> Result<MergeResult, MergeIncompatible> {
+    // check for compatibility
+    self.can_merge(&other)?;
+    // sort columns in both so we can just move stuff
+    self.sort_columns();
+    other.sort_columns();
+    /// Copies rows from one matrix to another
+    fn row_copy<S: NasScalar>(
+      mut p: DMatrix<S>,
+      s: &DMatrix<S>,
+      si: usize
+    ) -> DMatrix<S> {
+      let pi = p.nrows();
+      p = p.insert_row(pi, S::zero());
+      p.set_row(pi, &s.row(si));
+      return p;
+    }
+    match (self.data, other.data) {
+      (None, None) => {
+        // both empty. return whichever (primary)
+        self.data = None;
+        return Ok(MergeResult::Success { merged: self });
+      },
+      (None, Some(od)) => {
+        // only secondary is nonempty. return secondary.
+        other.data = Some(od);
+        return Ok(MergeResult::Success { merged: other });
+      },
+      (Some(sd), None) => {
+        // only primary is nonempty. return primary.
+        self.data = Some(sd);
+        return Ok(MergeResult::Success { merged: self });
+      },
+      (Some(dp), Some(ds)) => {
+        // both nonempty. copy data from primary to secondary.
+        // check for which indexes we're gonna copy
+        let primary_row_set: BTreeSet<NasIndex> = self.col_indexes.keys()
+          .copied()
+          .collect();
+        let secondary_row_set: BTreeSet<NasIndex> = other.col_indexes.keys()
+          .copied()
+          .collect();
+        let copied = &secondary_row_set - &primary_row_set;
+        let skipped = &secondary_row_set - &copied;
+        let to_copy = copied.iter()
+          .map(|ci| other.row_indexes.get(ci).unwrap());
+        // copy data
+        let (ndp, nds) = match (dp, ds) {
+          (FinalDMat::Reals(mut p), FinalDMat::Reals(s)) => {
+            for si in to_copy {
+              p = row_copy(p, &s, *si)
+            };
+            (FinalDMat::Reals(p), FinalDMat::Reals(s))
+          },
+          (FinalDMat::Integers(mut p), FinalDMat::Integers(s)) => {
+            for si in to_copy {
+              p = row_copy(p, &s, *si)
+            };
+            (FinalDMat::Integers(p), FinalDMat::Integers(s))
+          },
+          (FinalDMat::Naturals(mut p), FinalDMat::Naturals(s)) => {
+            for si in to_copy {
+              p = row_copy(p, &s, *si)
+            };
+            (FinalDMat::Naturals(p), FinalDMat::Naturals(s))
+          },
+          _ => return Err(MergeIncompatible::ScalarMismatch)
+        };
+        // un-move stuff (this is stupid)
+        self.data = Some(ndp);
+        other.data = Some(nds);
+        // return accordingly
+        if skipped.is_empty() {
+          return Ok(MergeResult::Success { merged: self });
+        } else {
+          return Ok(MergeResult::Partial {
+            merged: self,
+            residue: other,
+            skipped
+          });
+        }
+      },
+    }
   }
 }
 

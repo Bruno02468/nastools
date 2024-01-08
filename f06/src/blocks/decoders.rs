@@ -102,6 +102,9 @@ impl BlockDecoder for GridPointForceBalanceDecoder {
       self.gpref = nth_integer(line, 0).map(|x| (x as usize).into());
       return LineResponse::Metadata;
     }
+    if line.contains("*TOTALS*") {
+      return LineResponse::Useless;
+    }
     let fo: ForceOrigin = match self.flavour.solver {
       Some(Solver::Mystran) => {
         if line.contains("APPLIED FORCE") {
@@ -125,7 +128,28 @@ impl BlockDecoder for GridPointForceBalanceDecoder {
           return LineResponse::Unsupported;
         }
       },
-      Some(Solver::Simcenter) => { todo!() },
+      Some(Solver::Simcenter) => {
+        self.gpref = nth_integer(line, 0).map(|x| (x as usize).into());
+        if line.contains("*TOTALS*") {
+          return LineResponse::Useless;
+        } else if line.contains("APP-LOAD") {
+          self.gpref = nth_integer(line, 1).map(|x| (x as usize).into());
+          ForceOrigin::Load
+        } else if line.contains("F-OF-SPC") {
+          ForceOrigin::SinglePointConstraint
+        } else if line.contains("F-OF-MPC") {
+          ForceOrigin::MultiPointConstraint
+        } else {
+          let eid = nth_integer(line, 1).map(|x| (x as usize));
+          let etype_opt = nth_etype(line, 0);
+          match (self.gpref, eid, etype_opt) {
+            (Some(_), Some(eid), Some(etype)) => ForceOrigin::Element {
+              elem: ElementRef { eid, etype: Some(etype) }
+            },
+            _ => return LineResponse::Unsupported
+          }
+        }
+      },
       None => return LineResponse::BadFlavour
     };
     if let Some(gpref) = self.gpref {

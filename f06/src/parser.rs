@@ -19,6 +19,10 @@ pub enum ParserResponse {
   Solver(Solver),
   /// This line told us the current subcase.
   Subcase(usize),
+  /// The line contained a warning.
+  Warning,
+  /// The line contained a fatal.
+  Fatal,
   /// The line told us whihc kind of solution we're looking at.
   SolType(SolType),
   /// The line told us to start decoding a block.
@@ -35,7 +39,9 @@ pub struct OnePassParser {
   /// The current subcase.
   subcase: usize,
   /// The decoder for block we're currently in.
-  current_decoder: Option<Box<dyn OpaqueDecoder>>
+  current_decoder: Option<Box<dyn OpaqueDecoder>>,
+  /// The total number of consumed lines.
+  total_lines: usize
 }
 
 impl Default for OnePassParser {
@@ -47,7 +53,12 @@ impl Default for OnePassParser {
 impl OnePassParser {
   /// Instantiates a new parser.
   pub fn new() -> Self {
-    return Self { file: F06File::new(), subcase: 1, current_decoder: None };
+    return Self {
+      file: F06File::new(),
+      subcase: 1,
+      current_decoder: None,
+      total_lines: 0
+    };
   }
 
   /// Tries to update the solver in based on a line.
@@ -101,6 +112,7 @@ impl OnePassParser {
 
   /// Consumes a line into the parser.
   pub fn consume(&mut self, line: &str) -> ParserResponse {
+    self.total_lines += 1;
     // first, try and enhance our knowledge of the flavour from the line.
     if let Some(solver) = self.detect_solver(line) {
       self.file.flavour.solver = Some(solver);
@@ -110,6 +122,16 @@ impl OnePassParser {
     if let Some(subcase) = self.detect_subcase(line) {
       self.subcase = subcase;
       return ParserResponse::Subcase(subcase);
+    }
+    // check for warning
+    if line.contains("WARNING") {
+      self.file.warnings.insert(self.total_lines);
+      return ParserResponse::Warning;
+    }
+    // check for fatal
+    if line.contains("FATAL") {
+      self.file.fatal_errors.insert(self.total_lines);
+      return ParserResponse::Fatal;
     }
     // now, check for a block beginning.
     if let Some(bt) = self.detect_beginning(line) {
