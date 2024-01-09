@@ -81,6 +81,15 @@ gen_block_types!(
     GridPointForceBalanceDecoder,
     ["G R I D   P O I N T   F O R C E   B A L A N C E"]
   },
+  {
+    "Forces of single-point constraint",
+    SpcForces,
+    SpcForcesDecoder,
+    [
+      "S P C   F O R C E S",
+      "F O R C E S   O F   S I N G L E - P O I N T   C O N S T R A I N T"
+    ]
+  },
 );
 
 impl Display for BlockType {

@@ -52,7 +52,11 @@ fn main() -> io::Result<()> {
     std::process::exit(1);
   };
   // print block & merge info
-  info!("Done parsing; decoded {} blocks.", f06.blocks.len());
+  info!("Done parsing.");
+  let solver_name = f06.flavour.solver.map_or("unknown", |s| s.name());
+  let soltype = f06.flavour.soltype.map_or("unknown", |st| st.name());
+  info!("Solver is {}.", solver_name);
+  info!("Analysis type is {}.", soltype);
   // print warnings
   if f06.warnings.is_empty() {
     info!("No warnings found.");

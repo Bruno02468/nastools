@@ -76,7 +76,27 @@ impl TryFrom<usize> for SolType {
       _ => return Err(())
     });
   }
+}
 
+impl Display for SolType {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    return write!(f, "{}", self.name());
+  }
+}
+
+impl SolType {
+  /// Returns a user-friendly display name for the solution.
+  pub const fn name(&self) -> &'static str {
+    return match self {
+      SolType::LinearStatic => "Linear static",
+      SolType::Eigenvalue => "Eigenvalue",
+      SolType::LinearStaticDiffStiff => {
+        "Linear static with differential stiffness"
+      },
+      SolType::LinearBuckling => "Linear buckling",
+      SolType::NonLinearStatic => "Non-linear static",
+    }
+  }
 }
 
 /// This structure encapsulates what we currently take to be the "flavour" of

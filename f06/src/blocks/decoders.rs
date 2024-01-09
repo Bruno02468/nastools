@@ -167,3 +167,46 @@ impl BlockDecoder for GridPointForceBalanceDecoder {
     return LineResponse::Useless;
   }
 }
+
+/// Decoder for the SPC forces block type.
+pub(crate) struct SpcForcesDecoder {
+  /// The flavour of F06 file we're decoding displacements for.
+  flavour: Flavour,
+  /// The displacement data.
+  data: RowBlock<f64, GridPointRef, Dof, SIXDOF>
+}
+
+impl BlockDecoder for SpcForcesDecoder {
+  type MatScalar = f64;
+  type RowIndex = GridPointRef;
+  type ColumnIndex = Dof;
+  const MATWIDTH: usize = SIXDOF;
+  const BLOCK_TYPE: BlockType = BlockType::SpcForces;
+
+  fn new(flavour: Flavour) -> Self {
+    return Self {
+      flavour,
+      data: RowBlock::new(dof_cols())
+    };
+  }
+
+  fn unwrap(self, subcase: usize) -> FinalBlock {
+    return self.data.finalise(Self::BLOCK_TYPE, subcase);
+  }
+
+  fn consume(&mut self, line: &str) -> LineResponse {
+    if line.contains(MYSTRAN_DASHES) {
+      return LineResponse::Done;
+    }
+    let dofs: [f64; SIXDOF] = if let Some(arr) = extract_reals(line) {
+      arr
+    } else {
+      return LineResponse::Useless;
+    };
+    if let Some(gid) = nth_integer(line, 0) {
+      self.data.insert_raw((gid as usize).into(), &dofs);
+      return LineResponse::Data;
+    }
+    return LineResponse::Useless;
+  }
+}
