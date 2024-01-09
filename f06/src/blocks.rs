@@ -1,6 +1,7 @@
 //! This submodule defines the blocks that make up an F06 file.
 
 pub(crate) mod decoders;
+pub mod compare;
 pub mod indexing;
 pub mod types;
 
@@ -72,6 +73,16 @@ pub enum F06Number {
   Integer(isize),
   /// Natural value.
   Natural(usize)
+}
+
+impl From<F06Number> for f64 {
+  fn from(value: F06Number) -> Self {
+    return match value {
+      F06Number::Real(x) => x,
+      F06Number::Integer(i) => i as f64,
+      F06Number::Natural(n) => n as f64,
+    }
+  }
 }
 
 impl Display for F06Number {

@@ -2,5 +2,6 @@
 resolver = "2"
 members = [
 	"f06",
-	"f06info"
+	"f06info",
+	"f06diff"
 ]

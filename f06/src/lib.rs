@@ -25,10 +25,12 @@ pub mod util;
 /// Prelude module; includes commonly-used public exports.
 pub mod prelude {
   pub use crate::blocks::*;
+  pub use crate::blocks::compare::*;
   pub use crate::blocks::indexing::*;
   pub use crate::blocks::types::*;
   pub use crate::elements::*;
   pub use crate::f06file::*;
+  pub use crate::f06file::diff::*;
   pub use crate::flavour::*;
   pub use crate::geometry::*;
   pub use crate::parser::*;

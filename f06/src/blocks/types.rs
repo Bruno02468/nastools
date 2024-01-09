@@ -22,7 +22,10 @@ macro_rules! gen_block_types {
     )*
   ) => {
     /// This contains all the known data blocks.
-    #[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+    #[derive(
+      Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd,
+      Ord
+    )]
     #[non_exhaustive]
     pub enum BlockType {
       $(

@@ -10,6 +10,7 @@ derive_more = "0.99"
 log = "0.4.20"
 num = { version = "0.4", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
+clap = { version = "4.4", features = ["derive"] }
 
 [dependencies.nalgebra]
 version = "0.32.3"
