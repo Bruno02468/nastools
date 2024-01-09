@@ -16,7 +16,7 @@ Therefore, expect:
   - bugs/incomplete stuff/really fast changes, and
   - an emphasis on MYSTRAN and Simcenter Nastran support.
 
-However know that:
+However, know that:
   - I'd appreciate if you give me credit,
   - I try to keep code tidy and well-documented, and
   - I made it really easy to add support for different solvers.
