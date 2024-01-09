@@ -1,6 +1,8 @@
 //! This module implements a list of known data blocks and information related
 //! to them, such as names for detection and decoder instantiation subroutines.
 
+use std::fmt::Display;
+
 use serde::{Serialize, Deserialize};
 
 use crate::blocks::{BlockDecoder, OpaqueDecoder};
@@ -80,3 +82,9 @@ gen_block_types!(
     ["G R I D   P O I N T   F O R C E   B A L A N C E"]
   },
 );
+
+impl Display for BlockType {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    return write!(f, "{}", self.desc());
+  }
+}

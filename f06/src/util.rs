@@ -2,10 +2,40 @@
 //! context or not enough of it to warrant them having their own modules.
 
 use std::cell::Cell;
-
 use serde::{Serialize, Deserialize};
 
 use crate::elements::ElementType;
+
+/// Words that we can find in a spaced block header to make us suspicious.
+pub(crate) const SUS_WORDS: &[&str] = &[
+  "ELEMENT",
+  "ELEM",
+  "NODAL",
+  "FORCE",
+  "FORCES",
+  "STRESS",
+  "STRESSES",
+  "STRAIN",
+  "STRAINS",
+  "SPC",
+  "CONSTRAINT",
+  "CONSTRAINTS",
+  "MPC",
+  "GRID",
+  "DISPLACEMENT",
+  "APPLIED",
+  "LOAD",
+  "TEMPERATURE",
+  "HEAT",
+  "FLUX",
+  "GRAVITY",
+  "GRID",
+  "POINT",
+  "COORDINATE",
+  "COORD",
+  "SYSTEM",
+  "LOCAL"
+];
 
 /// Decodes a Nastran-format floating point number. Hyper-lenient and doesn't
 /// require pulling a whole regex library.
@@ -158,4 +188,132 @@ pub(crate) fn nth_etype(line: &str, n: usize) -> Option<ElementType> {
         None
       }
     }).nth(n);
+}
+
+/// Checks if a character is an uppercase letter or a digit.
+fn upper_or_digit(ch: char) -> bool {
+  return ch.is_ascii_uppercase() || ch.is_ascii_digit();
+}
+
+/// Turns a line made of spaced upper-case ASCII into a line of upper-case
+/// words, used for detecting block headers.
+pub(crate) fn unspace(line: &str) -> Option<String> {
+  let mut cap: usize = 0;
+  let mut last: char = ' ';
+  for ch in line.chars() {
+    if upper_or_digit(ch) {
+      if last == ' ' {
+        last = ch;
+        cap += 2;
+        continue;
+      } else {
+        // not spaced
+        return None;
+      }
+    }
+    if ch == ' ' {
+      last = ch;
+      continue;
+    }
+    // bad char
+    return None;
+  }
+  if cap < 4 {
+    // too small
+    return None;
+  }
+  let mut sb = String::with_capacity(cap);
+  let mut space_run: usize = 0;
+  for ch in line.chars() {
+    if upper_or_digit(ch) {
+      if (2..6).contains(&space_run) {
+        sb.push(' ');
+      }
+      sb.push(ch);
+      space_run = 0;
+    }
+    if ch == ' ' {
+      space_run += 1;
+    }
+  }
+  return Some(sb);
+}
+
+/// Checks if a line is a likely block header.
+pub(crate) fn check_header(line: &str) -> Option<String> {
+  // unspace it
+  let unspaced = unspace(line)?;
+  // check for sus words
+  if SUS_WORDS.iter().any(|w| unspaced.contains(w)) {
+    return Some(unspaced);
+  }
+  // check for element type names
+  if ElementType::all().iter().any(|et| unspaced.contains(et.name())) {
+    return Some(unspaced);
+  }
+  return None;
+}
+
+use std::cmp::Ordering;
+
+/// This contains a potential header.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct PotentialHeader {
+  /// Starting line.
+  pub start: usize,
+  /// Number of lines this takes up.
+  pub span: usize,
+  /// The unspaced text.
+  pub text: String
+}
+
+impl AsRef<str> for PotentialHeader {
+  fn as_ref(&self) -> &str {
+    return self.text.as_str();
+  }
+}
+
+impl PartialEq for PotentialHeader {
+  fn eq(&self, other: &Self) -> bool {
+    return self.start == other.start;
+  }
+}
+
+impl Eq for PotentialHeader {}
+
+impl PartialOrd for PotentialHeader {
+  fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+    Some(self.cmp(other))
+  }
+}
+
+impl Ord for PotentialHeader {
+  fn cmp(&self, other: &Self) -> Ordering {
+    return self.start.cmp(&other.start);
+  }
+}
+
+impl PotentialHeader {
+  /// Returns the range of lines.
+  pub fn lines(&self) -> impl Iterator<Item = usize> {
+    return self.start..(self.start+self.span);
+  }
+
+  /// Merges this potential header with another, if possible.
+  pub fn try_merge(self, other: Self) -> Result<Self, (Self, Self)> {
+    // put them in order
+    let (mut first, second) = if self.start <= other.start {
+      (self, other)
+    } else {
+      (other, self)
+    };
+    // check if the ranges work glued together
+    if first.lines().last().unwrap() == (second.lines().nth(0).unwrap() - 1) {
+      first.text.push(' ');
+      first.text.push_str(&second.text);
+      first.span += second.span;
+      return Ok(first);
+    }
+    return Err((first, second));
+  }
 }

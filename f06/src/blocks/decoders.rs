@@ -122,10 +122,10 @@ impl BlockDecoder for GridPointForceBalanceDecoder {
               }
             }
           } else {
-            return LineResponse::WrongDecoder
+            return LineResponse::Useless
           }
         } else {
-          return LineResponse::Unsupported;
+          return LineResponse::Useless;
         }
       },
       Some(Solver::Simcenter) => {
@@ -146,7 +146,7 @@ impl BlockDecoder for GridPointForceBalanceDecoder {
             (Some(_), Some(eid), Some(etype)) => ForceOrigin::Element {
               elem: ElementRef { eid, etype: Some(etype) }
             },
-            _ => return LineResponse::Unsupported
+            _ => return LineResponse::Useless
           }
         }
       },

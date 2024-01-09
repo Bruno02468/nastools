@@ -22,5 +22,17 @@ pub mod geometry;
 pub mod parser;
 pub mod util;
 
+/// Prelude module; includes commonly-used public exports.
+pub mod prelude {
+  pub use crate::blocks::*;
+  pub use crate::blocks::indexing::*;
+  pub use crate::blocks::types::*;
+  pub use crate::elements::*;
+  pub use crate::f06file::*;
+  pub use crate::flavour::*;
+  pub use crate::geometry::*;
+  pub use crate::parser::*;
+}
+
 #[cfg(test)]
 mod tests;

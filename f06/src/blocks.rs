@@ -217,7 +217,9 @@ pub enum MergeIncompatible {
   /// Blocks were not the same type.
   BlockTypeMismatch,
   /// Matrices did not have the same type of scalar.
-  ScalarMismatch
+  ScalarMismatch,
+  /// Subcases don't match.
+  SubcaseMismatch
 }
 
 /// Immutable view into a result block once it's finalised.
@@ -322,6 +324,10 @@ impl FinalBlock {
     // check for same type
     if self.block_type != other.block_type {
       return Err(MergeIncompatible::BlockTypeMismatch);
+    }
+    // check for same subcase
+    if self.subcase != other.subcase {
+      return Err(MergeIncompatible::SubcaseMismatch);
     }
     // check for same columns
     let primary_col_set: BTreeSet<NasIndex> = self.col_indexes.keys()
@@ -472,6 +478,16 @@ pub enum LineResponse {
   Unsupported,
   /// Something's done terribly wrong.
   Abort
+}
+
+impl LineResponse {
+  /// Returns true if the response was abnormal.
+  pub const fn abnormal(&self) -> bool {
+    return !matches!(
+      self,
+      Self::Useless | Self::Metadata | Self::Data | Self::Done
+    );
+  }
 }
 
 /// This trait is implemented by all known output block decoders. It aids with
