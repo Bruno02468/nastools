@@ -178,7 +178,8 @@ impl<S, R, C, const W: usize> RowBlock<S, R, C, W>
   pub(crate) fn finalise(
     self,
     block_type: BlockType,
-    subcase: usize
+    subcase: usize,
+    line_range: Option<(usize, usize)>
   ) -> FinalBlock {
     let row_indexes: BTreeMap<NasIndex, usize> = self.row_indexes.into_iter()
       .map(|(k, v)| (k.into(), v))
@@ -191,7 +192,14 @@ impl<S, R, C, const W: usize> RowBlock<S, R, C, W>
       let nc = m.ncols();
       return FinalDMat::from(m.reshape_generic(Dyn(nr), Dyn(nc)));
     });
-    return FinalBlock { block_type, subcase, row_indexes, col_indexes, data };
+    return FinalBlock {
+      block_type,
+      line_range,
+      subcase,
+      row_indexes,
+      col_indexes,
+      data
+    };
   }
 }
 
@@ -236,6 +244,8 @@ pub enum MergeIncompatible {
 /// Immutable view into a result block once it's finalised.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct FinalBlock {
+  /// The line range, if at all known.
+  pub line_range: Option<(usize, usize)>,
   /// The block type that originated the data.
   pub block_type: BlockType,
   /// The subcase where this block appears.
@@ -450,6 +460,8 @@ impl FinalBlock {
         // un-move stuff (this is stupid)
         self.data = Some(ndp);
         other.data = Some(nds);
+        // delete line range
+        self.line_range = None;
         // return accordingly
         if skipped.is_empty() {
           return Ok(MergeResult::Success { merged: self });
@@ -519,7 +531,11 @@ pub(crate) trait BlockDecoder {
   fn new(flavour: Flavour) -> Self;
 
   /// Unwraps the underlying data.
-  fn unwrap(self, subcase: usize) -> FinalBlock;
+  fn unwrap(
+    self,
+    subcase: usize,
+    line_range: Option<(usize, usize)>
+  ) -> FinalBlock;
 
   /// Consumes a line into the underlying data.
   fn consume(&mut self, line: &str) -> LineResponse;
@@ -534,7 +550,11 @@ pub trait OpaqueDecoder {
   fn consume(&mut self, line: &str) -> LineResponse;
 
   /// Extracts the data within.
-  fn finalise(self: Box<Self>, subcase: usize) -> FinalBlock;
+  fn finalise(
+    self: Box<Self>,
+    subcase: usize,
+    line_range: Option<(usize, usize)>
+  ) -> FinalBlock;
 }
 
 impl<T> OpaqueDecoder for T
@@ -543,8 +563,12 @@ impl<T> OpaqueDecoder for T
     return Self::BLOCK_TYPE;
   }
 
-  fn finalise(self: Box<Self>, subcase: usize) -> FinalBlock {
-    return self.unwrap(subcase);
+  fn finalise(
+    self: Box<Self>,
+    subcase: usize,
+    line_range: Option<(usize, usize)>
+  ) -> FinalBlock {
+    return self.unwrap(subcase, line_range);
   }
 
   fn consume(

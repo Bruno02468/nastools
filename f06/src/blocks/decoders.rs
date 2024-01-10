@@ -44,8 +44,12 @@ impl BlockDecoder for DisplacementsDecoder {
     };
   }
 
-  fn unwrap(self, subcase: usize) -> FinalBlock {
-    return self.data.finalise(Self::BLOCK_TYPE, subcase);
+  fn unwrap(
+    self,
+    subcase: usize,
+    line_range: Option<(usize, usize)>
+  ) -> FinalBlock {
+    return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
   }
 
   fn consume(&mut self, line: &str) -> LineResponse {
@@ -90,8 +94,12 @@ impl BlockDecoder for GridPointForceBalanceDecoder {
     };
   }
 
-  fn unwrap(self, subcase: usize) -> FinalBlock {
-    return self.data.finalise(Self::BLOCK_TYPE, subcase);
+  fn unwrap(
+    self,
+    subcase: usize,
+    line_range: Option<(usize, usize)>
+  ) -> FinalBlock {
+    return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
   }
 
   fn consume(&mut self, line: &str) -> LineResponse {
@@ -190,8 +198,12 @@ impl BlockDecoder for SpcForcesDecoder {
     };
   }
 
-  fn unwrap(self, subcase: usize) -> FinalBlock {
-    return self.data.finalise(Self::BLOCK_TYPE, subcase);
+  fn unwrap(
+    self,
+    subcase: usize,
+    line_range: Option<(usize, usize)>
+  ) -> FinalBlock {
+    return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
   }
 
   fn consume(&mut self, line: &str) -> LineResponse {

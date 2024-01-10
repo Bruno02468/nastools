@@ -48,7 +48,9 @@ pub struct OnePassParser {
   /// The decoder for block we're currently in.
   current_decoder: Option<Box<dyn OpaqueDecoder>>,
   /// The total number of consumed lines.
-  total_lines: usize
+  total_lines: usize,
+  /// Line of the last block beginning.
+  last_block_start: usize
 }
 
 impl Default for OnePassParser {
@@ -64,7 +66,8 @@ impl OnePassParser {
       file: F06File::new(),
       subcase: 1,
       current_decoder: None,
-      total_lines: 0
+      total_lines: 0,
+      last_block_start: 0
     };
   }
 
@@ -121,7 +124,8 @@ impl OnePassParser {
         dec.block_type(),
         self.total_lines
       );
-      let fb = dec.finalise(self.subcase);
+      let line_range = Some((self.last_block_start, self.total_lines+1));
+      let fb = dec.finalise(self.subcase, line_range);
       if !fb.row_indexes.is_empty() {
         self.file.blocks.push(fb);
       }
@@ -176,6 +180,7 @@ impl OnePassParser {
       // this is a block beginning. flush the current decoder.
       self.flush_decoder();
       // start a new decoder.
+      self.last_block_start = self.total_lines;
       debug!("Started a \"{}\" block on line {}!", bt, self.total_lines);
       self.current_decoder = Some(bt.init_decoder(self.file.flavour));
       return ParserResponse::BeginBlock(bt);
