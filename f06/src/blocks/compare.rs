@@ -183,7 +183,7 @@ impl Criteria {
     // check ratio
     if let Some(max_ratio) = self.ratio {
       let (big, small) = if a >= b { (a, b) } else { (b, a) };
-      let rat = big/small;
+      let rat = (big/small).abs();
       if rat > max_ratio {
         return Some(FlagReason::Ratio { big_to_small: rat, max_ratio })
       }
