@@ -93,6 +93,15 @@ gen_block_types!(
       "F O R C E S   O F   S I N G L E - P O I N T   C O N S T R A I N T"
     ]
   },
+  {
+    "Applied forces",
+    AppliedForces,
+    AppliedForcesDecoder,
+    [
+      "A P P L I E D    F O R C E S",
+      "L O A D   V E C T O R"
+    ]
+  },
 );
 
 impl Display for BlockType {

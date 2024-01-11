@@ -104,9 +104,13 @@ impl F06File {
       if let Some(si) = sio {
         // at least one to merge
         let secondary = vec.remove(si);
-        let merged = match primary.try_merge(secondary) {
+        let res = primary.try_merge(secondary);
+        let merged = match res {
           Ok(MergeResult::Success { merged }) => merged,
-          _ => panic!("pre-merge check failed!")
+          Ok(MergeResult::Partial { .. }) => {
+            panic!("partial merge not implemented yet!")
+          },
+          Err(x) => panic!("pre-merge check failed: {:#?}", x)
         };
         num_merges += 1;
         // put it back since it could have other potential merges
@@ -192,9 +196,7 @@ impl F06File {
     unique: bool
   ) -> impl Iterator<Item = &'_ FinalBlock> {
     return self.all_blocks(unique)
-      .filter(|b| type_filter.is_some_and(|bt| b.block_type == bt))
-      .filter(|b| subcase_filter.is_some_and(|sc| b.subcase == sc))
-      .collect::<Vec<_>>()
-      .into_iter();
+      .filter(move |b| type_filter.map(|t| b.block_type == t).unwrap_or(true))
+      .filter(move |b| subcase_filter.map(|s| b.subcase == s).unwrap_or(true));
   }
 }

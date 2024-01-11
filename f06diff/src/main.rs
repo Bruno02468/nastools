@@ -16,6 +16,7 @@ use log::{LevelFilter, info, error, warn};
 use f06::prelude::*;
 
 const INDENT: &str = "  ";
+const MAX_FILE_NAME_LEN: usize = 16;
 
 #[derive(Parser)]
 #[command(author, version)]
@@ -34,7 +35,7 @@ struct Cli {
   /// Path to the first file.
   first: PathBuf,
   /// Path to the second file. Set to "-" to read from stdin.
-  second: PathBuf,
+  second: PathBuf
 }
 
 fn main() -> io::Result<()> {
@@ -84,6 +85,11 @@ fn main() -> io::Result<()> {
     error!("Second path either does not exist or is not a file!");
     std::process::exit(1);
   };
+  // set up names for the first files
+  let mut fn1 = first.filename.as_deref()
+    .unwrap_or("the first file").to_owned();
+  let mut fn2 = second.filename.as_deref()
+    .unwrap_or("the second file").to_owned();
   // tidy stuff up
   for b in [&mut first, &mut second] {
     b.merge_blocks(true);
@@ -94,6 +100,83 @@ fn main() -> io::Result<()> {
   info!("Generating diff...");
   let diff = F06Diff::compare(&args.settings, &first, &second);
   info!("Done. Report follows.");
+  // list basic file info
+  info!("Basic information:");
+  // solver
+  let solver_name = |f: &F06File| f.flavour.solver
+    .map(|s| s.name()).unwrap_or("unknown");
+  if first.flavour.solver == second.flavour.solver {
+    info!("{}- Solver: both are {};", INDENT, solver_name(&first));
+  } else {
+    info!(
+      "{}- Solver: first is {}, second is {};",
+      INDENT,
+      solver_name(&first),
+      solver_name(&second)
+    );
+  }
+  // number of blocks
+  let nb1 = first.all_blocks(false).count();
+  let nb1u = first.all_blocks(true).count();
+  let nb2 = second.all_blocks(false).count();
+  let nb2u = second.all_blocks(true).count();
+  let pl = |n: usize| if n == 1 { "" } else { "s" };
+  let bcount = |nb: usize, nbu: usize| if nb == nbu {
+    format!("{} unique decoded block{}", nb, pl(nb))
+  } else {
+    format!("{} decoded block{} ({} unique)", nb, pl(nb), nbu)
+  };
+  let bc0 = format!("{}- Decoded blocks: ", INDENT);
+  if nb1 == nb2 && nb1 == nb1u && nb1u == nb2u {
+    info!("{}both have {} unique decoded block{}", bc0, nb1u, pl(nb1));
+  } else {
+    info!(
+      "{} first has {}, second has {};",
+      bc0,
+      bcount(nb1, nb1u),
+      bcount(nb2, nb2u)
+    );
+  }
+  // warnings and fatals
+  let countwarn = |a: usize, b: usize, name: &str| {
+    if a == b {
+      info!("{}- {}: both have {};", INDENT, name, a);
+    } else {
+      info!("{}- {}: first has {}, second has {};", INDENT, name, a, b);
+    }
+  };
+  countwarn(first.warnings.len(), second.warnings.len(), "Warnings");
+  countwarn(first.fatal_errors.len(), second.fatal_errors.len(), "Fatals");
+  // filenames similarity
+  let mut fnwarn: Option<&str> = None;
+  if fn1.eq_ignore_ascii_case(&fn2) {
+
+    fnwarn = Some("too similar");
+  }
+  if fn1.len() > MAX_FILE_NAME_LEN || fn2.len() > MAX_FILE_NAME_LEN {
+    fnwarn = Some("too long");
+  }
+  if first.filename.is_none() || second.filename.is_none() {
+    fnwarn = Some("missing");
+  }
+  if let Some(fnw) = fnwarn {
+    // disambiguate in case of similar names
+    fn1 = "the first file".to_string();
+    fn2 = "the second file".to_string();
+    info!(
+      "  - File names are {}, they'll be referred to as \"{}\" and \"{}\" {}.",
+      fnw,
+      fn1,
+      fn2,
+      "respectively"
+    );
+  }
+  // make file padding
+  let mkpad = |a: &str, b: &str| {
+    " ".repeat((b.len() as isize - a.len() as isize).max(0) as usize)
+  };
+  let pad1 = mkpad(&fn1, &fn2);
+  let pad2 = mkpad(&fn2, &fn1);
   // list not compared blocks
   if !diff.not_compared.is_empty() {
     info!("Blocks that could not be compared:");
@@ -128,14 +211,14 @@ fn main() -> io::Result<()> {
       // first a summary
       let rows = flags.iter().map(|fp| fp.values.row).collect::<BTreeSet<_>>();
       let cols = flags.iter().map(|fp| fp.values.col).collect::<BTreeSet<_>>();
-      info!("{}{}- Flagged {} positions;", INDENT, INDENT, flags.len());
-      let count = |s: BTreeSet<NasIndex>, n: &str| {
+      info!("{}{}- Flagged {} position(s);", INDENT, INDENT, flags.len());
+      let count = |s: BTreeSet<NasIndex>, name: &str| {
         if s.len() == 1 {
           info!(
             "{}{}- All in one {}: {};",
             INDENT,
             INDENT,
-            n,
+            name,
             s.first().unwrap()
           );
         } else {
@@ -144,7 +227,7 @@ fn main() -> io::Result<()> {
             INDENT,
             INDENT,
             s.len(),
-            n
+            name
           );
         }
       };
@@ -154,7 +237,7 @@ fn main() -> io::Result<()> {
       let t = match args.print_max_flags.cmp(&0) {
         std::cmp::Ordering::Less => {
           info!(
-            "{}{}- Details of all flagged positions:",
+            "{}{}- Details of all flagged position(s):",
             INDENT,
             INDENT
           );
@@ -188,21 +271,23 @@ fn main() -> io::Result<()> {
           flag.values.col
         );
         info!(
-          "{}{}{}{}- Value in {}:\t{}",
+          "{}{}{}{}- Value in {}:{} {}",
           INDENT,
           INDENT,
           INDENT,
           INDENT,
-          first.filename.as_deref().unwrap_or("first file"),
+          fn1,
+          pad1,
           flag.values.val_a
         );
         info!(
-          "{}{}{}{}- Value in {}:\t{}",
+          "{}{}{}{}- Value in {}:{} {}",
           INDENT,
           INDENT,
           INDENT,
           INDENT,
-          second.filename.as_deref().unwrap_or("second file"),
+          fn2,
+          pad2,
           flag.values.val_b
         );
         info!(

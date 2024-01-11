@@ -224,7 +224,17 @@ pub(crate) fn unspace(line: &str) -> Option<String> {
   }
   let mut sb = String::with_capacity(cap);
   let mut space_run: usize = 0;
+  let mut started = false;
   for ch in line.chars() {
+    if ch == ' ' {
+      space_run += 1;
+    }
+    if space_run > 3 {
+      started = true;
+    }
+    if !started {
+      continue;
+    }
     if upper_or_digit(ch) {
       if (2..6).contains(&space_run) {
         sb.push(' ');
@@ -232,9 +242,7 @@ pub(crate) fn unspace(line: &str) -> Option<String> {
       sb.push(ch);
       space_run = 0;
     }
-    if ch == ' ' {
-      space_run += 1;
-    }
+
   }
   return Some(sb);
 }

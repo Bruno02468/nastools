@@ -60,6 +60,24 @@ impl FinalDMat {
       FinalDMat::Naturals(m) => m.swap_columns(a, b)
     };
   }
+
+  /// Number of rows.
+  pub fn nrows(&self) -> usize {
+    return match self {
+      FinalDMat::Reals(m) => m.nrows(),
+      FinalDMat::Integers(m) => m.nrows(),
+      FinalDMat::Naturals(m) => m.nrows()
+    };
+  }
+
+  /// Number of Columns.
+  pub fn ncols(&self) -> usize {
+    return match self {
+      FinalDMat::Reals(m) => m.ncols(),
+      FinalDMat::Integers(m) => m.ncols(),
+      FinalDMat::Naturals(m) => m.ncols()
+    };
+  }
 }
 
 /// Value inside a FinalDMat.
@@ -384,9 +402,9 @@ impl FinalBlock {
 
   /// Returns the row indexes this has in common with another.
   pub fn row_conflicts(&self, other: &Self) -> BTreeSet<NasIndex> {
-    let primary_row_set: BTreeSet<&NasIndex> = self.col_indexes.keys()
+    let primary_row_set: BTreeSet<&NasIndex> = self.row_indexes.keys()
       .collect();
-    let secondary_row_set: BTreeSet<&NasIndex> = other.col_indexes.keys()
+    let secondary_row_set: BTreeSet<&NasIndex> = other.row_indexes.keys()
       .collect();
     return primary_row_set.intersection(&secondary_row_set)
       .copied()
@@ -434,10 +452,10 @@ impl FinalBlock {
       (Some(dp), Some(ds)) => {
         // both nonempty. copy data from primary to secondary.
         // check for which indexes we're gonna copy
-        let primary_row_set: BTreeSet<NasIndex> = self.col_indexes.keys()
+        let primary_row_set: BTreeSet<NasIndex> = self.row_indexes.keys()
           .copied()
           .collect();
-        let secondary_row_set: BTreeSet<NasIndex> = other.col_indexes.keys()
+        let secondary_row_set: BTreeSet<NasIndex> = other.row_indexes.keys()
           .copied()
           .collect();
         let copied = &secondary_row_set - &primary_row_set;
@@ -447,19 +465,22 @@ impl FinalBlock {
         // copy data
         let (ndp, nds) = match (dp, ds) {
           (FinalDMat::Reals(mut p), FinalDMat::Reals(s)) => {
-            for si in to_copy {
+            for (si, ci) in to_copy.zip(copied.iter()) {
+              self.row_indexes.insert(*ci, p.nrows());
               p = row_copy(p, &s, *si)
             };
             (FinalDMat::Reals(p), FinalDMat::Reals(s))
           },
           (FinalDMat::Integers(mut p), FinalDMat::Integers(s)) => {
-            for si in to_copy {
+            for (si, ci) in to_copy.zip(copied.iter()) {
+              self.row_indexes.insert(*ci, p.nrows());
               p = row_copy(p, &s, *si)
             };
             (FinalDMat::Integers(p), FinalDMat::Integers(s))
           },
           (FinalDMat::Naturals(mut p), FinalDMat::Naturals(s)) => {
-            for si in to_copy {
+            for (si, ci) in to_copy.zip(copied.iter()) {
+              self.row_indexes.insert(*ci, p.nrows());
               p = row_copy(p, &s, *si)
             };
             (FinalDMat::Naturals(p), FinalDMat::Naturals(s))
