@@ -2,18 +2,18 @@
 //! `f06diff` tool is an example of this module's capabilities.
 
 use std::collections::BTreeSet;
+use std::fmt::Display;
 use std::str::FromStr;
 
-use clap::ValueEnum;
+use clap::{ValueEnum, Args};
+use itertools::Itertools;
 use serde::{Serialize, Deserialize};
 
 use crate::prelude::*;
 
-/// This enumeration is a "shallow" comparison of blocks -- the data isn't
-/// compared, it's just to see what the blocks have in common, structurally
-/// speaking.
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum BlockCompatibility {
+/// This enumeration holds a reason why two blocks cannot be compared.
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub enum IncompatibilityReason {
   /// The blocks aren't even of the same type.
   DifferentType,
   /// The blocks aren't the same subcase.
@@ -22,6 +22,26 @@ pub enum BlockCompatibility {
   DifferentColumns,
   /// The blocks have no row indexes in common.
   NoCommonRows,
+}
+
+impl Display for IncompatibilityReason {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    return write!(f, "{}", match self {
+      Self::DifferentType => "block types differ",
+      Self::DifferentSubcase => "subcases differ",
+      Self::DifferentColumns => "column sets differ",
+      Self::NoCommonRows => "no rows in common",
+    });
+  }
+}
+
+/// This enumeration is a "shallow" comparison of blocks -- the data isn't
+/// compared, it's just to see what the blocks have in common, structurally
+/// speaking.
+#[derive(Clone, Debug, Serialize, Deserialize, derive_more::From)]
+pub enum BlockCompatibility {
+  /// The blocks are not compatible.
+  Incompatible(IncompatibilityReason),
   /// The blocks are compatible for data comparison.
   Compatible {
     /// The rows the blocks have in common.
@@ -34,22 +54,22 @@ pub enum BlockCompatibility {
 impl From<(&FinalBlock, &FinalBlock)> for BlockCompatibility {
   fn from((a, b): (&FinalBlock, &FinalBlock)) -> Self {
     if a.block_type != b.block_type {
-      return Self::DifferentType;
+      return IncompatibilityReason::DifferentType.into();
     }
     if a.subcase != b.subcase {
-      return Self::DifferentSubcase;
+      return IncompatibilityReason::DifferentSubcase.into();
     }
     let aci = a.col_indexes.keys().copied().collect::<BTreeSet<_>>();
     let bci = b.col_indexes.keys().copied().collect::<BTreeSet<_>>();
     if aci != bci {
-      return Self::DifferentColumns;
+      return IncompatibilityReason::DifferentColumns.into();
     }
     let ari = a.row_indexes.keys().copied().collect::<BTreeSet<_>>();
     let bri = b.row_indexes.keys().copied().collect::<BTreeSet<_>>();
     let ixn = &ari & &bri;
     let dxn = &ari ^ &bri;
     if ixn.is_empty() {
-      return Self::NoCommonRows;
+      return IncompatibilityReason::NoCommonRows.into();
     }
     return Self::Compatible { common_rows: ixn, disjunction: dxn };
   }
@@ -116,18 +136,23 @@ impl DisjunctionBehaviour {
 }
 
 /// Value testing/comparison criteria.
-#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Args)]
 pub struct Criteria {
   /// Test an absolute value difference?
-  difference: Option<f64>,
-  /// Test a big-to-small ratio/
-  ratio: Option<f64>,
+  #[arg(long, short = 'd')]
+  pub difference: Option<f64>,
+  /// Test a big-to-small ratio?
+  #[arg(long, short = 'r')]
+  pub ratio: Option<f64>,
   /// Check for NaNs?
-  nan: bool,
+  #[arg(long)]
+  pub nan: bool,
   /// Check for infinities?
-  inf: bool,
+  #[arg(long)]
+  pub inf: bool,
   /// Check for differing signs?
-  sig: bool
+  #[arg(long)]
+  pub sig: bool
 }
 
 impl Criteria {
@@ -172,13 +197,13 @@ impl Criteria {
 #[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct FoundValues {
   /// The row index.
-  row: NasIndex,
+  pub row: NasIndex,
   /// The column index.
-  col: NasIndex,
+  pub col: NasIndex,
   /// The value in block A.
-  val_a: F06Number,
+  pub val_a: F06Number,
   /// The value in block B.
-  val_b: F06Number
+  pub val_b: F06Number
 }
 
 /// The reason a value was flagged.
@@ -208,13 +233,26 @@ pub enum FlagReason {
   Disjunction
 }
 
+impl Display for FlagReason {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    return write!(f, "{}", match self {
+      FlagReason::Difference { .. } => "maximum difference exceeded",
+      FlagReason::Ratio { .. } => "maximum ratio exceeded",
+      FlagReason::NaN => "NaN detected",
+      FlagReason::Infinity => "infinity detected",
+      FlagReason::Signs => "signs differ",
+      FlagReason::Disjunction => "value absent in one of the files",
+    });
+  }
+}
+
 /// This structure holds a flagged difference in data.
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub struct FlaggedPosition {
   /// The flagged values and their positions.
-  values: FoundValues,
+  pub values: FoundValues,
   /// The reason for flagging.
-  reason: FlagReason
+  pub reason: FlagReason
 }
 
 /// This structure holds the necessary data to diff data blocks. It could be
@@ -222,9 +260,9 @@ pub struct FlaggedPosition {
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub struct DataDiffer {
   /// The value-flagging criteria.
-  criteria: Criteria,
+  pub criteria: Criteria,
   /// What to do when doing disjunct lines?
-  dxn_behaviour: DisjunctionBehaviour
+  pub dxn_behaviour: DisjunctionBehaviour
 }
 
 impl DataDiffer {
@@ -241,10 +279,13 @@ impl DataDiffer {
     &'a self,
     a: &'a FinalBlock,
     b: &'a FinalBlock
-  ) -> Result<impl Iterator<Item = FlaggedPosition> + 'a, BlockCompatibility> {
+  ) -> Result<
+    impl Iterator<Item = FlaggedPosition> + 'a,
+    IncompatibilityReason
+  > {
     let comp = BlockCompatibility::from((a, b));
-    if !matches!(comp, BlockCompatibility::Compatible { .. }) {
-      return Err(comp);
+    if let BlockCompatibility::Incompatible(reason) = comp {
+      return Err(reason);
     }
     let get = |
       s: &FinalBlock,
@@ -261,10 +302,12 @@ impl DataDiffer {
         }
       }
     };
+    let row_indexes = a.row_indexes.keys().chain(b.row_indexes.keys())
+      .copied()
+      .collect::<BTreeSet<_>>();
+    let col_indexes = a.col_indexes.keys().copied();
     return Ok(
-      a.row_indexes
-        .keys().copied()
-        .zip(a.col_indexes.keys().copied())
+      row_indexes.into_iter().cartesian_product(col_indexes)
         .filter_map(move |(r, c)| {
           let mut fv = FoundValues {
             row: r,

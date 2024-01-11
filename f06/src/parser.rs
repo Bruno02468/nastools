@@ -1,11 +1,12 @@
 //! This module implements the generic parser for F06 files, and associated
 //! structures and enums.
 
+use std::collections::BTreeSet;
 use std::fs::File;
 use std::io::{self, BufReader, BufRead};
 use std::path::Path;
 
-use log::{debug, error};
+use log::{debug, error, warn};
 use serde::{Serialize, Deserialize};
 
 use crate::prelude::*;
@@ -106,12 +107,17 @@ impl OnePassParser {
 
   /// Checks if a line signals a block beginning.
   fn detect_beginning(&self, line: &str) -> Option<BlockType> {
-    for bt in BlockType::all() {
-      for spaced in bt.spaceds() {
-        if line.contains(spaced) {
-          return Some(*bt);
-        }
-      }
+    let mut candidates = BlockType::all()
+      .iter()
+      .copied()
+      .filter(|bt| bt.spaceds().iter().any(|s| line.contains(s)))
+      .collect::<BTreeSet<_>>();
+    match candidates.len() {
+      0 => return None,
+      1 => return Some(candidates.pop_first().unwrap()),
+      _ => warn!(
+        "Line {} matches more than one block type!", self.total_lines
+      )
     }
     return None;
   }
@@ -127,7 +133,7 @@ impl OnePassParser {
       let line_range = Some((self.last_block_start, self.total_lines+1));
       let fb = dec.finalise(self.subcase, line_range);
       if !fb.row_indexes.is_empty() {
-        self.file.blocks.push(fb);
+        self.file.insert_block(fb);
       }
     }
   }
@@ -240,7 +246,11 @@ impl OnePassParser {
 
   /// Utility method -- reads and parses a file.
   pub fn parse_file<S: AsRef<Path>>(p: S) -> io::Result<F06File> {
-    let file = File::open(p)?;
-    return Self::parse_bufread(BufReader::new(file));
+    let file = File::open(p.as_ref())?;
+    let mut f06 = Self::parse_bufread(BufReader::new(file))?;
+    f06.filename = p.as_ref().file_name()
+      .and_then(|s| s.to_str())
+      .map(String::from);
+    return Ok(f06);
   }
 }

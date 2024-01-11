@@ -5,19 +5,34 @@ pub mod diff;
 
 use std::collections::{BTreeSet, BTreeMap};
 
-use log::warn;
 use serde::{Serialize, Deserialize};
 
 use crate::prelude::*;
 use crate::util::*;
 
+/// This type stores a reference to a specific subcase and type (generally
+/// used to refer to a specific block).
+#[derive(
+  Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord,
+  derive_more::From
+)]
+pub struct BlockRef {
+  /// The subcase. A value of 1 is pre-set for when the output file doesn't
+  /// ever mention subcases.
+  pub subcase: usize,
+  /// The type of the block (or blocks).
+  pub block_type: BlockType
+}
+
 /// This is the output of an F06 parser.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct F06File {
+  /// Original name of the file, if known and string-able.
+  pub filename: Option<String>,
   /// The flavour of file.
   pub flavour: Flavour,
   /// The detected blocks.
-  pub blocks: Vec<FinalBlock>,
+  pub blocks: BTreeMap<BlockRef, Vec<FinalBlock>>,
   /// The line numbers for warning messages.
   pub warnings: BTreeMap<usize, String>,
   /// The line numbers for fatal error messages.
@@ -36,43 +51,81 @@ impl F06File {
   /// Instantiates a new F06 file struct with nothing inside.
   pub fn new() -> Self {
     return Self {
+      filename: None,
       flavour: Flavour::default(),
-      blocks: Vec::new(),
+      blocks: BTreeMap::new(),
       warnings: BTreeMap::new(),
       fatal_errors: BTreeMap::new(),
       potential_headers: BTreeSet::new()
     };
   }
 
-  /// Locates blocks that can be merged and merges them. Returns the number of
-  /// done merges. Only does clean merges (no row conflicts).
-  pub fn merge_blocks(&mut self) -> usize {
-    let mut new_blocks: Vec<FinalBlock> = Vec::new();
+  /// Inserts a new block into the file.
+  pub fn insert_block(&mut self, block: FinalBlock) {
+    let br = block.block_ref();
+    if let Some(ref mut vec) = self.blocks.get_mut(&br) {
+      vec.push(block);
+    } else {
+      self.blocks.insert(br, vec![block]);
+    }
+  }
+
+  /// Returns an iterator over all blocks, optionally only the unique ones
+  /// (only one of their type in their subcase).
+  pub fn all_blocks(&self, unique: bool) -> impl Iterator<Item = &FinalBlock> {
+    return self.blocks.values()
+      .filter(move |v| v.len() == 1 || !unique)
+      .flatten();
+  }
+
+  /// Returns an iterator over mutable references of all blocks, optionally
+  /// only the unique ones (only one fo their type in their subcase).
+  pub fn all_blocks_mut(
+    &mut self,
+    unique: bool
+  ) -> impl Iterator<Item = &mut FinalBlock> {
+    return self.blocks.values_mut()
+      .filter(move |v| v.len() == 1 || !unique)
+      .flatten();
+  }
+
+  /// Merges a vector of blocks having only a mutable reference to that vector.
+  fn merge_block_vec(vec: &mut Vec<FinalBlock>, clean: bool) -> usize {
     let mut num_merges = 0;
-    while let Some(primary) = self.blocks.pop() {
+    let mut new_vec: Vec<FinalBlock> = Vec::new();
+    while let Some(primary) = vec.pop() {
       // look for merge candidates
-      let sio: Option<usize> = self.blocks.iter()
+      let sio: Option<usize> = vec.iter()
         .enumerate()
         .find(|(_, s)| {
-          primary.can_merge(s).is_ok() && primary.row_conflicts(s).is_empty()
+          primary.can_merge(s).is_ok()
+            && (primary.row_conflicts(s).is_empty() || !clean)
         }).map(|t| t.0);
       if let Some(si) = sio {
         // at least one to merge
-        let secondary = self.blocks.remove(si);
+        let secondary = vec.remove(si);
         let merged = match primary.try_merge(secondary) {
           Ok(MergeResult::Success { merged }) => merged,
           _ => panic!("pre-merge check failed!")
         };
         num_merges += 1;
         // put it back since it could have other potential merges
-        self.blocks.push(merged);
+        vec.push(merged);
       } else {
         // unmergeable, put it in the new ones
-        new_blocks.push(primary);
+        new_vec.push(primary);
       }
     }
-    std::mem::swap(&mut new_blocks, &mut self.blocks);
+    std::mem::swap(&mut new_vec, vec);
     return num_merges;
+  }
+
+  /// Locates blocks that can be merged and merges them. Returns the number of
+  /// done merges. Clean merges mean no row conflicts.
+  pub fn merge_blocks(&mut self, clean: bool) -> usize {
+    return self.blocks.values_mut()
+      .map(|v| Self::merge_block_vec(v, clean))
+      .sum();
   }
 
   /// Merges the potential headers. Returns the number of merges.
@@ -109,7 +162,7 @@ impl F06File {
 
   /// Sorts the rows and columns of all blocks.
   pub fn sort_all_blocks(&mut self) {
-    for block in self.blocks.iter_mut() {
+    for block in self.all_blocks_mut(false) {
       block.sort_columns();
       block.sort_rows();
     }
@@ -117,16 +170,16 @@ impl F06File {
 
   /// Returns all the subcases.
   pub fn subcases(&self) -> impl Iterator<Item = usize> {
-    return self.blocks.iter()
-      .map(|b| b.subcase)
+    return self.blocks.keys()
+      .map(|k| k.subcase)
       .collect::<BTreeSet<usize>>()
       .into_iter();
   }
 
   /// Returns all the block types.
   pub fn block_types(&self) -> impl Iterator<Item = BlockType> {
-    return self.blocks.iter()
-      .map(|b| b.block_type)
+    return self.blocks.keys()
+      .map(|k| k.block_type)
       .collect::<BTreeSet<BlockType>>()
       .into_iter();
   }
@@ -135,40 +188,13 @@ impl F06File {
   pub fn block_search(
     &self,
     type_filter: Option<BlockType>,
-    subcase_filter: Option<usize>
+    subcase_filter: Option<usize>,
+    unique: bool
   ) -> impl Iterator<Item = &'_ FinalBlock> {
-    return self.blocks.iter()
+    return self.all_blocks(unique)
       .filter(|b| type_filter.is_some_and(|bt| b.block_type == bt))
       .filter(|b| subcase_filter.is_some_and(|sc| b.subcase == sc))
       .collect::<Vec<_>>()
       .into_iter();
-  }
-
-  /// An iterator over all blocks that are "unique" in that they are the only
-  /// block of their type in their subcase. These are the blocks that should
-  /// be used for comparisons.
-  pub fn unique_blocks(&self) -> impl Iterator<Item = &FinalBlock> {
-    let mut blocks: Vec<&FinalBlock> = Vec::new();
-    for subcase in self.subcases() {
-      for block_type in self.block_types() {
-        let mut found = self.block_search(Some(block_type), Some(subcase))
-          .collect::<Vec<_>>();
-        match found.len() {
-          1 => {
-            blocks.push(found.pop().unwrap());
-          },
-          x if x > 1 => {
-            warn!(
-              "Subcase {} has {} \"{}\" blocks! This shouldn't happen...",
-              subcase,
-              found.len(),
-              block_type
-            );
-          },
-          _ => {}
-        };
-      }
-    }
-    return blocks.into_iter();
   }
 }

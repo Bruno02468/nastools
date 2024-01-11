@@ -16,6 +16,7 @@ use serde::{Serialize, Deserialize};
 use indexing::{IndexType, NasIndex};
 use crate::blocks::types::BlockType;
 use crate::flavour::Flavour;
+use crate::prelude::BlockRef;
 
 /// This trait encapsulates the necessary properties for a scalar that can exist
 /// in the data matrices.
@@ -278,6 +279,14 @@ impl FinalBlock {
       ),
       None => return None
     });
+  }
+
+  /// Returns this's blocks BlockRef for adding into files.
+  pub fn block_ref(&self) -> BlockRef {
+    return BlockRef {
+      subcase: self.subcase,
+      block_type: self.block_type
+    };
   }
 
   /// Swaps two columns and updates the column indexes array.

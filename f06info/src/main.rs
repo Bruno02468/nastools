@@ -3,7 +3,6 @@
 #![allow(clippy::needless_return)] // i'll never forgive rust for this
 #![allow(dead_code)] // temporary
 
-use std::collections::BTreeSet;
 use std::io::{self, BufReader};
 use std::path::PathBuf;
 
@@ -82,16 +81,13 @@ fn main() -> io::Result<()> {
     if args.no_merge {
       info!("Merged no blocks, stayed with {}.", f06.blocks.len());
     } else {
-      let nmerges = f06.merge_blocks();
+      let nmerges = f06.merge_blocks(true);
       info!("Did {} block merges, now there are {}.", nmerges, f06.blocks.len());
     };
     info!("Supported blocks found:");
-    let subcases: BTreeSet<usize> = f06.blocks.iter()
-      .map(|b| b.subcase)
-      .collect();
-    for subcase in subcases {
+    for subcase in f06.subcases() {
       info!("{}- Subcase {}:", INDENT, subcase);
-      for block in f06.blocks.iter().filter(|b| b.subcase == subcase) {
+      for block in f06.block_search(None, Some(subcase), false) {
         info!(
           "{}{}- {}: {} rows, {} columns",
           INDENT,
