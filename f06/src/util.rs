@@ -10,7 +10,6 @@ use crate::elements::ElementType;
 pub(crate) const SUS_WORDS: &[&str] = &[
   "ELEMENT",
   "ELEM",
-  "NODAL",
   "FORCE",
   "FORCES",
   "STRESS",
@@ -35,10 +34,16 @@ pub(crate) const SUS_WORDS: &[&str] = &[
   "COORD",
   "SYSTEM",
   "LOCAL",
+];
+
+/// Words that make us ignore a block because it's definitely not gonna be
+/// supported.
+pub(crate) const BAD_WORDS: &[&str] = &[
   "NASTRAN",
   "CONTROL",
   "BULK",
-  "ECHO"
+  "ECHO",
+  "NODAL"
 ];
 
 /// Decodes a Nastran-format floating point number. Hyper-lenient and doesn't

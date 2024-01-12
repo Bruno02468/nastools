@@ -207,6 +207,10 @@ impl OnePassParser {
       match candidates.len() {
         0 => {
           // not a known block. push a potential header.
+          // ensure no bad words
+          if BAD_WORDS.iter().any(|w| full_name.contains(w)) {
+            return ParserResponse::Useless;
+          }
           self.file.potential_headers.insert(PotentialHeader {
             start: self.total_lines-num_lines,
             span: num_lines,
@@ -238,7 +242,7 @@ impl OnePassParser {
               }
               self.last_block_start = self.total_lines;
               self.current_decoder = Some(dec);
-            } else {
+            } else if !BAD_WORDS.iter().any(|w| full_name.contains(w)) {
               // bad header, whoops.
               self.file.potential_headers.insert(PotentialHeader {
                 start: self.total_lines-num_lines,
