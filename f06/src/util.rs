@@ -34,7 +34,11 @@ pub(crate) const SUS_WORDS: &[&str] = &[
   "COORDINATE",
   "COORD",
   "SYSTEM",
-  "LOCAL"
+  "LOCAL",
+  "NASTRAN",
+  "CONTROL",
+  "BULK",
+  "ECHO"
 ];
 
 /// Decodes a Nastran-format floating point number. Hyper-lenient and doesn't
@@ -192,7 +196,7 @@ pub(crate) fn nth_etype(line: &str, n: usize) -> Option<ElementType> {
 
 /// Checks if a character is an uppercase letter or a digit.
 fn upper_or_digit(ch: char) -> bool {
-  return ch.is_ascii_uppercase() || ch.is_ascii_digit();
+  return ch.is_ascii_uppercase() || ch.is_ascii_digit() || "()[]".contains(ch);
 }
 
 /// Turns a line made of spaced upper-case ASCII into a line of upper-case
@@ -200,15 +204,24 @@ fn upper_or_digit(ch: char) -> bool {
 pub(crate) fn unspace(line: &str) -> Option<String> {
   let mut cap: usize = 0;
   let mut last: char = ' ';
+  let mut stop_at: usize = 0;
   for ch in line.chars() {
+    stop_at += 1;
     if upper_or_digit(ch) {
       if last == ' ' {
         last = ch;
         cap += 2;
         continue;
       } else {
-        // not spaced
-        return None;
+        // not spaced. but have we seen a lot?
+        if cap > 20 {
+          // we've seen enough, this is fine.
+          stop_at = 0.max(stop_at - 2);
+          break;
+        } else {
+          // nah, we've seen it too soon.
+          return None;
+        }
       }
     }
     if ch == ' ' {
@@ -225,7 +238,10 @@ pub(crate) fn unspace(line: &str) -> Option<String> {
   let mut sb = String::with_capacity(cap);
   let mut space_run: usize = 0;
   let mut started = false;
-  for ch in line.chars() {
+  for (i, ch) in line.chars().enumerate() {
+    if i == stop_at {
+      break;
+    }
     if ch == ' ' {
       space_run += 1;
     }
@@ -242,7 +258,6 @@ pub(crate) fn unspace(line: &str) -> Option<String> {
       sb.push(ch);
       space_run = 0;
     }
-
   }
   return Some(sb);
 }

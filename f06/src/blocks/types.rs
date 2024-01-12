@@ -60,7 +60,7 @@ macro_rules! gen_block_types {
 
       /// Returns the known upper-case, "spaced" forms that signal the
       /// beginning of this block.
-      pub fn spaceds(&self) -> &'static [&'static str] {
+      pub fn headers(&self) -> &'static [&'static str] {
         return match self {
           $(
             Self::$bname => &$spaceds,
@@ -76,31 +76,25 @@ gen_block_types!(
     "Grid point displacements",
     Displacements,
     DisplacementsDecoder,
-    ["D I S P L A C E M E N T S", "D I S P L A C E M E N T   V E C T O R"]
+    ["DISPLACEMENTS", "DISPLACEMENT VECTOR"]
   },
   {
     "Grid point force balance",
     GridPointForceBalance,
     GridPointForceBalanceDecoder,
-    ["G R I D   P O I N T   F O R C E   B A L A N C E"]
+    ["GRID POINT FORCE BALANCE"]
   },
   {
     "Forces of single-point constraint",
     SpcForces,
     SpcForcesDecoder,
-    [
-      "S P C   F O R C E S",
-      "F O R C E S   O F   S I N G L E - P O I N T   C O N S T R A I N T"
-    ]
+    ["SPC FORCES", "FORCES OF SINGLE-POINT CONSTRAINT"]
   },
   {
     "Applied forces",
     AppliedForces,
     AppliedForcesDecoder,
-    [
-      "A P P L I E D    F O R C E S",
-      "L O A D   V E C T O R"
-    ]
+    ["APPLIED FORCES", "LOAD VECTOR"]
   },
 );
 

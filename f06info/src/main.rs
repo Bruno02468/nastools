@@ -3,11 +3,13 @@
 #![allow(clippy::needless_return)] // i'll never forgive rust for this
 #![allow(dead_code)] // temporary
 
+use std::collections::BTreeMap;
 use std::io::{self, BufReader};
 use std::path::PathBuf;
 
 use clap::Parser;
 use f06::prelude::*;
+use f06::util::PotentialHeader;
 use log::{LevelFilter, info, error};
 
 #[derive(Parser)]
@@ -104,17 +106,26 @@ fn main() -> io::Result<()> {
   } else {
     f06.merge_potential_headers();
     info!("Some potential headers for unsupported lines were found:");
-    for ph in f06.potential_headers.iter() {
-      if ph.span == 1 {
-        info!("{}- Line {}: \"{}\"", INDENT, ph.start, ph.text);
-      } else {
-        info!(
-          "{}- Lines {}-{}: \"{}\"",
-          INDENT,
-          ph.start,
-          ph.lines().last().unwrap(),
-          ph.text
-        );
+    let mut headers = f06.potential_headers
+      .iter()
+      .map(|ph| (ph.text.as_str(), Vec::new()))
+      .collect::<BTreeMap<&str, Vec<&PotentialHeader>>>();
+    f06.potential_headers.iter()
+      .for_each(|ph| {
+        if let Some(v) = headers.get_mut(ph.text.as_str()) { v.push(ph) }
+      });
+    for (txt, occurrences) in headers {
+      let ntimes = occurrences.len();
+      let ph = occurrences.first().unwrap();
+      let countlines = match ph.span {
+        0 => panic!("header spanning 0 lines?!"),
+        1 => format!("ine {}", ph.start),
+        2 => format!("ines {} and {}", ph.start, ph.lines().last().unwrap()),
+        _ => format!("ines {}-{}", ph.start, ph.lines().last().unwrap()),
+      };
+      info!("{}- L{}: \"{}\"", INDENT, countlines, txt);
+      if ntimes > 1 {
+        info!("{}{}- (other {} occurences omitted)", INDENT, INDENT, ntimes-1);
       }
     }
   }
