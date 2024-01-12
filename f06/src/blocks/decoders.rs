@@ -783,3 +783,56 @@ impl BlockDecoder for BarForcesDecoder {
     }
   }
 }
+
+/// Decoder for ELAS1 engineering force blocks.
+pub struct Elas1ForcesDecoder {
+  /// The inner data block.
+  data: RowBlock<f64, ElementRef, SingleForce, { Self::MATWIDTH }>
+}
+
+impl BlockDecoder for Elas1ForcesDecoder {
+  type MatScalar = f64;
+  type RowIndex = ElementRef;
+  type ColumnIndex = SingleForce;
+  const MATWIDTH: usize = 1;
+  const BLOCK_TYPE: BlockType = BlockType::Elas1Forces;
+
+  fn new(_flavour: Flavour) -> Self {
+    return Self { data: RowBlock::new(SingleForce::canonical_cols()) };
+  }
+
+  fn unwrap(
+    self,
+    subcase: usize,
+    line_range: Option<(usize, usize)>
+  ) -> FinalBlock {
+    return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
+  }
+
+  fn consume(&mut self, line: &str) -> LineResponse {
+    if line.contains(MYSTRAN_DASHES) {
+      return LineResponse::Done;
+    }
+    let mut fields = line_breakdown(line);
+    let mut found = 0;
+    loop {
+      let (a, b) = (fields.next(), fields.next());
+      match (a, b) {
+        (Some(LineField::Integer(eid)), Some(LineField::Real(x))) => {
+          let ri = ElementRef {
+            eid: eid as usize,
+            etype: Some(ElementType::Elas1)
+          };
+          self.data.insert_raw(ri, &[x]);
+          found += 1;
+        },
+        _ => { break; }
+      };
+    };
+    if found > 0 {
+      return LineResponse::Data;
+    } else {
+      return LineResponse::Useless;
+    }
+  }
+}

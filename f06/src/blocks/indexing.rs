@@ -111,6 +111,7 @@ gen_nasindex!(
   PlateForceField,
   RodForceField,
   BarForceField,
+  SingleForce,
 );
 
 /// All field indexing types must implement this trait.
@@ -511,4 +512,16 @@ impl BarForceField {
       .map(|(a, b)| (b, a))
       .collect();
   }
+}
+
+from_enum!(
+  "Generic single-force field.",
+  SingleForce,
+  [
+    (Force, "FORCE"),
+  ]
+);
+
+impl IndexType for SingleForce {
+  const INDEX_NAME: &'static str = "FORCE";
 }

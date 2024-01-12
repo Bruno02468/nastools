@@ -156,6 +156,15 @@ gen_block_types!(
       "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE BAR"
     ]
   },
+  {
+    "Engineering forces in ELAS1 elements",
+    Elas1Forces,
+    Elas1ForcesDecoder,
+    [
+      "FORCES IN SCALAR SPRINGS (CELAS1)",
+      "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE ELAS1"
+    ]
+  },
 );
 
 impl Display for BlockType {

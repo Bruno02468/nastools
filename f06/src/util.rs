@@ -43,7 +43,8 @@ pub(crate) const BAD_WORDS: &[&str] = &[
   "CONTROL",
   "BULK",
   "ECHO",
-  "NODAL"
+  "NODAL",
+  "GENERATOR"
 ];
 
 /// Decodes a Nastran-format floating point number. Hyper-lenient and doesn't
@@ -279,7 +280,7 @@ pub(crate) fn unspace(line: &str) -> Option<String> {
       continue;
     }
     if upper_or_digit_or_special(ch) {
-      if (2..6).contains(&space_run) {
+      if (2..10).contains(&space_run) {
         sb.push(' ');
       }
       sb.push(ch);
