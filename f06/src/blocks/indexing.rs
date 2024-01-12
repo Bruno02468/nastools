@@ -49,6 +49,9 @@ gen_nasindex!(
   ElementRef,
   CsysRef,
   GridPointForceOrigin,
+  ElementSidedPoint,
+  QuadStressField,
+  QuadStrainField,
 );
 
 /// All field indexing types must implement this trait.
@@ -190,4 +193,147 @@ impl Display for GridPointForceOrigin {
 
 impl IndexType for GridPointForceOrigin {
   const INDEX_NAME: &'static str = "GRID POINT FORCE ORIGIN";
+}
+
+/// A point within an element.
+#[derive(
+  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq
+)]
+pub enum ElementPoint {
+  /// The element's center.
+  Centroid,
+  /// A corner point.
+  Corner(GridPointRef),
+  /// A midpoint.
+  Midpoint(GridPointRef)
+}
+
+impl Display for ElementPoint {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    return match self {
+      ElementPoint::Centroid => write!(f, "CENTROID"),
+      ElementPoint::Corner(GridPointRef { gid }) => {
+        write!(f, "CORNER AT GRID {}", gid)
+      },
+      ElementPoint::Midpoint(GridPointRef { gid }) => {
+        write!(f, "MIDPOINT AT GRID {}", gid)
+      }
+    };
+  }
+}
+
+/// An element side.
+#[derive(
+  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
+  derive_more::From
+)]
+pub enum ElementSide {
+  /// The bottom (Z1) side of the element.
+  Bottom,
+  /// The top (Z2) side of the element.
+  Top
+}
+
+impl Display for ElementSide {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    return write!(f, "{} SIDE", match self {
+      Self::Bottom => "BOTTOM",
+      Self::Top => "TOP",
+    });
+  }
+}
+
+impl ElementSide {
+  /// Returns the opposite side.
+  pub const fn opposite(&self) -> Self {
+    return match self {
+      Self::Bottom => Self::Top,
+      Self::Top => Self::Bottom,
+    };
+  }
+}
+
+/// An element and a point within it.
+#[derive(
+  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
+  derive_more::From
+)]
+pub struct ElementSidedPoint {
+  /// A reference to the element.
+  pub element: ElementRef,
+  /// The point within the element.
+  pub point: ElementPoint,
+  /// The side.
+  pub side: ElementSide
+}
+
+impl Display for ElementSidedPoint {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    return write!(f, "{}, {}", self.element, self.point);
+  }
+}
+
+impl IndexType for ElementSidedPoint {
+  const INDEX_NAME: &'static str = "ELEMENT, POINT AND SIDE";
+}
+
+impl ElementSidedPoint {
+  /// Flips the side of this element point.
+  pub fn flip_side(&mut self) {
+    self.side = self.side.opposite();
+  }
+}
+
+/// The columns for the stress table for a quadrilateral element.
+#[derive(
+  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
+  derive_more::From
+)]
+#[allow(missing_docs)] // nah
+pub enum QuadStressField {
+  FibreDistance,
+  NormalX,
+  NormalY,
+  ShearXY,
+  Angle,
+  Major,
+  Minor,
+  VonMises
+}
+
+impl Display for QuadStressField {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    return write!(f, "{}", match self {
+      Self::FibreDistance => "FIBRE DISTANCE",
+      Self::NormalX => "NORMAL-X",
+      Self::NormalY => "NORMAL-Y",
+      Self::ShearXY => "SHEAR-XY",
+      Self::Angle => "ANGLE",
+      Self::Major => "MAJOR",
+      Self::Minor => "MINOR",
+      Self::VonMises => "VON MISES"
+    });
+  }
+}
+
+impl IndexType for QuadStressField {
+  const INDEX_NAME: &'static str = "QUAD STRESS FIELD";
+}
+
+/// The columns for the strain table for a quadrilateral element.
+#[derive(
+  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
+  derive_more::From
+)]
+#[allow(missing_docs)] // nah
+pub struct QuadStrainField(QuadStressField);
+
+impl Display for QuadStrainField {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    return self.0.fmt(f);
+  }
+}
+
+impl IndexType for QuadStrainField {
+  const INDEX_NAME: &'static str = "QUAD STRAIN FIELD";
 }

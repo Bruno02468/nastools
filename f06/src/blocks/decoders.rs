@@ -2,11 +2,9 @@
 
 use std::collections::BTreeMap;
 
-use crate::blocks::*;
-use crate::blocks::indexing::*;
-use crate::blocks::types::BlockType;
-use crate::flavour::{Flavour, Solver};
-use crate::geometry::{Dof, SIXDOF};
+use log::warn;
+
+use crate::prelude::*;
 use crate::util::*;
 
 /// Dashes that signal the end of a table in MYSTRAN.
@@ -22,12 +20,26 @@ fn dof_cols() -> BTreeMap<Dof, usize> {
     .collect();
 }
 
+/// Returns column indexes for quad stresses and strains.
+fn quad_stress_cols() -> BTreeMap<QuadStressField, usize> {
+  return [
+    QuadStressField::FibreDistance,
+    QuadStressField::NormalX,
+    QuadStressField::NormalY,
+    QuadStressField::ShearXY,
+    QuadStressField::Angle,
+    QuadStressField::Major,
+    QuadStressField::Minor,
+    QuadStressField::VonMises
+  ].into_iter().enumerate().map(|(a, b)| (b, a)).collect()
+}
+
 /// This decodes a displacements block.
 pub(crate) struct DisplacementsDecoder {
   /// The flavour of F06 file we're decoding displacements for.
   flavour: Flavour,
   /// The displacement data.
-  data: RowBlock<f64, GridPointRef, Dof, SIXDOF>
+  data: RowBlock<f64, GridPointRef, Dof, { Self::MATWIDTH }>
 }
 
 impl BlockDecoder for DisplacementsDecoder {
@@ -76,7 +88,7 @@ pub(crate) struct GridPointForceBalanceDecoder {
   /// The current grid point ID.
   gpref: Option<GridPointRef>,
   /// The force balance data.
-  data: RowBlock<f64, GridPointForceOrigin, Dof, SIXDOF>
+  data: RowBlock<f64, GridPointForceOrigin, Dof, { Self::MATWIDTH }>
 }
 
 impl BlockDecoder for GridPointForceBalanceDecoder {
@@ -181,7 +193,7 @@ pub(crate) struct SpcForcesDecoder {
   /// The flavour of F06 file we're decoding SPC forces for.
   flavour: Flavour,
   /// The displacement data.
-  data: RowBlock<f64, GridPointRef, Dof, SIXDOF>
+  data: RowBlock<f64, GridPointRef, Dof, { Self::MATWIDTH }>
 }
 
 impl BlockDecoder for SpcForcesDecoder {
@@ -228,7 +240,7 @@ pub(crate) struct AppliedForcesDecoder {
   /// The flavour of F06 file we're decoding displacements for.
   flavour: Flavour,
   /// The displacement data.
-  data: RowBlock<f64, GridPointRef, Dof, SIXDOF>
+  data: RowBlock<f64, GridPointRef, Dof, { Self::MATWIDTH }>
 }
 
 impl BlockDecoder for AppliedForcesDecoder {
@@ -257,7 +269,7 @@ impl BlockDecoder for AppliedForcesDecoder {
     if line.contains(MYSTRAN_DASHES) {
       return LineResponse::Done;
     }
-    let dofs: [f64; SIXDOF] = if let Some(arr) = extract_reals(line) {
+    let dofs: [f64; Self::MATWIDTH] = if let Some(arr) = extract_reals(line) {
       arr
     } else {
       return LineResponse::Useless;
@@ -267,5 +279,210 @@ impl BlockDecoder for AppliedForcesDecoder {
       return LineResponse::Data;
     }
     return LineResponse::Useless;
+  }
+}
+
+/// A decoder for the "stresses in quad elements" table.
+pub(crate) struct QuadStressesDecoder {
+  /// The flavour of solver we're decoding for.
+  flavour: Flavour,
+  /// The inner block of data.
+  data: RowBlock<f64, ElementSidedPoint, QuadStressField, { Self::MATWIDTH }>,
+  /// Current row reference.
+  cur_row: Option<<Self as BlockDecoder>::RowIndex>,
+  /// Element type, hinted by the header.
+  etype: Option<ElementType>
+}
+
+impl BlockDecoder for QuadStressesDecoder {
+  type MatScalar = f64;
+  type RowIndex = ElementSidedPoint;
+  type ColumnIndex = QuadStressField;
+  const MATWIDTH: usize = 8;
+  const BLOCK_TYPE: BlockType = BlockType::QuadStresses;
+
+  fn new(flavour: Flavour) -> Self {
+    return Self {
+      flavour,
+      data: RowBlock::new(quad_stress_cols()),
+      cur_row: None,
+      etype: None
+    };
+  }
+
+  fn unwrap(
+    self,
+    subcase: usize,
+    line_range: Option<(usize, usize)>
+  ) -> FinalBlock {
+    return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
+  }
+
+  fn good_header(&mut self, header: &str) -> bool {
+    self.etype = nth_etype(header, 0);
+    if header.contains("THERMAL") || header.contains("ELASTIC") {
+      return false;
+    }
+    return true;
+  }
+
+  fn consume(&mut self, line: &str) -> LineResponse {
+    // first, take right floats. if there aren't any, we're toast.
+    let cols: [f64; Self::MATWIDTH] = if let Some(arr) = extract_reals(line) {
+      arr
+    } else {
+      return LineResponse::Useless;
+    };
+    // okay, now we get the sided point.
+    let fields = line_breakdown(line).collect::<Vec<_>>();
+    match self.flavour.solver {
+      Some(Solver::Mystran) => {
+        // okay, take the first two fields.
+        match (fields.first(), fields.get(1)) {
+          // eid and point
+          (Some(LineField::Integer(eid)), Some(LineField::NoIdea(_))) => {
+            self.cur_row.replace(ElementSidedPoint {
+              element: ElementRef { eid: *eid as usize, etype: self.etype },
+              point: if line.contains("CENTER") {
+                ElementPoint::Centroid
+              } else if line.contains("GRD") {
+                ElementPoint::Corner(
+                  if let Some(LineField::Integer(gid)) = fields.get(2) {
+                    (*gid as usize).into()
+                  } else {
+                    warn!("couldn't get elpoint in {}", line);
+                    return LineResponse::Abort;
+                  }
+                )
+              } else {
+                warn!("couldn't get elpoint in {}", line);
+                return LineResponse::Abort;
+              },
+              side: ElementSide::Bottom,
+            });
+          },
+          // grid point and gid
+          (Some(LineField::NoIdea("GRD")), Some(LineField::Integer(gid))) => {
+            if let Some(ref mut ri) = self.cur_row {
+              ri.point = ElementPoint::Corner((*gid as usize).into());
+            } else {
+              warn!("grd line without prev row id at {}", line);
+              return LineResponse::Abort;
+            }
+          }
+          // centerpoint
+          (Some(LineField::NoIdea("CENTER")), _) => {
+            if let Some(ref mut ri) = self.cur_row {
+              ri.point = ElementPoint::Centroid;
+            } else {
+              warn!("center line without prev row id at {}", line);
+              return LineResponse::Abort;
+            }
+          },
+          // nothing else, flip the side
+          _ => {
+            if let Some(ref mut ri) = self.cur_row {
+              ri.flip_side();
+            } else {
+              warn!("failed to flip line at {}", line);
+              return LineResponse::Abort;
+            }
+          }
+        };
+      },
+      Some(Solver::Simcenter) => {
+        let ints = fields.iter()
+          .filter_map(|lf| {
+            if let LineField::Integer(i) = lf { Some(i) } else { None }
+          }).copied().collect::<Vec<_>>();
+        if ints.is_empty() {
+          // cont. line
+          if let Some(ref mut ri) = self.cur_row {
+            ri.flip_side();
+          } else {
+            warn!("cont line without row index at {}", line);
+            return LineResponse::Abort;
+          }
+        } else {
+          // line has row info
+          let point = if line.contains("CEN/4") {
+            ElementPoint::Centroid
+          } else if let Some(gid) = ints.last() {
+            ElementPoint::Corner((*gid as usize).into())
+          } else {
+            warn!("no point at {}", line);
+            return LineResponse::Abort;
+          };
+          let side = ElementSide::Top;
+          let eid = if let Some(x) = ints.get(1) {
+            *x as usize
+          } else if let Some(ri) = self.cur_row {
+            ri.element.eid
+          } else {
+            warn!("no eid at {}", line);
+            return LineResponse::Abort;
+          };
+          self.cur_row.replace(ElementSidedPoint {
+            element: ElementRef { eid, etype: self.etype },
+            point,
+            side
+          });
+        }
+      },
+      None => return LineResponse::BadFlavour,
+    }
+    if let Some(rid) = self.cur_row {
+      self.data.insert_raw(rid, &cols);
+      return LineResponse::Data;
+    } else {
+      warn!("found data but couldn't construct row index at {}", line);
+      return LineResponse::Abort;
+    }
+  }
+}
+
+/// A decoder for the "strains in quad elements" table. It just uses the same
+/// decoder, transparently.
+pub(crate) struct QuadStrainsDecoder {
+  /// Just use the same decoder.
+  inner: QuadStressesDecoder
+}
+
+impl BlockDecoder for QuadStrainsDecoder {
+  type MatScalar = f64;
+  type RowIndex = ElementSidedPoint;
+  type ColumnIndex = QuadStrainField;
+  const MATWIDTH: usize = 8;
+  const BLOCK_TYPE: BlockType = BlockType::QuadStrains;
+
+  fn new(flavour: Flavour) -> Self {
+    return Self { inner: QuadStressesDecoder::new(flavour) }
+  }
+
+  fn good_header(&mut self, header: &str) -> bool {
+    return BlockDecoder::good_header(&mut self.inner, header);
+  }
+
+  fn unwrap(
+    self,
+    subcase: usize,
+    line_range: Option<(usize, usize)>
+  ) -> FinalBlock {
+    let mut fb = self.inner.unwrap(subcase, line_range);
+    fb.col_indexes = fb.col_indexes.into_iter()
+      .map(|(ci, n)| {
+        if let NasIndex::QuadStressField(qss) = ci {
+          return (QuadStrainField::from(qss).into(), n);
+        } else {
+          panic!("bad col index in quadstress");
+        }
+      })
+      .collect();
+    fb.block_type = Self::BLOCK_TYPE;
+    return fb;
+  }
+
+  fn consume(&mut self, line: &str) -> LineResponse {
+    return BlockDecoder::consume(&mut self.inner, line);
   }
 }

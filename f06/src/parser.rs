@@ -218,9 +218,24 @@ impl OnePassParser {
             return ParserResponse::BeginningWithoutSolver;
           } else {
             // ok, begin the block then.
-            self.last_block_start = self.total_lines;
-            debug!("Started a \"{}\" block on line {}!", bt, self.total_lines);
-            self.current_decoder = Some(bt.init_decoder(self.file.flavour));
+            let mut dec = bt.init_decoder(self.file.flavour);
+            if dec.good_header(&full_name) {
+              debug!("Started a \"{}\" block on line {}!", bt, self.total_lines);
+              self.last_block_start = self.total_lines;
+              self.current_decoder = Some(dec);
+            } else {
+              // bad header, whoops.
+              self.file.potential_headers.insert(PotentialHeader {
+                start: self.total_lines-num_lines,
+                span: num_lines,
+                text: full_name,
+              });
+              debug!(
+                "Found a potential header ending in line {}! Flushing.",
+                self.total_lines
+              );
+              return ParserResponse::PotentialHeader;
+            }
           }
         },
         _ => warn!(

@@ -567,6 +567,10 @@ pub(crate) trait BlockDecoder {
     line_range: Option<(usize, usize)>
   ) -> FinalBlock;
 
+  /// Called to hint to you what the header is, maybe it'll be useful.
+  /// It can also tell you to drop it immediately by returning false.
+  fn good_header(&mut self, _header: &str) -> bool { return true; }
+
   /// Consumes a line into the underlying data.
   fn consume(&mut self, line: &str) -> LineResponse;
 }
@@ -578,6 +582,9 @@ pub trait OpaqueDecoder {
 
   /// This function takes in a line and loads it into the decoder.
   fn consume(&mut self, line: &str) -> LineResponse;
+
+  /// Called to hint to you what the header is, maybe it'll be useful.
+  fn good_header(&mut self, header: &str) -> bool;
 
   /// Extracts the data within.
   fn finalise(
@@ -599,6 +606,10 @@ impl<T> OpaqueDecoder for T
     line_range: Option<(usize, usize)>
   ) -> FinalBlock {
     return self.unwrap(subcase, line_range);
+  }
+
+  fn good_header(&mut self, header: &str) -> bool {
+    return BlockDecoder::good_header(self, header);
   }
 
   fn consume(

@@ -98,8 +98,13 @@ impl F06File {
       let sio: Option<usize> = vec.iter()
         .enumerate()
         .find(|(_, s)| {
-          primary.can_merge(s).is_ok()
-            && (primary.row_conflicts(s).is_empty() || !clean)
+          let can_merge = primary.can_merge(s);
+          let conflicts = primary.row_conflicts(s);
+          let full_ok = can_merge.is_ok() && (conflicts.is_empty() || !clean);
+          if !full_ok {
+            //debug!("a merged failed! run with -v for details.");
+          }
+          return full_ok;
         }).map(|t| t.0);
       if let Some(si) = sio {
         // at least one to merge

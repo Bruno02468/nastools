@@ -83,6 +83,7 @@ fn main() -> io::Result<()> {
     if args.no_merge {
       info!("Merged no blocks, stayed with {}.", f06.blocks.len());
     } else {
+      info!("Merging blocks...");
       let nmerges = f06.merge_blocks(true);
       info!("Did {} block merges, now there are {}.", nmerges, f06.blocks.len());
     };

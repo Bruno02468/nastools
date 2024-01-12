@@ -96,6 +96,30 @@ gen_block_types!(
     AppliedForcesDecoder,
     ["APPLIED FORCES", "LOAD VECTOR"]
   },
+  {
+    "Stresses in quadrilateral elements",
+    QuadStresses,
+    QuadStressesDecoder,
+    [
+      "STRESSES IN QUADRILATERAL ELEMENTS",
+      concat!(
+        "ELEMENT STRESSES IN LOCAL ELEMENT COORDINATE SYSTEM ",
+        "FOR ELEMENT TYPE QUAD4"
+      )
+    ]
+  },
+  {
+    "Strains in quadrilateral elements",
+    QuadStrains,
+    QuadStrainsDecoder,
+    [
+      "STRAINS IN QUADRILATERAL ELEMENTS",
+      concat!(
+        "ELEMENT STRAINS IN LOCAL ELEMENT COORDINATE SYSTEM ",
+        "FOR ELEMENT TYPE QUAD4"
+      )
+    ]
+  },
 );
 
 impl Display for BlockType {
