@@ -733,3 +733,53 @@ impl BlockDecoder for RodForcesDecoder {
     }
   }
 }
+
+/// Decoder for bar engineering forces table.
+pub(crate) struct BarForcesDecoder {
+  /// The inner block of data.
+  data: RowBlock<f64, ElementRef, BarForceField, 8>
+}
+
+impl BlockDecoder for BarForcesDecoder {
+  type MatScalar = f64;
+  type RowIndex = ElementRef;
+  type ColumnIndex = BarForceField;
+  const MATWIDTH: usize = 8;
+  const BLOCK_TYPE: BlockType = BlockType::BarForces;
+
+  fn new(_flavour: Flavour) -> Self {
+    return Self {
+      data: RowBlock::new(BarForceField::canonical_cols()),
+    };
+  }
+
+  fn unwrap(
+    self,
+    subcase: usize,
+    line_range: Option<(usize, usize)>
+  ) -> FinalBlock {
+    return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
+  }
+
+  fn consume(&mut self, line: &str) -> LineResponse {
+    if line.contains(MYSTRAN_DASHES) {
+      return LineResponse::Done;
+    }
+    let cols: [f64; 8] = if let Some(arr) = extract_reals(line) {
+      arr
+    } else {
+      return LineResponse::Useless;
+    };
+    if let Some(eid) = nth_integer(line, 0) {
+      let ri = ElementRef {
+        eid: eid as usize,
+        etype: Some(ElementType::Bar),
+      };
+      self.data.insert_raw(ri, &cols);
+      return LineResponse::Data;
+    } else {
+      warn!("no eid on bar force data line!");
+      return LineResponse::Abort;
+    }
+  }
+}

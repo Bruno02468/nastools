@@ -147,6 +147,15 @@ gen_block_types!(
       "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE ROD"
     ]
   },
+  {
+    "Engineering forces in bar elements",
+    BarForces,
+    BarForcesDecoder,
+    [
+      "FORCES IN BAR ELEMENTS",
+      "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE BAR"
+    ]
+  },
 );
 
 impl Display for BlockType {

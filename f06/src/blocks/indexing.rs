@@ -486,3 +486,29 @@ impl Display for BarForceField {
 impl IndexType for BarForceField {
   const INDEX_NAME: &'static str = "BAR FORCE FIELD";
 }
+
+impl BarForceField {
+  /// Returns the fields in the most commonly seen order.
+  pub const fn all() -> &'static [Self] {
+    return &[
+      Self::BendMoment { end: BarEnd::EndA, plane: BarPlane::Plane1 },
+      Self::BendMoment { end: BarEnd::EndA, plane: BarPlane::Plane2 },
+      Self::BendMoment { end: BarEnd::EndB, plane: BarPlane::Plane1 },
+      Self::BendMoment { end: BarEnd::EndB, plane: BarPlane::Plane2 },
+      Self::Shear { plane: BarPlane::Plane1 },
+      Self::Shear { plane: BarPlane::Plane2 },
+      Self::AxialForce,
+      Self::Torque
+    ];
+  }
+
+  /// Returns a col index map for ease of use in decoders.
+  pub fn canonical_cols() -> BTreeMap<Self, usize> {
+    return Self::all()
+      .iter()
+      .copied()
+      .enumerate()
+      .map(|(a, b)| (b, a))
+      .collect();
+  }
+}
