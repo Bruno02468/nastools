@@ -195,8 +195,10 @@ pub(crate) fn nth_etype(line: &str, n: usize) -> Option<ElementType> {
 }
 
 /// Checks if a character is an uppercase letter or a digit.
-fn upper_or_digit(ch: char) -> bool {
-  return ch.is_ascii_uppercase() || ch.is_ascii_digit() || "()[]".contains(ch);
+fn upper_or_digit_or_special(ch: char) -> bool {
+  /// Allowed special characters in a spaced header line.
+  const SPEC: &str = "()[]-";
+  return ch.is_ascii_uppercase() || ch.is_ascii_digit() || SPEC.contains(ch);
 }
 
 /// Turns a line made of spaced upper-case ASCII into a line of upper-case
@@ -207,7 +209,7 @@ pub(crate) fn unspace(line: &str) -> Option<String> {
   let mut stop_at: usize = 0;
   for ch in line.chars() {
     stop_at += 1;
-    if upper_or_digit(ch) {
+    if upper_or_digit_or_special(ch) {
       if last == ' ' {
         last = ch;
         cap += 2;
@@ -215,7 +217,7 @@ pub(crate) fn unspace(line: &str) -> Option<String> {
       } else {
         // not spaced. but have we seen a lot?
         if cap > 20 {
-          // we've seen enough, this is fine.
+          // we've seen enough, this is fine. drop the extra chars tho
           stop_at = 0.max(stop_at - 2);
           break;
         } else {
@@ -251,7 +253,7 @@ pub(crate) fn unspace(line: &str) -> Option<String> {
     if !started {
       continue;
     }
-    if upper_or_digit(ch) {
+    if upper_or_digit_or_special(ch) {
       if (2..6).contains(&space_run) {
         sb.push(' ');
       }
