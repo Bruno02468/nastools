@@ -135,18 +135,30 @@ impl BlockDecoder for GridPointForceBalanceDecoder {
         }
       },
       Some(Solver::Simcenter) => {
-        self.gpref = nth_integer(line, 0).map(|x| (x as usize).into());
+        let i0 = nth_integer(line, 0).map(|x| x as usize);
+        let i1 = nth_integer(line, 1).map(|x| x as usize);
+        self.gpref = match (i0, i1) {
+          (Some(0), Some(x)) => Some(x),
+          (Some(x), _) => Some(x),
+          _ => None
+        }.map(|x| x.into());
         if line.contains("*TOTALS*") {
           return LineResponse::Useless;
         } else if line.contains("APP-LOAD") {
-          self.gpref = nth_integer(line, 1).map(|x| (x as usize).into());
           ForceOrigin::Load
         } else if line.contains("F-OF-SPC") {
           ForceOrigin::SinglePointConstraint
         } else if line.contains("F-OF-MPC") {
           ForceOrigin::MultiPointConstraint
         } else {
-          let eid = nth_integer(line, 1).map(|x| (x as usize));
+          let eid = line_breakdown(line)
+            .filter_map(|lf| {
+              if let LineField::Integer(eid) = lf {
+                return Some(eid as usize);
+              } else {
+                return None;
+              }
+            }).last();
           let etype_opt = nth_etype(line, 0);
           match (self.gpref, eid, etype_opt) {
             (Some(_), Some(eid), Some(etype)) => ForceOrigin::Element {
@@ -477,26 +489,29 @@ pub(crate) struct QuadForcesDecoder {
   /// The flavour of solver we're decoding for.
   flavour: Flavour,
   /// The inner block of data.
-  data: RowBlock<f64, PointInElement, QuadForcesField, { Self::MATWIDTH }>,
+  data: RowBlock<f64, PointInElement, PlateForceField, { Self::MATWIDTH }>,
   /// Current row reference.
   cur_row: Option<<Self as BlockDecoder>::RowIndex>,
   /// Element type, hinted by the header.
-  etype: Option<ElementType>
+  etype: Option<ElementType>,
+  /// Does this block hold grid-IDs?
+  has_grid_id: bool
 }
 
 impl BlockDecoder for QuadForcesDecoder {
   type MatScalar = f64;
   type RowIndex = PointInElement;
-  type ColumnIndex = QuadForcesField;
+  type ColumnIndex = PlateForceField;
   const MATWIDTH: usize = 8;
   const BLOCK_TYPE: BlockType = BlockType::QuadForces;
 
   fn new(flavour: Flavour) -> Self {
     return Self {
       flavour,
-      data: RowBlock::new(QuadForcesField::canonical_cols()),
+      data: RowBlock::new(PlateForceField::canonical_cols()),
       cur_row: None,
-      etype: None
+      etype: None,
+      has_grid_id: false
     };
   }
 
@@ -527,6 +542,10 @@ impl BlockDecoder for QuadForcesDecoder {
     if line.contains(MYSTRAN_DASHES) {
       return LineResponse::Done;
     }
+    if line.contains("GRID-ID") {
+      self.has_grid_id = true;
+      return LineResponse::Metadata;
+    }
     // first, take eight floats. if there aren't any, we're toast.
     let cols: [f64; Self::MATWIDTH] = if let Some(arr) = extract_reals(line) {
       arr
@@ -552,22 +571,36 @@ impl BlockDecoder for QuadForcesDecoder {
       },
       Some(Solver::Simcenter) => {
         // line has row info
-        let point = if line.contains("CEN/4") {
-          ElementPoint::Centroid
-        } else if let Some(gid) = ints.last() {
-          ElementPoint::Corner((*gid as usize).into())
+        let eid: usize;
+        let point: ElementPoint;
+        if self.has_grid_id {
+          // line has grid id
+          point = if line.contains("CEN/4") {
+            ElementPoint::Centroid
+          } else if let Some(gid) = ints.last() {
+            ElementPoint::Corner((*gid as usize).into())
+          } else {
+            warn!("no point at {}", line);
+            return LineResponse::Abort;
+          };
+          eid = if let Some(x) = ints.get(1) {
+            *x as usize
+          } else if let Some(ri) = self.cur_row {
+            ri.element.eid
+          } else {
+            warn!("no eid at {}", line);
+            return LineResponse::Abort;
+          };
         } else {
-          warn!("no point at {}", line);
-          return LineResponse::Abort;
-        };
-        let eid = if let Some(x) = ints.get(1) {
-          *x as usize
-        } else if let Some(ri) = self.cur_row {
-          ri.element.eid
-        } else {
-          warn!("no eid at {}", line);
-          return LineResponse::Abort;
-        };
+          // line with no grid id. easier.
+          point = ElementPoint::Centroid;
+          eid = if let Some(x) = ints.last() {
+            *x as usize
+          } else {
+            warn!("no eid at {}", line);
+            return LineResponse::Abort;
+          };
+        }
         self.cur_row.replace(PointInElement {
           element: ElementRef { eid, etype: self.etype },
           point
@@ -582,6 +615,121 @@ impl BlockDecoder for QuadForcesDecoder {
     } else {
       warn!("found data but couldn't construct row index at {}", line);
       return LineResponse::Abort;
+    }
+  }
+}
+
+/// Decoder for tri element engineering forces.
+pub(crate) struct TriForcesDecoder {
+  /// The flavour of solver we're decoding for.
+  flavour: Flavour,
+  /// The inner block of data.
+  data: RowBlock<f64, ElementRef, PlateForceField, { Self::MATWIDTH }>,
+  /// Element type, hinted by the header.
+  etype: Option<ElementType>
+}
+
+impl BlockDecoder for TriForcesDecoder {
+  type MatScalar = f64;
+  type RowIndex = ElementRef;
+  type ColumnIndex = PlateForceField;
+  const MATWIDTH: usize = 8;
+  const BLOCK_TYPE: BlockType = BlockType::TriForces;
+
+  fn new(flavour: Flavour) -> Self {
+    return Self {
+      flavour,
+      data: RowBlock::new(PlateForceField::canonical_cols()),
+      etype: None
+    };
+  }
+
+  fn good_header(&mut self, header: &str) -> bool {
+    self.etype = nth_etype(header, 0);
+    return true;
+  }
+
+  fn unwrap(
+    self,
+    subcase: usize,
+    line_range: Option<(usize, usize)>
+  ) -> FinalBlock {
+    return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
+  }
+
+  fn consume(&mut self, line: &str) -> LineResponse {
+    if line.contains(MYSTRAN_DASHES) {
+      return LineResponse::Done;
+    }
+    let cols: [f64; Self::MATWIDTH] = if let Some(arr) = extract_reals(line) {
+      arr
+    } else {
+      return LineResponse::Useless;
+    };
+    if let Some(eid) = nth_integer(line, 0) {
+      let ri = ElementRef { eid: eid as usize, etype: self.etype };
+      self.data.insert_raw(ri, &cols);
+      return LineResponse::Useless;
+    } else {
+      warn!("line had data but no eid");
+      return LineResponse::Abort;
+    }
+  }
+}
+
+/// Decoder for ROD element engineering forces.
+pub(crate) struct RodForcesDecoder {
+  /// The inner block of data.
+  data: RowBlock<f64, ElementRef, RodForceField, 2>
+}
+
+impl BlockDecoder for RodForcesDecoder {
+  type MatScalar = f64;
+  type RowIndex = ElementRef;
+  type ColumnIndex = RodForceField;
+  const MATWIDTH: usize = 2;
+  const BLOCK_TYPE: BlockType = BlockType::RodForces;
+
+  fn new(_flavour: Flavour) -> Self {
+    return Self { data: RowBlock::new(RodForceField::canonical_cols()) };
+  }
+
+  fn unwrap(
+    self,
+    subcase: usize,
+    line_range: Option<(usize, usize)>
+  ) -> FinalBlock {
+    return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
+  }
+
+  fn consume(&mut self, line: &str) -> LineResponse {
+    if line.contains(MYSTRAN_DASHES) {
+      return LineResponse::Done;
+    }
+    let mut fields = line_breakdown(line);
+    let mut found = 0;
+    loop {
+      let (a, b, c) = (fields.next(), fields.next(), fields.next());
+      match (a, b, c) {
+        (
+          Some(LineField::Integer(eid)),
+          Some(LineField::Real(x)),
+          Some(LineField::Real(y))
+        ) => {
+          let ri = ElementRef {
+            eid: eid as usize,
+            etype: Some(ElementType::Rod)
+          };
+          self.data.insert_raw(ri, &[x, y]);
+          found += 1;
+        },
+        _ => { break; }
+      };
+    };
+    if found > 0 {
+      return LineResponse::Data;
+    } else {
+      return LineResponse::Useless;
     }
   }
 }

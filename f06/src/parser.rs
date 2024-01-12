@@ -101,8 +101,9 @@ impl OnePassParser {
 
   /// Tries to detect a change in subcase.
   fn detect_subcase(&self, line: &str) -> Option<usize> {
+    let bd: Vec<_> = line_breakdown(line).collect();
     if line.contains("OUTPUT FOR SUBCASE") {
-      return line_breakdown(line)
+      return bd.into_iter()
         .filter_map(|field| {
           if let LineField::Integer(x) = field {
             return Some(x as usize)
@@ -110,6 +111,11 @@ impl OnePassParser {
             None
           }
       }).nth(0);
+    }
+    if let Some(LineField::Integer(sc)) = bd.last() {
+      if let Some(LineField::NoIdea("SUBCASE")) = bd.iter().rev().nth(1) {
+        return Some(*sc as usize);
+      }
     }
     return None;
   }

@@ -5,6 +5,7 @@ pub mod diff;
 
 use std::collections::{BTreeSet, BTreeMap};
 
+use log::debug;
 use serde::{Serialize, Deserialize};
 
 use crate::prelude::*;
@@ -102,7 +103,9 @@ impl F06File {
           let conflicts = primary.row_conflicts(s);
           let full_ok = can_merge.is_ok() && (conflicts.is_empty() || !clean);
           if !full_ok {
-            //debug!("a merged failed! run with -v for details.");
+            debug!("a merge failed! check this out:");
+            debug!("{:#?}", can_merge);
+            debug!("{:#?}", conflicts);
           }
           return full_ok;
         }).map(|t| t.0);

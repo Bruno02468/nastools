@@ -129,6 +129,24 @@ gen_block_types!(
       "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE QUAD4"
     ]
   },
+  {
+    "Engineering forces in triangular elements",
+    TriForces,
+    TriForcesDecoder,
+    [
+      "FORCES IN TRIANGULAR ELEMENTS",
+      "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE TRIA3"
+    ]
+  },
+  {
+    "Engineering forces in rod elements",
+    RodForces,
+    RodForcesDecoder,
+    [
+      "FORCES IN ROD ELEMENTS",
+      "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE ROD"
+    ]
+  },
 );
 
 impl Display for BlockType {

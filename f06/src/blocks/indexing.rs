@@ -14,7 +14,6 @@ macro_rules! from_enum {
   (
     $desc:literal,
     $tname:ident,
-    $tstr:literal,
     [
       $(
         ($varname:ident, $varstr:literal),
@@ -60,10 +59,6 @@ macro_rules! from_enum {
       fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         return write!(f, "{}", self.name());
       }
-    }
-
-    impl IndexType for $tname {
-      const INDEX_NAME: &'static str = $tstr;
     }
   };
 }
@@ -113,7 +108,9 @@ gen_nasindex!(
   ElementSidedPoint,
   QuadStressField,
   QuadStrainField,
-  QuadForcesField,
+  PlateForceField,
+  RodForceField,
+  BarForceField,
 );
 
 /// All field indexing types must implement this trait.
@@ -365,7 +362,6 @@ impl ElementSidedPoint {
 from_enum!(
   "The columns for the stress table for a quadrilateral element.",
   QuadStressField,
-  "QUAD STRESS FIELD",
   [
     (FibreDistance, "FIBRE DISTANCE"),
     (NormalX, "NORMAL-X"),
@@ -377,6 +373,10 @@ from_enum!(
     (VonMises, "VON MISES"),
   ]
 );
+
+impl IndexType for QuadStressField {
+  const INDEX_NAME: &'static str = "QUAD STRESS FIELD";
+}
 
 /// The columns for the strain table for a quadrilateral element.
 #[derive(
@@ -398,8 +398,7 @@ impl IndexType for QuadStrainField {
 
 from_enum!(
   "The columns for the engineering forces table for a quadrilateral element.",
-  QuadForcesField,
-  "QUAD FORCE FIELD",
+  PlateForceField,
   [
     (NormalX, "Nx"),
     (NormalY, "Ny"),
@@ -411,3 +410,79 @@ from_enum!(
     (TransverseShearY, "Qy"),
   ]
 );
+
+impl IndexType for PlateForceField {
+  const INDEX_NAME: &'static str = "2D ELEM FORCE FIELD";
+}
+
+from_enum!(
+  "Engineering forces for ROD elements.",
+  RodForceField,
+  [
+    (AxialForce, "AXIAL FORCE"),
+    (Torque, "TORQUE"),
+  ]
+);
+
+impl IndexType for RodForceField {
+  const INDEX_NAME: &'static str = "ROD FORCE FIELD";
+}
+
+from_enum!(
+  "An end of a BAR element.",
+  BarEnd,
+  [
+    (EndA, "END-A"),
+    (EndB, "END-B"),
+  ]
+);
+
+from_enum!(
+  "A plane of a BAR element.",
+  BarPlane,
+  [
+    (Plane1, "PLANE 1"),
+    (Plane2, "PLANE 2"),
+  ]
+);
+
+/// A column of a BAR engineering force table.
+#[derive(
+  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
+  derive_more::From
+)]
+pub enum BarForceField {
+  /// Bend moments.
+  BendMoment {
+    /// The end of the bar.
+    end: BarEnd,
+    /// The plane.
+    plane: BarPlane
+  },
+  /// Shear forces.
+  Shear {
+    /// The plane.
+    plane: BarPlane
+  },
+  /// Axial force.
+  AxialForce,
+  /// Torque.
+  Torque
+}
+
+impl Display for BarForceField {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    return match self {
+      BarForceField::BendMoment { end, plane } => {
+        write!(f, "BEND-MOMENT {}, {}", end, plane)
+      },
+      BarForceField::Shear { plane } => write!(f, "SHEAR {}", plane),
+      BarForceField::AxialForce => write!(f, "AXIAL FORCE"),
+      BarForceField::Torque => write!(f, "TORQUE")
+    };
+  }
+}
+
+impl IndexType for BarForceField {
+  const INDEX_NAME: &'static str = "BAR FORCE FIELD";
+}
