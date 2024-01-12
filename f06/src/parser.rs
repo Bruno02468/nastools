@@ -270,13 +270,13 @@ impl OnePassParser {
     let mut parser = Self::new();
     for line in reader.lines() {
       match parser.consume(&line?) {
-        ParserResponse::PassedToDecoder(bt, lr) if lr.abnormal() => debug!(
+        ParserResponse::PassedToDecoder(bt, lr) if lr.abnormal() => warn!(
           "Got abnormal response {:?} from {} while parsing line {}!",
           lr,
           bt,
           parser.total_lines
         ),
-        ParserResponse::BeginningWithoutSolver => debug!(
+        ParserResponse::BeginningWithoutSolver => warn!(
           "Found block beginning in line {} before detecting the solver!",
           parser.total_lines
         ),

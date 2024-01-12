@@ -2,7 +2,7 @@
 
 use std::collections::BTreeMap;
 
-use log::warn;
+use log::*;
 
 use crate::prelude::*;
 use crate::util::*;
@@ -328,73 +328,54 @@ impl BlockDecoder for QuadStressesDecoder {
 
   fn consume(&mut self, line: &str) -> LineResponse {
     // first, take right floats. if there aren't any, we're toast.
-    let cols: [f64; Self::MATWIDTH] = if let Some(arr) = extract_reals(line) {
+    let cols: [f64; Self::MATWIDTH] = if let Some(arr) = lax_reals(line) {
       arr
     } else {
       return LineResponse::Useless;
     };
     // okay, now we get the sided point.
     let fields = line_breakdown(line).collect::<Vec<_>>();
+    let ints = fields.iter()
+      .filter_map(|lf| {
+        if let LineField::Integer(i) = lf { Some(i) } else { None }
+      }).copied().collect::<Vec<_>>();
     match self.flavour.solver {
       Some(Solver::Mystran) => {
-        // okay, take the first two fields.
-        match (fields.first(), fields.get(1)) {
-          // eid and point
-          (Some(LineField::Integer(eid)), Some(LineField::NoIdea(_))) => {
-            self.cur_row.replace(ElementSidedPoint {
-              element: ElementRef { eid: *eid as usize, etype: self.etype },
-              point: if line.contains("CENTER") {
-                ElementPoint::Centroid
-              } else if line.contains("GRD") {
-                ElementPoint::Corner(
-                  if let Some(LineField::Integer(gid)) = fields.get(2) {
-                    (*gid as usize).into()
-                  } else {
-                    warn!("couldn't get elpoint in {}", line);
-                    return LineResponse::Abort;
-                  }
-                )
-              } else {
-                warn!("couldn't get elpoint in {}", line);
-                return LineResponse::Abort;
-              },
-              side: ElementSide::Bottom,
-            });
-          },
-          // grid point and gid
-          (Some(LineField::NoIdea("GRD")), Some(LineField::Integer(gid))) => {
-            if let Some(ref mut ri) = self.cur_row {
-              ri.point = ElementPoint::Corner((*gid as usize).into());
-            } else {
-              warn!("grd line without prev row id at {}", line);
-              return LineResponse::Abort;
-            }
+        if ints.is_empty() {
+          // cont. line
+          if let Some(ref mut ri) = self.cur_row {
+            ri.flip_side();
+          } else {
+            warn!("cont line without row index at {}", line);
+            return LineResponse::Abort;
           }
-          // centerpoint
-          (Some(LineField::NoIdea("CENTER")), _) => {
-            if let Some(ref mut ri) = self.cur_row {
-              ri.point = ElementPoint::Centroid;
-            } else {
-              warn!("center line without prev row id at {}", line);
-              return LineResponse::Abort;
-            }
-          },
-          // nothing else, flip the side
-          _ => {
-            if let Some(ref mut ri) = self.cur_row {
-              ri.flip_side();
-            } else {
-              warn!("failed to flip line at {}", line);
-              return LineResponse::Abort;
-            }
-          }
-        };
+        } else {
+          // line has row info
+          let point = if line.contains("CENTER") {
+            ElementPoint::Centroid
+          } else if let Some(gid) = ints.last() {
+            ElementPoint::Corner((*gid as usize).into())
+          } else {
+            warn!("no point at {}", line);
+            return LineResponse::Abort;
+          };
+          let side = ElementSide::Bottom;
+          let eid = if let Some(LineField::Integer(eid)) = fields.first() {
+            *eid as usize
+          } else if let Some(ri) = self.cur_row {
+            ri.element.eid
+          } else {
+            warn!("no eid at {}", line);
+            return LineResponse::Abort;
+          };
+          self.cur_row.replace(ElementSidedPoint {
+            element: ElementRef { eid, etype: self.etype },
+            point,
+            side
+          });
+        }
       },
       Some(Solver::Simcenter) => {
-        let ints = fields.iter()
-          .filter_map(|lf| {
-            if let LineField::Integer(i) = lf { Some(i) } else { None }
-          }).copied().collect::<Vec<_>>();
         if ints.is_empty() {
           // cont. line
           if let Some(ref mut ri) = self.cur_row {
@@ -413,7 +394,7 @@ impl BlockDecoder for QuadStressesDecoder {
             warn!("no point at {}", line);
             return LineResponse::Abort;
           };
-          let side = ElementSide::Top;
+          let side = ElementSide::Bottom;
           let eid = if let Some(x) = ints.get(1) {
             *x as usize
           } else if let Some(ri) = self.cur_row {
