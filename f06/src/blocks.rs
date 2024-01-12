@@ -508,7 +508,7 @@ impl FinalBlock {
 }
 
 /// Response of a block parser upon receiving a line.
-#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub enum LineResponse {
   /// The supplied line contained no useful information.
   Useless,
@@ -571,6 +571,12 @@ pub(crate) trait BlockDecoder {
   /// It can also tell you to drop it immediately by returning false.
   fn good_header(&mut self, _header: &str) -> bool { return true; }
 
+  /// Called to hint about the last used index. Useful for catching paging.
+  fn hint_last(&mut self, _last: NasIndex) {}
+
+  /// Returns the last inserted index. Useful for stateful decoders.
+  fn last_row_index(&self) -> Option<NasIndex> { return None; }
+
   /// Consumes a line into the underlying data.
   fn consume(&mut self, line: &str) -> LineResponse;
 }
@@ -586,6 +592,12 @@ pub trait OpaqueDecoder {
   /// Called to hint to you what the header is, maybe it'll be useful.
   fn good_header(&mut self, header: &str) -> bool;
 
+  /// Called to hint about the last used index. Useful for catching paging.
+  fn hint_last(&mut self, last: NasIndex);
+
+  /// Returns the last inserted index. Useful for stateful decoders.
+  fn last_index(&self) -> Option<NasIndex>;
+
   /// Extracts the data within.
   fn finalise(
     self: Box<Self>,
@@ -598,6 +610,14 @@ impl<T> OpaqueDecoder for T
   where T: BlockDecoder, FinalDMat: From<DMatrix<T::MatScalar>> {
   fn block_type(&self) -> BlockType {
     return Self::BLOCK_TYPE;
+  }
+
+  fn hint_last(&mut self, last: NasIndex) {
+    return BlockDecoder::hint_last(self, last);
+  }
+
+  fn last_index(&self) -> Option<NasIndex> {
+    return BlockDecoder::last_row_index(self);
   }
 
   fn finalise(

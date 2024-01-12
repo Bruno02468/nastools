@@ -20,20 +20,6 @@ fn dof_cols() -> BTreeMap<Dof, usize> {
     .collect();
 }
 
-/// Returns column indexes for quad stresses and strains.
-fn quad_stress_cols() -> BTreeMap<QuadStressField, usize> {
-  return [
-    QuadStressField::FibreDistance,
-    QuadStressField::NormalX,
-    QuadStressField::NormalY,
-    QuadStressField::ShearXY,
-    QuadStressField::Angle,
-    QuadStressField::Major,
-    QuadStressField::Minor,
-    QuadStressField::VonMises
-  ].into_iter().enumerate().map(|(a, b)| (b, a)).collect()
-}
-
 /// This decodes a displacements block.
 pub(crate) struct DisplacementsDecoder {
   /// The flavour of F06 file we're decoding displacements for.
@@ -304,7 +290,7 @@ impl BlockDecoder for QuadStressesDecoder {
   fn new(flavour: Flavour) -> Self {
     return Self {
       flavour,
-      data: RowBlock::new(quad_stress_cols()),
+      data: RowBlock::new(QuadStressField::canonical_cols()),
       cur_row: None,
       etype: None
     };
@@ -326,8 +312,18 @@ impl BlockDecoder for QuadStressesDecoder {
     return true;
   }
 
+  fn hint_last(&mut self, last: NasIndex) {
+    if let NasIndex::ElementSidedPoint(esp) = last {
+      self.cur_row = Some(esp);
+    }
+  }
+
+  fn last_row_index(&self) -> Option<NasIndex> {
+    return self.cur_row.map(|q| q.into());
+  }
+
   fn consume(&mut self, line: &str) -> LineResponse {
-    // first, take right floats. if there aren't any, we're toast.
+    // first, take eight floats. if there aren't any, we're toast.
     let cols: [f64; Self::MATWIDTH] = if let Some(arr) = lax_reals(line) {
       arr
     } else {
@@ -444,6 +440,14 @@ impl BlockDecoder for QuadStrainsDecoder {
     return BlockDecoder::good_header(&mut self.inner, header);
   }
 
+  fn hint_last(&mut self, last: NasIndex) {
+    BlockDecoder::hint_last(&mut self.inner, last);
+  }
+
+  fn last_row_index(&self) -> Option<NasIndex> {
+    return BlockDecoder::last_row_index(&self.inner);
+  }
+
   fn unwrap(
     self,
     subcase: usize,
@@ -465,5 +469,119 @@ impl BlockDecoder for QuadStrainsDecoder {
 
   fn consume(&mut self, line: &str) -> LineResponse {
     return BlockDecoder::consume(&mut self.inner, line);
+  }
+}
+
+/// Decoder for quad element engineering forces.
+pub(crate) struct QuadForcesDecoder {
+  /// The flavour of solver we're decoding for.
+  flavour: Flavour,
+  /// The inner block of data.
+  data: RowBlock<f64, PointInElement, QuadForcesField, { Self::MATWIDTH }>,
+  /// Current row reference.
+  cur_row: Option<<Self as BlockDecoder>::RowIndex>,
+  /// Element type, hinted by the header.
+  etype: Option<ElementType>
+}
+
+impl BlockDecoder for QuadForcesDecoder {
+  type MatScalar = f64;
+  type RowIndex = PointInElement;
+  type ColumnIndex = QuadForcesField;
+  const MATWIDTH: usize = 8;
+  const BLOCK_TYPE: BlockType = BlockType::QuadForces;
+
+  fn new(flavour: Flavour) -> Self {
+    return Self {
+      flavour,
+      data: RowBlock::new(QuadForcesField::canonical_cols()),
+      cur_row: None,
+      etype: None
+    };
+  }
+
+  fn good_header(&mut self, header: &str) -> bool {
+    self.etype = nth_etype(header, 0);
+    return true;
+  }
+
+  fn hint_last(&mut self, last: NasIndex) {
+    if let NasIndex::PointInElement(esp) = last {
+      self.cur_row = Some(esp);
+    }
+  }
+
+  fn last_row_index(&self) -> Option<NasIndex> {
+    return self.cur_row.map(|q| q.into());
+  }
+
+  fn unwrap(
+    self,
+    subcase: usize,
+    line_range: Option<(usize, usize)>
+  ) -> FinalBlock {
+    return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
+  }
+
+  fn consume(&mut self, line: &str) -> LineResponse {
+    if line.contains(MYSTRAN_DASHES) {
+      return LineResponse::Done;
+    }
+    // first, take eight floats. if there aren't any, we're toast.
+    let cols: [f64; Self::MATWIDTH] = if let Some(arr) = extract_reals(line) {
+      arr
+    } else {
+      return LineResponse::Useless;
+    };
+    // get the row ID.
+    let fields = line_breakdown(line).collect::<Vec<_>>();
+    let ints = fields.iter()
+      .filter_map(|lf| {
+        if let LineField::Integer(i) = lf { Some(i) } else { None }
+      }).copied().collect::<Vec<_>>();
+    match self.flavour.solver {
+      Some(Solver::Mystran) => {
+        if let Some(eid) = ints.first() {
+          self.cur_row.replace(PointInElement {
+            element: ElementRef { eid: *eid as usize, etype: self.etype },
+            point: ElementPoint::Centroid
+          });
+        } else {
+          self.cur_row = None;
+        }
+      },
+      Some(Solver::Simcenter) => {
+        // line has row info
+        let point = if line.contains("CEN/4") {
+          ElementPoint::Centroid
+        } else if let Some(gid) = ints.last() {
+          ElementPoint::Corner((*gid as usize).into())
+        } else {
+          warn!("no point at {}", line);
+          return LineResponse::Abort;
+        };
+        let eid = if let Some(x) = ints.get(1) {
+          *x as usize
+        } else if let Some(ri) = self.cur_row {
+          ri.element.eid
+        } else {
+          warn!("no eid at {}", line);
+          return LineResponse::Abort;
+        };
+        self.cur_row.replace(PointInElement {
+          element: ElementRef { eid, etype: self.etype },
+          point
+        });
+      },
+      None => return LineResponse::BadFlavour
+    };
+    // if we got a row ID, insert.
+    if let Some(rid) = self.cur_row {
+      self.data.insert_raw(rid, &cols);
+      return LineResponse::Data;
+    } else {
+      warn!("found data but couldn't construct row index at {}", line);
+      return LineResponse::Abort;
+    }
   }
 }

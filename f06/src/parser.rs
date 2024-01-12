@@ -1,7 +1,7 @@
 //! This module implements the generic parser for F06 files, and associated
 //! structures and enums.
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, BTreeMap};
 use std::fs::File;
 use std::io::{self, BufReader, BufRead};
 use std::path::Path;
@@ -56,7 +56,9 @@ pub struct OnePassParser {
   /// Line of the last block beginning.
   last_block_start: usize,
   /// Accumulator of block header strings.
-  header_accumulator: Vec<String>
+  header_accumulator: Vec<String>,
+  /// Stores last indexes per block type.
+  last_indexes: BTreeMap<BlockType, NasIndex>
 }
 
 impl Default for OnePassParser {
@@ -74,7 +76,8 @@ impl OnePassParser {
       current_decoder: None,
       total_lines: 0,
       last_block_start: 0,
-      header_accumulator: Vec::new()
+      header_accumulator: Vec::new(),
+      last_indexes: BTreeMap::new()
     };
   }
 
@@ -120,6 +123,9 @@ impl OnePassParser {
         self.total_lines
       );
       let line_range = Some((self.last_block_start, self.total_lines+1));
+      if let Some(li) = dec.last_index() {
+        self.last_indexes.insert(dec.block_type(), li);
+      }
       let fb = dec.finalise(self.subcase, line_range);
       if !fb.row_indexes.is_empty() {
         self.file.insert_block(fb);
@@ -221,6 +227,9 @@ impl OnePassParser {
             let mut dec = bt.init_decoder(self.file.flavour);
             if dec.good_header(&full_name) {
               debug!("Started a \"{}\" block on line {}!", bt, self.total_lines);
+              if let Some(li) = self.last_indexes.remove(&dec.block_type()) {
+                dec.hint_last(li);
+              }
               self.last_block_start = self.total_lines;
               self.current_decoder = Some(dec);
             } else {
@@ -250,7 +259,7 @@ impl OnePassParser {
     if let Some(ref mut dec) = self.current_decoder {
       let resp = dec.consume(line);
       let bt = dec.block_type();
-      if resp.abnormal() {
+      if resp.abnormal() || resp == LineResponse::Done {
         self.flush_decoder();
       }
       return ParserResponse::PassedToDecoder(bt, resp);

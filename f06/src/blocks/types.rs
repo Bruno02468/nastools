@@ -120,6 +120,15 @@ gen_block_types!(
       )
     ]
   },
+  {
+    "Engineering forces in quadrilateral elements",
+    QuadForces,
+    QuadForcesDecoder,
+    [
+      "FORCES IN QUADRILATERAL ELEMENTS",
+      "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE QUAD4"
+    ]
+  },
 );
 
 impl Display for BlockType {

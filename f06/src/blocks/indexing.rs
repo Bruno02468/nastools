@@ -2,11 +2,71 @@
 //! output block.
 
 use std::fmt::Display;
+use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 
 use crate::elements::ElementType;
 use crate::geometry::{Axis, Dof};
+
+/// Generates a NasIndex type from pure enum fields. Saves some time.
+macro_rules! from_enum {
+  (
+    $desc:literal,
+    $tname:ident,
+    $tstr:literal,
+    [
+      $(
+        ($varname:ident, $varstr:literal),
+      )+
+    ]
+  ) => {
+    #[derive(
+      Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq,
+      Eq, derive_more::From
+    )]
+    #[doc = $desc]
+    #[allow(missing_docs)]
+    pub enum $tname {
+      $($varname,)+
+    }
+
+    impl $tname {
+      /// Returns a short, uppercase name for this index variant.
+      pub const fn name(&self) -> &'static str {
+        return match self {
+          $(Self::$varname => $varstr,)+
+        };
+      }
+
+      /// Returns all the variants of this index, in canonical order.
+      pub const fn all() -> &'static [Self] {
+        return &[$(Self::$varname,)+];
+      }
+
+      /// Returns a map with this index in canonical order for ease of use when
+      /// booting up a decoder.
+      pub fn canonical_cols() -> BTreeMap<Self, usize> {
+        return Self::all()
+          .iter()
+          .copied()
+          .enumerate()
+          .map(|(a, b)| (b, a))
+          .collect();
+      }
+    }
+
+    impl Display for $tname {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        return write!(f, "{}", self.name());
+      }
+    }
+
+    impl IndexType for $tname {
+      const INDEX_NAME: &'static str = $tstr;
+    }
+  };
+}
 
 /// Generates the NasIndex struct that encapsulates all indexing types.
 macro_rules! gen_nasindex {
@@ -49,21 +109,17 @@ gen_nasindex!(
   ElementRef,
   CsysRef,
   GridPointForceOrigin,
+  PointInElement,
   ElementSidedPoint,
   QuadStressField,
   QuadStrainField,
+  QuadForcesField,
 );
 
 /// All field indexing types must implement this trait.
 pub trait IndexType: Copy + Ord + Eq + Into<NasIndex> + Display {
   /// The name of this type of index, all caps.
   const INDEX_NAME: &'static str;
-
-  /// Returns a more complex name for the index. Useful if the name is beyond
-  /// the reach of const generics.
-  fn dyn_name(&self) -> String {
-    return Self::INDEX_NAME.to_owned();
-  }
 }
 
 impl IndexType for Axis {
@@ -258,6 +314,28 @@ impl ElementSide {
   Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
   derive_more::From
 )]
+pub struct PointInElement {
+  /// A reference to the element.
+  pub element: ElementRef,
+  /// The point within the element.
+  pub point: ElementPoint
+}
+
+impl Display for PointInElement {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    return write!(f, "{}, {}", self.element, self.point);
+  }
+}
+
+impl IndexType for PointInElement {
+  const INDEX_NAME: &'static str = "POINT IN ELEMENT";
+}
+
+/// An element and a point within it, plus a side.
+#[derive(
+  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
+  derive_more::From
+)]
 pub struct ElementSidedPoint {
   /// A reference to the element.
   pub element: ElementRef,
@@ -269,7 +347,7 @@ pub struct ElementSidedPoint {
 
 impl Display for ElementSidedPoint {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    return write!(f, "{}, {}", self.element, self.point);
+    return write!(f, "{}, {}, {}", self.element, self.point, self.side);
   }
 }
 
@@ -284,41 +362,21 @@ impl ElementSidedPoint {
   }
 }
 
-/// The columns for the stress table for a quadrilateral element.
-#[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
-  derive_more::From
-)]
-#[allow(missing_docs)] // nah
-pub enum QuadStressField {
-  FibreDistance,
-  NormalX,
-  NormalY,
-  ShearXY,
-  Angle,
-  Major,
-  Minor,
-  VonMises
-}
-
-impl Display for QuadStressField {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    return write!(f, "{}", match self {
-      Self::FibreDistance => "FIBRE DISTANCE",
-      Self::NormalX => "NORMAL-X",
-      Self::NormalY => "NORMAL-Y",
-      Self::ShearXY => "SHEAR-XY",
-      Self::Angle => "ANGLE",
-      Self::Major => "MAJOR",
-      Self::Minor => "MINOR",
-      Self::VonMises => "VON MISES"
-    });
-  }
-}
-
-impl IndexType for QuadStressField {
-  const INDEX_NAME: &'static str = "QUAD STRESS FIELD";
-}
+from_enum!(
+  "The columns for the stress table for a quadrilateral element.",
+  QuadStressField,
+  "QUAD STRESS FIELD",
+  [
+    (FibreDistance, "FIBRE DISTANCE"),
+    (NormalX, "NORMAL-X"),
+    (NormalY, "NORMAL-Y"),
+    (ShearXY, "SHEAR-XY"),
+    (Angle, "ANGLE"),
+    (Major, "MAJOR"),
+    (Minor, "MINOR"),
+    (VonMises, "VON MISES"),
+  ]
+);
 
 /// The columns for the strain table for a quadrilateral element.
 #[derive(
@@ -337,3 +395,19 @@ impl Display for QuadStrainField {
 impl IndexType for QuadStrainField {
   const INDEX_NAME: &'static str = "QUAD STRAIN FIELD";
 }
+
+from_enum!(
+  "The columns for the engineering forces table for a quadrilateral element.",
+  QuadForcesField,
+  "QUAD FORCE FIELD",
+  [
+    (NormalX, "Nx"),
+    (NormalY, "Ny"),
+    (NormalXY, "Nxy"),
+    (MomentX, "Mx"),
+    (MomentY, "My"),
+    (MomentXY, "Mxy"),
+    (TransverseShearX, "Qx"),
+    (TransverseShearY, "Qy"),
+  ]
+);
