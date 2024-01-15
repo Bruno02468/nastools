@@ -213,6 +213,30 @@ gen_block_types!(
       )
     ]
   },
+  {
+    "Stresses in bar elements",
+    BarStresses,
+    BarStressesDecoder,
+    [
+      "STRESSES IN BAR ELEMENTS (CBAR)",
+      concat!(
+        "ELEMENT STRESSES IN LOCAL ELEMENT COORDINATE SYSTEM ",
+        "FOR ELEMENT TYPE BAR"
+      )
+    ]
+  },
+  {
+    "Strains in bar elements",
+    BarStrains,
+    BarStrainsDecoder,
+    [
+      "STRAINS IN BAR ELEMENTS (CBAR)",
+      concat!(
+        "ELEMENT STRAINS IN LOCAL ELEMENT COORDINATE SYSTEM ",
+        "FOR ELEMENT TYPE BAR"
+      )
+    ]
+  },
 );
 
 impl Display for BlockType {

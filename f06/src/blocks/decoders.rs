@@ -1005,7 +1005,7 @@ impl BlockDecoder for RodStressesDecoder {
 }
 
 converting_decoder!(
-  "Block decoder for strains in rod elements.",
+  "Decoder for \"strains in rod elements\" tables.",
   RodStrainsDecoder,
   RodStressesDecoder,
   f64,
@@ -1013,4 +1013,146 @@ converting_decoder!(
   (RodStrainField, RodStressField),
   BlockType::RodStrains,
   4
+);
+
+/// Decoder for "stresses in bar elements" tables.
+pub(crate) struct BarStressesDecoder {
+  /// The flavour of file we're decoding for.
+  flavour: Flavour,
+  /// The currently-known element ID and line data.
+  curr: Option<(usize, BTreeMap<BarStressField, f64>)>,
+  /// The data within.
+  data: RowBlock<f64, ElementRef, BarStressField, 15>
+}
+
+impl BlockDecoder for BarStressesDecoder {
+  type MatScalar = f64;
+  type RowIndex = ElementRef;
+  type ColumnIndex = BarStressField;
+  const MATWIDTH: usize = 15;
+  const BLOCK_TYPE: BlockType = BlockType::BarStresses;
+
+  fn new(flavour: Flavour) -> Self {
+    return Self {
+      flavour,
+      curr: None,
+      data: RowBlock::new(BarStressField::canonical_cols())
+    };
+  }
+
+  fn unwrap(
+    self,
+    subcase: usize,
+    line_range: Option<(usize, usize)>
+  ) -> FinalBlock {
+    return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
+  }
+
+  fn consume(&mut self, line: &str) -> LineResponse {
+    /// Order of columns in the first row.
+    const ORDER_L1: &[BarStressField] = &[
+      BarStressField::AtRecoveryPoint { end: BarEnd::EndA, point: 1 },
+      BarStressField::AtRecoveryPoint { end: BarEnd::EndA, point: 2 },
+      BarStressField::AtRecoveryPoint { end: BarEnd::EndA, point: 3 },
+      BarStressField::AtRecoveryPoint { end: BarEnd::EndA, point: 4 },
+      BarStressField::Axial,
+      BarStressField::MaxAt(BarEnd::EndA),
+      BarStressField::MinAt(BarEnd::EndA),
+      BarStressField::SafetyMargin(NormalStressDirection::Tension)
+    ];
+    /// Order of columns in the second row.
+    const ORDER_L2: &[BarStressField] = &[
+      BarStressField::AtRecoveryPoint { end: BarEnd::EndB, point: 1 },
+      BarStressField::AtRecoveryPoint { end: BarEnd::EndB, point: 2 },
+      BarStressField::AtRecoveryPoint { end: BarEnd::EndB, point: 3 },
+      BarStressField::AtRecoveryPoint { end: BarEnd::EndB, point: 4 },
+      BarStressField::MaxAt(BarEnd::EndB),
+      BarStressField::MinAt(BarEnd::EndB),
+      BarStressField::SafetyMargin(NormalStressDirection::Compression)
+    ];
+    let i0 = nth_natural(line, 0);
+    let i1 = nth_natural(line, 1);
+    if let Some(ui0) = i0 {
+      // eid line
+      let eid = match self.flavour.solver {
+        Some(Solver::Mystran) => ui0,
+        Some(Solver::Simcenter) => match i1 {
+          Some(ui1) => ui1,
+          None => {
+            warn!("missing uid on data line {}", line);
+            return LineResponse::Abort;
+          }
+        },
+        None => return LineResponse::BadFlavour
+      };
+      // get data
+      let vals: [f64; 8] = if let Some(arr) = extract_reals(line) {
+        arr
+      } else if let Some(arr7) = extract_reals::<7>(line) {
+        [
+          arr7[0],
+          arr7[1],
+          arr7[2],
+          arr7[3],
+          arr7[4],
+          arr7[5],
+          arr7[6],
+          0.0
+        ]
+      } else {
+        return LineResponse::Useless;
+      };
+      let cols: BTreeMap<BarStressField, f64> = ORDER_L1.iter().copied()
+        .zip(vals)
+        .collect();
+      self.curr = Some((eid, cols));
+      return LineResponse::Data;
+    } else if let Some((eid, mut cols)) = self.curr.take() {
+      // non-eid line. get some floats.
+      let vals: [f64; 7] = if let Some(arr) = extract_reals(line) {
+        arr
+      } else if let Some(arr6) = extract_reals::<6>(line) {
+        [
+          arr6[0],
+          arr6[1],
+          arr6[2],
+          arr6[3],
+          arr6[4],
+          arr6[5],
+          0.0
+        ]
+      } else {
+        warn!("non-data line whilst having an eid");
+        return LineResponse::Abort;
+      };
+      ORDER_L2.iter().copied().zip(vals)
+        .for_each(|(k, v)| { cols.insert(k, v); });
+      if cols.len() == Self::MATWIDTH {
+        let eref = ElementRef { eid, etype: Some(ElementType::Bar) };
+        self.data.insert_row(eref, &cols);
+        return LineResponse::Data;
+      } else {
+        warn!("bad number of items in val map ({})", cols.len());
+        return LineResponse::Abort;
+      }
+    } else if extract_reals::<7>(line).is_some() {
+      // line has floats but no current line
+      warn!("found second row without ever seeing a first, at {}", line);
+      return LineResponse::Abort;
+    } else {
+      // non-eid line with no data.
+      return LineResponse::Useless;
+    }
+  }
+}
+
+converting_decoder!(
+  "Decoder for \"strains in bar elements\" tables.",
+  BarStrainsDecoder,
+  BarStressesDecoder,
+  f64,
+  (ElementRef, ElementRef),
+  (BarStrainField, BarStressField),
+  BlockType::BarStrains,
+  15
 );

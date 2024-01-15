@@ -142,6 +142,8 @@ gen_nasindex!(
   SingleForce,
   RodStressField,
   RodStrainField,
+  BarStressField,
+  BarStrainField,
 );
 
 /// All field indexing types must implement this trait.
@@ -460,6 +462,16 @@ from_enum!(
   ]
 );
 
+impl BarEnd {
+  /// Returns the opposite end.
+  pub const fn opposite(&self) -> Self {
+    return match self {
+      Self::EndA => Self::EndB,
+      Self::EndB => Self::EndA,
+    };
+  }
+}
+
 from_enum!(
   "A plane of a BAR element.",
   BarPlane,
@@ -568,4 +580,106 @@ gen_with_inner!(
   "ROD STRAIN FIELD",
   RodStrainField,
   RodStressField
+);
+
+/// Type of normal stress.
+#[derive(
+  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
+  derive_more::From
+)]
+pub enum NormalStressDirection {
+  /// Tension stress.
+  Tension,
+  /// Compression stress.
+  Compression
+}
+
+impl Display for NormalStressDirection {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    return write!(f, "{}", match self {
+      Self::Tension => "TENSION",
+      Self::Compression => "COMPRESSION",
+    });
+  }
+}
+
+/// The columns of a bar stress/strain table are indexed by this type.
+#[derive(
+  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq
+)]
+pub enum BarStressField {
+  /// Stress calculated at a specific recovery point.
+  AtRecoveryPoint {
+    /// The bar end where the stress was calculated.
+    end: BarEnd,
+    /// The recovery point where the stress was recovered. It's 1-4 for BARs.
+    point: u8,
+  },
+  /// Axial stress.
+  Axial,
+  /// Maximum stress at one end.
+  MaxAt(BarEnd),
+  /// Minimum stress at one end.
+  MinAt(BarEnd),
+  /// Margin of safety.
+  SafetyMargin(NormalStressDirection)
+}
+
+impl Display for BarStressField {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    return match self {
+      Self::AtRecoveryPoint { end, point } => {
+        write!(f, "{}, RECOVERY POINT {}", end, point)
+      },
+      Self::Axial => write!(f, "AXIAL"),
+      Self::MaxAt(end) => write!(f, "MAX AT {}", end),
+      Self::MinAt(end) => write!(f, "MIN AT {}", end),
+      Self::SafetyMargin(dir) => write!(f, "MARGIN OF SAFETY FOR {}", dir),
+    };
+  }
+}
+
+impl IndexType for BarStressField {
+  const INDEX_NAME: &'static str = "BAR STRESS FIELD";
+}
+
+impl BarStressField {
+  /// Returns all variants.
+  pub const fn all() -> &'static [Self] {
+    return &[
+      Self::AtRecoveryPoint { end: BarEnd::EndA, point: 1 },
+      Self::AtRecoveryPoint { end: BarEnd::EndA, point: 2 },
+      Self::AtRecoveryPoint { end: BarEnd::EndA, point: 3 },
+      Self::AtRecoveryPoint { end: BarEnd::EndA, point: 4 },
+      Self::MaxAt(BarEnd::EndA),
+      Self::MinAt(BarEnd::EndA),
+      Self::AtRecoveryPoint { end: BarEnd::EndB, point: 1 },
+      Self::AtRecoveryPoint { end: BarEnd::EndB, point: 2 },
+      Self::AtRecoveryPoint { end: BarEnd::EndB, point: 3 },
+      Self::AtRecoveryPoint { end: BarEnd::EndB, point: 4 },
+      Self::MaxAt(BarEnd::EndB),
+      Self::MinAt(BarEnd::EndB),
+      Self::Axial,
+      Self::SafetyMargin(NormalStressDirection::Tension),
+      Self::SafetyMargin(NormalStressDirection::Compression),
+    ]
+  }
+
+  /// Returns a map with all variants in the canonical order, useful for making
+  /// column indexes in RowBlocks.
+  pub fn canonical_cols() -> BTreeMap<Self, usize> {
+    return Self::all()
+      .iter()
+      .copied()
+      .enumerate()
+      .map(|(a, b)| (b, a))
+      .collect();
+  }
+}
+
+gen_with_inner!(
+  "The columns for the strains table for bar elements.",
+  "BAR STRAIN FIELD",
+  BarStrainField,
+  BarStressField
 );
