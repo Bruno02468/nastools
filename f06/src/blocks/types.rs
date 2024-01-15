@@ -131,8 +131,8 @@ gen_block_types!(
   },
   {
     "Engineering forces in triangular elements",
-    TriForces,
-    TriForcesDecoder,
+    TriaForces,
+    TriaForcesDecoder,
     [
       "FORCES IN TRIANGULAR ELEMENTS",
       "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE TRIA3"
@@ -177,18 +177,18 @@ gen_block_types!(
       )
     ]
   },
-  /*{
+  {
     "Strains in triangular elements",
     TriaStrains,
     TriaStrainsDecoder,
     [
-      "STRESSES IN TRIANGULAR ELEMENTS (TRIA3)",
+      "STRAINS IN TRIANGULAR ELEMENTS (TRIA3)",
       concat!(
         "ELEMENT STRAINS IN LOCAL ELEMENT COORDINATE SYSTEM ",
         "FOR ELEMENT TYPE TRIA3"
       )
     ]
-  },*/
+  },
 );
 
 impl Display for BlockType {

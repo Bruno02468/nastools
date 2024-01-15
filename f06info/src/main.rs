@@ -80,12 +80,18 @@ fn main() -> io::Result<()> {
   if f06.blocks.is_empty() {
     info!("No supported blocks were found.");
   } else {
-    if args.no_merge {
+    let nmerges = if args.no_merge { 0 } else {
+      info!("Merging blocks...");
+      f06.merge_blocks(true)
+    };
+    if nmerges == 0 {
       info!("Merged no blocks, stayed with {}.", f06.blocks.len());
     } else {
-      info!("Merging blocks...");
-      let nmerges = f06.merge_blocks(true);
-      info!("Did {} block merges, now there are {}.", nmerges, f06.blocks.len());
+      info!(
+        "Did {} block merges, now there are {}.",
+        nmerges,
+        f06.blocks.len()
+      );
     };
     info!("Supported blocks found:");
     for subcase in f06.subcases() {
@@ -106,7 +112,7 @@ fn main() -> io::Result<()> {
     info!("No potential headers for unsupported blocks were found.");
   } else {
     f06.merge_potential_headers();
-    info!("Some potential headers for unsupported lines were found:");
+    info!("Some potential headers for unsupported blocks were found:");
     let mut headers = f06.potential_headers
       .iter()
       .map(|ph| (ph.text.as_str(), Vec::new()))

@@ -602,7 +602,7 @@ impl BlockDecoder for QuadForcesDecoder {
 }
 
 /// Decoder for tri element engineering forces.
-pub(crate) struct TriForcesDecoder {
+pub(crate) struct TriaForcesDecoder {
   /// The flavour of solver we're decoding for.
   flavour: Flavour,
   /// The inner block of data.
@@ -611,12 +611,12 @@ pub(crate) struct TriForcesDecoder {
   etype: Option<ElementType>
 }
 
-impl BlockDecoder for TriForcesDecoder {
+impl BlockDecoder for TriaForcesDecoder {
   type MatScalar = f64;
   type RowIndex = ElementRef;
   type ColumnIndex = PlateForceField;
   const MATWIDTH: usize = 8;
-  const BLOCK_TYPE: BlockType = BlockType::TriForces;
+  const BLOCK_TYPE: BlockType = BlockType::TriaForces;
 
   fn new(flavour: Flavour) -> Self {
     return Self {
@@ -887,5 +887,60 @@ impl BlockDecoder for TriaStressesDecoder {
     };
     self.data.insert_raw(esp, &vals);
     return LineResponse::Data;
+  }
+}
+
+/// Decoder for triangular element strains -- same as triangular element
+/// stresses, so it basically does nothing but invoke the inner decoder and
+/// change some values upon finalisation.
+pub(crate) struct TriaStrainsDecoder {
+  /// Just use the same decoder.
+  inner: TriaStressesDecoder
+}
+
+impl BlockDecoder for TriaStrainsDecoder {
+  type MatScalar = f64;
+  type RowIndex = ElementSidedPoint;
+  type ColumnIndex = PlateStrainField;
+  const MATWIDTH: usize = 8;
+  const BLOCK_TYPE: BlockType = BlockType::TriaStrains;
+
+  fn new(flavour: Flavour) -> Self {
+    return Self { inner: TriaStressesDecoder::new(flavour) }
+  }
+
+  fn good_header(&mut self, header: &str) -> bool {
+    return BlockDecoder::good_header(&mut self.inner, header);
+  }
+
+  fn hint_last(&mut self, last: NasIndex) {
+    BlockDecoder::hint_last(&mut self.inner, last);
+  }
+
+  fn last_row_index(&self) -> Option<NasIndex> {
+    return BlockDecoder::last_row_index(&self.inner);
+  }
+
+  fn unwrap(
+    self,
+    subcase: usize,
+    line_range: Option<(usize, usize)>
+  ) -> FinalBlock {
+    let mut fb = self.inner.unwrap(subcase, line_range);
+    fb.col_indexes = fb.col_indexes.into_iter()
+      .map(|(ci, n)| {
+        if let NasIndex::PlateStressField(qss) = ci {
+          return (PlateStrainField::from(qss).into(), n);
+        } else {
+          panic!("bad col index in quadstress");
+        }
+      })
+      .collect();
+    fb.block_type = Self::BLOCK_TYPE;
+    return fb;
+  }
+
+  fn consume(&mut self, line: &str) -> LineResponse {
+    return BlockDecoder::consume(&mut self.inner, line);
   }
 }
