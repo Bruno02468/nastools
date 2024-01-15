@@ -196,6 +196,18 @@ pub(crate) fn nth_integer(line: &str, n: usize) -> Option<isize> {
     }).nth(n);
 }
 
+/// Returns the n-th integer in a line and casts it to a usize.
+pub(crate) fn nth_natural(line: &str, n: usize) -> Option<usize> {
+  return line_breakdown(line)
+    .filter_map(|field| {
+      if let LineField::Integer(x) = field {
+        return Some(x as usize)
+      } else {
+        None
+      }
+    }).nth(n);
+}
+
 /// Gets the N-th string in a line.
 pub(crate) fn nth_string(line: &str, n: usize) -> Option<&str> {
   return line_breakdown(line)
@@ -280,14 +292,14 @@ pub(crate) fn unspace(line: &str) -> Option<String> {
       continue;
     }
     if upper_or_digit_or_special(ch) {
-      if (2..10).contains(&space_run) {
+      if (2..15).contains(&space_run) {
         sb.push(' ');
       }
       sb.push(ch);
       space_run = 0;
     }
   }
-  return Some(sb);
+  return Some(sb.trim().to_string());
 }
 
 /// Checks if a line is a likely block header.

@@ -267,7 +267,20 @@ impl OnePassParser {
     // being accumulated, it was flushed and the decoder is active.
     // well, is there a current block decoder? if so, pass it the line.
     if let Some(ref mut dec) = self.current_decoder {
-      let resp = dec.consume(line);
+      // check for a block-ender
+      let resp = if let Some(solver) = self.file.flavour.solver {
+        if solver.block_enders().iter().any(|s| line.contains(s)) {
+          // line has block ender
+          LineResponse::Done
+        } else {
+          // no block ender, pass to decoder
+          dec.consume(line)
+        }
+      } else {
+        // no solver but we're in a block?!
+        self.flush_decoder();
+        return ParserResponse::BeginningWithoutSolver;
+      };
       let bt = dec.block_type();
       if resp.abnormal() || resp == LineResponse::Done {
         self.flush_decoder();

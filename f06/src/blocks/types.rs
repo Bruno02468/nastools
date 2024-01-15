@@ -165,6 +165,30 @@ gen_block_types!(
       "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE ELAS1"
     ]
   },
+  {
+    "Stresses in triangular elements",
+    TriaStresses,
+    TriaStressesDecoder,
+    [
+      "STRESSES IN TRIANGULAR ELEMENTS (TRIA3)",
+      concat!(
+        "ELEMENT STRESSES IN LOCAL ELEMENT COORDINATE SYSTEM ",
+        "FOR ELEMENT TYPE TRIA3"
+      )
+    ]
+  },
+  /*{
+    "Strains in triangular elements",
+    TriaStrains,
+    TriaStrainsDecoder,
+    [
+      "STRESSES IN TRIANGULAR ELEMENTS (TRIA3)",
+      concat!(
+        "ELEMENT STRAINS IN LOCAL ELEMENT COORDINATE SYSTEM ",
+        "FOR ELEMENT TYPE TRIA3"
+      )
+    ]
+  },*/
 );
 
 impl Display for BlockType {

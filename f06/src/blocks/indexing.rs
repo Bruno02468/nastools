@@ -1,7 +1,7 @@
 //! This submodule implements several indexing types used to acces values in an
 //! output block.
 
-use std::fmt::Display;
+use std::fmt::{Display, Debug as DebugTrait};
 use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
@@ -89,7 +89,7 @@ macro_rules! gen_nasindex {
     impl Display for NasIndex {
       fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         return match self {
-          $(Self::$tn(x) => x.fmt(f),)*
+          $(Self::$tn(x) => <$tn as Display>::fmt(x, f),)*
         };
       }
     }
@@ -106,8 +106,8 @@ gen_nasindex!(
   GridPointForceOrigin,
   PointInElement,
   ElementSidedPoint,
-  QuadStressField,
-  QuadStrainField,
+  PlateStressField,
+  PlateStrainField,
   PlateForceField,
   RodForceField,
   BarForceField,
@@ -115,7 +115,7 @@ gen_nasindex!(
 );
 
 /// All field indexing types must implement this trait.
-pub trait IndexType: Copy + Ord + Eq + Into<NasIndex> + Display {
+pub trait IndexType: Copy + Ord + Eq + Into<NasIndex> + Display + DebugTrait {
   /// The name of this type of index, all caps.
   const INDEX_NAME: &'static str;
 }
@@ -259,19 +259,22 @@ pub enum ElementPoint {
   /// A corner point.
   Corner(GridPointRef),
   /// A midpoint.
-  Midpoint(GridPointRef)
+  Midpoint(GridPointRef),
+  /// Anywhere in the element.
+  Anywhere
 }
 
 impl Display for ElementPoint {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     return match self {
-      ElementPoint::Centroid => write!(f, "CENTROID"),
-      ElementPoint::Corner(GridPointRef { gid }) => {
+      Self::Centroid => write!(f, "CENTROID"),
+      Self::Corner(GridPointRef { gid }) => {
         write!(f, "CORNER AT GRID {}", gid)
       },
-      ElementPoint::Midpoint(GridPointRef { gid }) => {
+      Self::Midpoint(GridPointRef { gid }) => {
         write!(f, "MIDPOINT AT GRID {}", gid)
-      }
+      },
+      Self::Anywhere => write!(f, "ANYWHERE IN THE ELEMENT")
     };
   }
 }
@@ -362,7 +365,7 @@ impl ElementSidedPoint {
 
 from_enum!(
   "The columns for the stress table for a quadrilateral element.",
-  QuadStressField,
+  PlateStressField,
   [
     (FibreDistance, "FIBRE DISTANCE"),
     (NormalX, "NORMAL-X"),
@@ -375,7 +378,7 @@ from_enum!(
   ]
 );
 
-impl IndexType for QuadStressField {
+impl IndexType for PlateStressField {
   const INDEX_NAME: &'static str = "QUAD STRESS FIELD";
 }
 
@@ -385,15 +388,15 @@ impl IndexType for QuadStressField {
   derive_more::From
 )]
 #[allow(missing_docs)] // nah
-pub struct QuadStrainField(QuadStressField);
+pub struct PlateStrainField(PlateStressField);
 
-impl Display for QuadStrainField {
+impl Display for PlateStrainField {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    return self.0.fmt(f);
+    return Display::fmt(&self.0, f);
   }
 }
 
-impl IndexType for QuadStrainField {
+impl IndexType for PlateStrainField {
   const INDEX_NAME: &'static str = "QUAD STRAIN FIELD";
 }
 

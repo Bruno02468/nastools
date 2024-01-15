@@ -9,6 +9,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Display;
 use std::mem::discriminant;
 
+use log::warn;
 use nalgebra::{Matrix, Const, VecStorage, Dyn, Scalar, DMatrix};
 use num::Zero;
 use serde::{Serialize, Deserialize};
@@ -143,6 +144,9 @@ impl<S, R, C, const W: usize> RowBlock<S, R, C, W>
   /// Inserts a line raw into the data matrix, without fixing indexes. Returns
   /// the row within the underlying matrixes this was put in.
   pub(crate) fn insert_raw(&mut self, row_index: R, row: &[S; W]) -> usize {
+    if self.row_indexes.contains_key(&row_index) {
+      warn!("tried to insert the same line twice! index: {:?}", row_index);
+    }
     let irow: usize;
     if let Some(mut mat) = self.data.take() {
       if let Some(fnd) = self.row_indexes.get(&row_index) {

@@ -34,6 +34,19 @@ impl Solver {
       Solver::Simcenter => "Simcenter Nastran"
     };
   }
+
+  /// Returns an array of "block ending" strings tht we should test for.
+  pub const fn block_enders(&self) -> &'static [&'static str] {
+    return match self {
+      Solver::Mystran => &[
+        "-------------",
+        "------------"
+      ],
+      Solver::Simcenter => &[
+        "SIMCENTER NASTRAN"
+      ],
+    };
+  }
 }
 
 /// The known solution types.

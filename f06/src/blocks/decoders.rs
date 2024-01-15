@@ -7,9 +7,6 @@ use log::*;
 use crate::prelude::*;
 use crate::util::*;
 
-/// Dashes that signal the end of a table in MYSTRAN.
-const MYSTRAN_DASHES: &str = "-------------";
-
 /// Returns column indexes for DOFs. Used by a lot of things.
 fn dof_cols() -> BTreeMap<Dof, usize> {
   return Dof::all()
@@ -51,9 +48,6 @@ impl BlockDecoder for DisplacementsDecoder {
   }
 
   fn consume(&mut self, line: &str) -> LineResponse {
-    if line.contains(MYSTRAN_DASHES) {
-      return LineResponse::Done;
-    }
     let dofs: [f64; SIXDOF] = if let Some(arr) = extract_reals(line) {
       arr
     } else {
@@ -101,9 +95,6 @@ impl BlockDecoder for GridPointForceBalanceDecoder {
   }
 
   fn consume(&mut self, line: &str) -> LineResponse {
-    if line.contains(MYSTRAN_DASHES) {
-      return LineResponse::Done;
-    }
     if line.contains("FORCE BALANCE FOR GRID POINT") {
       self.gpref = nth_integer(line, 0).map(|x| (x as usize).into());
       return LineResponse::Metadata;
@@ -217,9 +208,6 @@ impl BlockDecoder for SpcForcesDecoder {
   }
 
   fn consume(&mut self, line: &str) -> LineResponse {
-    if line.contains(MYSTRAN_DASHES) {
-      return LineResponse::Done;
-    }
     let dofs: [f64; SIXDOF] = if let Some(arr) = extract_reals(line) {
       arr
     } else {
@@ -264,9 +252,6 @@ impl BlockDecoder for AppliedForcesDecoder {
   }
 
   fn consume(&mut self, line: &str) -> LineResponse {
-    if line.contains(MYSTRAN_DASHES) {
-      return LineResponse::Done;
-    }
     let dofs: [f64; Self::MATWIDTH] = if let Some(arr) = extract_reals(line) {
       arr
     } else {
@@ -285,7 +270,7 @@ pub(crate) struct QuadStressesDecoder {
   /// The flavour of solver we're decoding for.
   flavour: Flavour,
   /// The inner block of data.
-  data: RowBlock<f64, ElementSidedPoint, QuadStressField, { Self::MATWIDTH }>,
+  data: RowBlock<f64, ElementSidedPoint, PlateStressField, { Self::MATWIDTH }>,
   /// Current row reference.
   cur_row: Option<<Self as BlockDecoder>::RowIndex>,
   /// Element type, hinted by the header.
@@ -295,14 +280,14 @@ pub(crate) struct QuadStressesDecoder {
 impl BlockDecoder for QuadStressesDecoder {
   type MatScalar = f64;
   type RowIndex = ElementSidedPoint;
-  type ColumnIndex = QuadStressField;
+  type ColumnIndex = PlateStressField;
   const MATWIDTH: usize = 8;
   const BLOCK_TYPE: BlockType = BlockType::QuadStresses;
 
   fn new(flavour: Flavour) -> Self {
     return Self {
       flavour,
-      data: RowBlock::new(QuadStressField::canonical_cols()),
+      data: RowBlock::new(PlateStressField::canonical_cols()),
       cur_row: None,
       etype: None
     };
@@ -440,7 +425,7 @@ pub(crate) struct QuadStrainsDecoder {
 impl BlockDecoder for QuadStrainsDecoder {
   type MatScalar = f64;
   type RowIndex = ElementSidedPoint;
-  type ColumnIndex = QuadStrainField;
+  type ColumnIndex = PlateStrainField;
   const MATWIDTH: usize = 8;
   const BLOCK_TYPE: BlockType = BlockType::QuadStrains;
 
@@ -468,8 +453,8 @@ impl BlockDecoder for QuadStrainsDecoder {
     let mut fb = self.inner.unwrap(subcase, line_range);
     fb.col_indexes = fb.col_indexes.into_iter()
       .map(|(ci, n)| {
-        if let NasIndex::QuadStressField(qss) = ci {
-          return (QuadStrainField::from(qss).into(), n);
+        if let NasIndex::PlateStressField(qss) = ci {
+          return (PlateStrainField::from(qss).into(), n);
         } else {
           panic!("bad col index in quadstress");
         }
@@ -539,9 +524,6 @@ impl BlockDecoder for QuadForcesDecoder {
   }
 
   fn consume(&mut self, line: &str) -> LineResponse {
-    if line.contains(MYSTRAN_DASHES) {
-      return LineResponse::Done;
-    }
     if line.contains("GRID-ID") {
       self.has_grid_id = true;
       return LineResponse::Metadata;
@@ -658,9 +640,6 @@ impl BlockDecoder for TriForcesDecoder {
   }
 
   fn consume(&mut self, line: &str) -> LineResponse {
-    if line.contains(MYSTRAN_DASHES) {
-      return LineResponse::Done;
-    }
     let cols: [f64; Self::MATWIDTH] = if let Some(arr) = extract_reals(line) {
       arr
     } else {
@@ -703,9 +682,6 @@ impl BlockDecoder for RodForcesDecoder {
   }
 
   fn consume(&mut self, line: &str) -> LineResponse {
-    if line.contains(MYSTRAN_DASHES) {
-      return LineResponse::Done;
-    }
     let mut fields = line_breakdown(line);
     let mut found = 0;
     loop {
@@ -762,9 +738,6 @@ impl BlockDecoder for BarForcesDecoder {
   }
 
   fn consume(&mut self, line: &str) -> LineResponse {
-    if line.contains(MYSTRAN_DASHES) {
-      return LineResponse::Done;
-    }
     let cols: [f64; 8] = if let Some(arr) = extract_reals(line) {
       arr
     } else {
@@ -810,9 +783,6 @@ impl BlockDecoder for Elas1ForcesDecoder {
   }
 
   fn consume(&mut self, line: &str) -> LineResponse {
-    if line.contains(MYSTRAN_DASHES) {
-      return LineResponse::Done;
-    }
     let mut fields = line_breakdown(line);
     let mut found = 0;
     loop {
@@ -834,5 +804,88 @@ impl BlockDecoder for Elas1ForcesDecoder {
     } else {
       return LineResponse::Useless;
     }
+  }
+}
+
+/// A decoder for triangular elements' stresses.
+pub struct TriaStressesDecoder {
+  /// The flavour of solver we're doing.
+  flavour: Flavour,
+  /// The data within.
+  data: RowBlock<f64, ElementSidedPoint, PlateStressField, { Self::MATWIDTH }>,
+  /// The current element ID.
+  eid: Option<usize>,
+  /// The element type (gleaned from the header).
+  etype: Option<ElementType>
+}
+
+impl BlockDecoder for TriaStressesDecoder {
+  type MatScalar = f64;
+  type RowIndex = ElementSidedPoint;
+  type ColumnIndex = PlateStressField;
+  const MATWIDTH: usize = 8;
+  const BLOCK_TYPE: BlockType = BlockType::TriaStresses;
+
+  fn new(flavour: Flavour) -> Self {
+    return Self {
+      flavour,
+      data: RowBlock::new(PlateStressField::canonical_cols()),
+      eid: None,
+      etype: None,
+    }
+  }
+
+  fn good_header(&mut self, header: &str) -> bool {
+    self.etype = nth_etype(header, 0);
+    return true;
+  }
+
+  fn hint_last(&mut self, last: NasIndex) {
+    if let NasIndex::ElementSidedPoint(esp) = last {
+      self.etype = esp.element.etype;
+      self.eid = Some(esp.element.eid);
+    } else {
+      panic!("bad header passed to hint_last");
+    }
+  }
+
+  fn unwrap(
+    self,
+    subcase: usize,
+    line_range: Option<(usize, usize)>
+  ) -> FinalBlock {
+    return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
+  }
+
+  fn consume(&mut self, line: &str) -> LineResponse {
+    let vals: [f64; 8] = if let Some(arr) = lax_reals(line) {
+      arr
+    } else {
+      return LineResponse::Useless;
+    };
+    let i0 = nth_natural(line, 0);
+    let i1 = nth_natural(line, 1);
+    self.eid = match (self.flavour.solver, self.eid) {
+      (Some(Solver::Mystran), None) => i0,
+      (Some(Solver::Mystran), Some(_)) => i0.or(self.eid),
+      (Some(Solver::Simcenter), None) => i1,
+      (Some(Solver::Simcenter), Some(_)) => i1.or(self.eid),
+      (None, _) => return LineResponse::BadFlavour,
+    };
+    let esp = if let Some(eid) = self.eid {
+      let element = ElementRef { eid, etype: self.etype };
+      let side = if nth_natural(line, 0).is_none() {
+        ElementSide::Top
+      } else {
+        ElementSide::Bottom
+      };
+      let point = ElementPoint::Anywhere;
+      ElementSidedPoint { element, point, side }
+    } else {
+      warn!("no eid on data line on {}", line);
+      return LineResponse::Abort;
+    };
+    self.data.insert_raw(esp, &vals);
+    return LineResponse::Data;
   }
 }
