@@ -189,6 +189,30 @@ gen_block_types!(
       )
     ]
   },
+  {
+    "Stresses in rod elements",
+    RodStresses,
+    RodStressesDecoder,
+    [
+      "STRESSES IN ROD ELEMENTS (CROD)",
+      concat!(
+        "ELEMENT STRESSES IN LOCAL ELEMENT COORDINATE SYSTEM ",
+        "FOR ELEMENT TYPE ROD"
+      )
+    ]
+  },
+  {
+    "Strains in rod elements",
+    RodStrains,
+    RodStrainsDecoder,
+    [
+      "STRAINS IN ROD ELEMENTS (CROD)",
+      concat!(
+        "ELEMENT STRAINS IN LOCAL ELEMENT COORDINATE SYSTEM ",
+        "FOR ELEMENT TYPE ROD"
+      )
+    ]
+  },
 );
 
 impl Display for BlockType {

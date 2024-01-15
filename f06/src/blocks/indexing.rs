@@ -63,6 +63,34 @@ macro_rules! from_enum {
   };
 }
 
+/// Generates an index that merely contains another.
+macro_rules! gen_with_inner(
+  (
+    $desc:literal,
+    $name:literal,
+    $outer_type:ident,
+    $inner_type:ident
+  ) => {
+    #[doc = $desc]
+    #[derive(
+      Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
+      derive_more::From
+    )]
+    #[allow(missing_docs)] // nah
+    pub struct $outer_type($inner_type);
+
+    impl Display for $outer_type {
+      fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        return Display::fmt(&self.0, f);
+      }
+    }
+
+    impl IndexType for $outer_type {
+      const INDEX_NAME: &'static str = $name;
+    }
+  }
+);
+
 /// Generates the NasIndex struct that encapsulates all indexing types.
 macro_rules! gen_nasindex {
   (
@@ -112,6 +140,8 @@ gen_nasindex!(
   RodForceField,
   BarForceField,
   SingleForce,
+  RodStressField,
+  RodStrainField,
 );
 
 /// All field indexing types must implement this trait.
@@ -364,7 +394,7 @@ impl ElementSidedPoint {
 }
 
 from_enum!(
-  "The columns for the stress table for a quadrilateral element.",
+  "The columns for the stresses table for plate elements.",
   PlateStressField,
   [
     (FibreDistance, "FIBRE DISTANCE"),
@@ -379,26 +409,15 @@ from_enum!(
 );
 
 impl IndexType for PlateStressField {
-  const INDEX_NAME: &'static str = "QUAD STRESS FIELD";
+  const INDEX_NAME: &'static str = "PLATE STRESS FIELD";
 }
 
-/// The columns for the strain table for a quadrilateral element.
-#[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
-  derive_more::From
-)]
-#[allow(missing_docs)] // nah
-pub struct PlateStrainField(PlateStressField);
-
-impl Display for PlateStrainField {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    return Display::fmt(&self.0, f);
-  }
-}
-
-impl IndexType for PlateStrainField {
-  const INDEX_NAME: &'static str = "QUAD STRAIN FIELD";
-}
+gen_with_inner!(
+  "The columns for the strains table for plate elements.",
+  "PLATE STRAIN FIELD",
+  PlateStrainField,
+  PlateStressField
+);
 
 from_enum!(
   "The columns for the engineering forces table for a quadrilateral element.",
@@ -528,3 +547,25 @@ from_enum!(
 impl IndexType for SingleForce {
   const INDEX_NAME: &'static str = "FORCE";
 }
+
+from_enum!(
+  "Rod element stress field.",
+  RodStressField,
+  [
+    (AxialStress, "AXIAL STRESS"),
+    (AxialStressSafetyMargin, "AXIAL STRESS SAFETY MARGIN"),
+    (TorsionalStress, "TORSIONAL STRESS"),
+    (TorsionalStressSafetyMargin, "TORSIONAL STRESS SAFETY MARGIN"),
+  ]
+);
+
+impl IndexType for RodStressField {
+  const INDEX_NAME: &'static str = "ROD STRESS FIELD";
+}
+
+gen_with_inner!(
+  "The columns for the strains table for rod elements.",
+  "ROD STRAIN FIELD",
+  RodStrainField,
+  RodStressField
+);

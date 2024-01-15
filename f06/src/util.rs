@@ -2,6 +2,7 @@
 //! context or not enough of it to warrant them having their own modules.
 
 use std::cell::Cell;
+use std::collections::BTreeMap;
 use serde::{Serialize, Deserialize};
 
 use crate::elements::ElementType;
@@ -230,6 +231,37 @@ pub(crate) fn nth_etype(line: &str, n: usize) -> Option<ElementType> {
         None
       }
     }).nth(n)
+}
+
+/// Extracts all forms given by integers followed by some floats in a line.
+/// Ignores all other fields. Useful for some kinds of tables.
+pub(crate) fn int_pattern(line: &str) -> BTreeMap<usize, Vec<f64>> {
+  let mut res: BTreeMap<usize, Vec<f64>> = BTreeMap::new();
+  let mut current_nat: Option<(usize, Vec<f64>)> = None;
+  let flush = |
+    r: &mut BTreeMap<usize, Vec<f64>>,
+    cur: &mut Option<(usize, Vec<f64>)>
+  | {
+    if let Some((i, v)) = cur.take() {
+      r.insert(i, v);
+    };
+  };
+  for field in line_breakdown(line) {
+    match field {
+      LineField::Integer(i) => {
+        flush(&mut res, &mut current_nat);
+        current_nat = Some((i as usize, Vec::new()));
+      },
+      LineField::Real(x) => {
+        if let Some((_, ref mut v)) = current_nat {
+          v.push(x);
+        }
+      },
+      _ => flush(&mut res, &mut current_nat)
+    };
+  }
+  flush(&mut res, &mut current_nat);
+  return res;
 }
 
 /// Checks if a character is an uppercase letter or a digit.
