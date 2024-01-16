@@ -255,6 +255,16 @@ gen_block_types!(
       )
     ]
   },
+  // quad forces
+  {
+    "Engineering forces in quadrilateral elements",
+    QuadForces,
+    QuadForcesDecoder,
+    [
+      "FORCES IN QUADRILATERAL ELEMENTS",
+      "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE QUAD4"
+    ]
+  },
   // quad stresses
   {
     "Stresses in quadrilateral elements",
@@ -279,16 +289,6 @@ gen_block_types!(
         "ELEMENT STRAINS IN LOCAL ELEMENT COORDINATE SYSTEM ",
         "FOR ELEMENT TYPE QUAD4"
       )
-    ]
-  },
-  // quad forces
-  {
-    "Engineering forces in quadrilateral elements",
-    QuadForces,
-    QuadForcesDecoder,
-    [
-      "FORCES IN QUADRILATERAL ELEMENTS",
-      "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE QUAD4"
     ]
   },
 );
