@@ -4,6 +4,7 @@
 use std::fmt::Display;
 
 use serde::{Serialize, Deserialize};
+use convert_case::{Case, Casing};
 
 use crate::blocks::{BlockDecoder, OpaqueDecoder};
 use crate::blocks::decoders::*;
@@ -52,9 +53,7 @@ macro_rules! gen_block_types {
       /// Returns the name of the block.
       pub const fn desc(&self) -> &'static str {
         return match self {
-          $(
-            Self::$bname => $desc,
-          )*
+          $(Self::$bname => $desc,)*
         };
       }
 
@@ -62,9 +61,21 @@ macro_rules! gen_block_types {
       /// beginning of this block.
       pub fn headers(&self) -> &'static [&'static str] {
         return match self {
-          $(
-            Self::$bname => &$spaceds,
-          )*
+          $(Self::$bname => &$spaceds,)*
+        };
+      }
+
+      /// Returns the small name of the variant, CamelCase.
+      pub const fn short_name(&self) -> &'static str {
+        return match self {
+          $(Self::$bname => stringify!($bname),)*
+        };
+      }
+
+      /// Returns the small, snake case name of the variant.
+      pub fn snake_case_name(&self) -> String {
+        return match self {
+          $(Self::$bname => self.short_name().to_case(Case::Snake),)*
         };
       }
     }
@@ -72,90 +83,35 @@ macro_rules! gen_block_types {
 }
 
 gen_block_types!(
+  // displacements
   {
     "Grid point displacements",
     Displacements,
     DisplacementsDecoder,
     ["DISPLACEMENTS", "DISPLACEMENT VECTOR"]
   },
+  // grid point force balance
   {
     "Grid point force balance",
     GridPointForceBalance,
     GridPointForceBalanceDecoder,
     ["GRID POINT FORCE BALANCE"]
   },
+  // spc forces
   {
     "Forces of single-point constraint",
     SpcForces,
     SpcForcesDecoder,
     ["SPC FORCES", "FORCES OF SINGLE-POINT CONSTRAINT"]
   },
+  // applied forces
   {
     "Applied forces",
     AppliedForces,
     AppliedForcesDecoder,
     ["APPLIED FORCES", "LOAD VECTOR"]
   },
-  {
-    "Stresses in quadrilateral elements",
-    QuadStresses,
-    QuadStressesDecoder,
-    [
-      "STRESSES IN QUADRILATERAL ELEMENTS",
-      concat!(
-        "ELEMENT STRESSES IN LOCAL ELEMENT COORDINATE SYSTEM ",
-        "FOR ELEMENT TYPE QUAD4"
-      )
-    ]
-  },
-  {
-    "Strains in quadrilateral elements",
-    QuadStrains,
-    QuadStrainsDecoder,
-    [
-      "STRAINS IN QUADRILATERAL ELEMENTS",
-      concat!(
-        "ELEMENT STRAINS IN LOCAL ELEMENT COORDINATE SYSTEM ",
-        "FOR ELEMENT TYPE QUAD4"
-      )
-    ]
-  },
-  {
-    "Engineering forces in quadrilateral elements",
-    QuadForces,
-    QuadForcesDecoder,
-    [
-      "FORCES IN QUADRILATERAL ELEMENTS",
-      "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE QUAD4"
-    ]
-  },
-  {
-    "Engineering forces in triangular elements",
-    TriaForces,
-    TriaForcesDecoder,
-    [
-      "FORCES IN TRIANGULAR ELEMENTS",
-      "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE TRIA3"
-    ]
-  },
-  {
-    "Engineering forces in rod elements",
-    RodForces,
-    RodForcesDecoder,
-    [
-      "FORCES IN ROD ELEMENTS",
-      "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE ROD"
-    ]
-  },
-  {
-    "Engineering forces in bar elements",
-    BarForces,
-    BarForcesDecoder,
-    [
-      "FORCES IN BAR ELEMENTS",
-      "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE BAR"
-    ]
-  },
+  // elas1 forces
   {
     "Engineering forces in ELAS1 elements",
     Elas1Forces,
@@ -165,78 +121,7 @@ gen_block_types!(
       "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE ELAS1"
     ]
   },
-  {
-    "Stresses in triangular elements",
-    TriaStresses,
-    TriaStressesDecoder,
-    [
-      "STRESSES IN TRIANGULAR ELEMENTS (TRIA3)",
-      concat!(
-        "ELEMENT STRESSES IN LOCAL ELEMENT COORDINATE SYSTEM ",
-        "FOR ELEMENT TYPE TRIA3"
-      )
-    ]
-  },
-  {
-    "Strains in triangular elements",
-    TriaStrains,
-    TriaStrainsDecoder,
-    [
-      "STRAINS IN TRIANGULAR ELEMENTS (TRIA3)",
-      concat!(
-        "ELEMENT STRAINS IN LOCAL ELEMENT COORDINATE SYSTEM ",
-        "FOR ELEMENT TYPE TRIA3"
-      )
-    ]
-  },
-  {
-    "Stresses in rod elements",
-    RodStresses,
-    RodStressesDecoder,
-    [
-      "STRESSES IN ROD ELEMENTS (CROD)",
-      concat!(
-        "ELEMENT STRESSES IN LOCAL ELEMENT COORDINATE SYSTEM ",
-        "FOR ELEMENT TYPE ROD"
-      )
-    ]
-  },
-  {
-    "Strains in rod elements",
-    RodStrains,
-    RodStrainsDecoder,
-    [
-      "STRAINS IN ROD ELEMENTS (CROD)",
-      concat!(
-        "ELEMENT STRAINS IN LOCAL ELEMENT COORDINATE SYSTEM ",
-        "FOR ELEMENT TYPE ROD"
-      )
-    ]
-  },
-  {
-    "Stresses in bar elements",
-    BarStresses,
-    BarStressesDecoder,
-    [
-      "STRESSES IN BAR ELEMENTS (CBAR)",
-      concat!(
-        "ELEMENT STRESSES IN LOCAL ELEMENT COORDINATE SYSTEM ",
-        "FOR ELEMENT TYPE BAR"
-      )
-    ]
-  },
-  {
-    "Strains in bar elements",
-    BarStrains,
-    BarStrainsDecoder,
-    [
-      "STRAINS IN BAR ELEMENTS (CBAR)",
-      concat!(
-        "ELEMENT STRAINS IN LOCAL ELEMENT COORDINATE SYSTEM ",
-        "FOR ELEMENT TYPE BAR"
-      )
-    ]
-  },
+  // elas1 stresses
   {
     "Stresses in ELAS1 elements",
     Elas1Stresses,
@@ -249,6 +134,7 @@ gen_block_types!(
       )
     ]
   },
+  // elas1 strains
   {
     "Strains in ELAS1 elements",
     Elas1Strains,
@@ -259,6 +145,150 @@ gen_block_types!(
         "ELEMENT STRAINS IN LOCAL ELEMENT COORDINATE SYSTEM ",
         "FOR ELEMENT TYPE ELAS1"
       )
+    ]
+  },
+  // rod forces
+  {
+    "Engineering forces in rod elements",
+    RodForces,
+    RodForcesDecoder,
+    [
+      "FORCES IN ROD ELEMENTS",
+      "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE ROD"
+    ]
+  },
+  // rod stresses
+  {
+    "Stresses in rod elements",
+    RodStresses,
+    RodStressesDecoder,
+    [
+      "STRESSES IN ROD ELEMENTS (CROD)",
+      concat!(
+        "ELEMENT STRESSES IN LOCAL ELEMENT COORDINATE SYSTEM ",
+        "FOR ELEMENT TYPE ROD"
+      )
+    ]
+  },
+  // rod strains
+  {
+    "Strains in rod elements",
+    RodStrains,
+    RodStrainsDecoder,
+    [
+      "STRAINS IN ROD ELEMENTS (CROD)",
+      concat!(
+        "ELEMENT STRAINS IN LOCAL ELEMENT COORDINATE SYSTEM ",
+        "FOR ELEMENT TYPE ROD"
+      )
+    ]
+  },
+  // bar forces
+  {
+    "Engineering forces in bar elements",
+    BarForces,
+    BarForcesDecoder,
+    [
+      "FORCES IN BAR ELEMENTS",
+      "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE BAR"
+    ]
+  },
+  // bar stresses
+  {
+    "Stresses in bar elements",
+    BarStresses,
+    BarStressesDecoder,
+    [
+      "STRESSES IN BAR ELEMENTS (CBAR)",
+      concat!(
+        "ELEMENT STRESSES IN LOCAL ELEMENT COORDINATE SYSTEM ",
+        "FOR ELEMENT TYPE BAR"
+      )
+    ]
+  },
+  // bar strains
+  {
+    "Strains in bar elements",
+    BarStrains,
+    BarStrainsDecoder,
+    [
+      "STRAINS IN BAR ELEMENTS (CBAR)",
+      concat!(
+        "ELEMENT STRAINS IN LOCAL ELEMENT COORDINATE SYSTEM ",
+        "FOR ELEMENT TYPE BAR"
+      )
+    ]
+  },
+  // tria forces
+  {
+    "Engineering forces in triangular elements",
+    TriaForces,
+    TriaForcesDecoder,
+    [
+      "FORCES IN TRIANGULAR ELEMENTS",
+      "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE TRIA3"
+    ]
+  },
+  // tria stresses
+  {
+    "Stresses in triangular elements",
+    TriaStresses,
+    TriaStressesDecoder,
+    [
+      "STRESSES IN TRIANGULAR ELEMENTS (TRIA3)",
+      concat!(
+        "ELEMENT STRESSES IN LOCAL ELEMENT COORDINATE SYSTEM ",
+        "FOR ELEMENT TYPE TRIA3"
+      )
+    ]
+  },
+  // tria strains
+  {
+    "Strains in triangular elements",
+    TriaStrains,
+    TriaStrainsDecoder,
+    [
+      "STRAINS IN TRIANGULAR ELEMENTS (TRIA3)",
+      concat!(
+        "ELEMENT STRAINS IN LOCAL ELEMENT COORDINATE SYSTEM ",
+        "FOR ELEMENT TYPE TRIA3"
+      )
+    ]
+  },
+  // quad stresses
+  {
+    "Stresses in quadrilateral elements",
+    QuadStresses,
+    QuadStressesDecoder,
+    [
+      "STRESSES IN QUADRILATERAL ELEMENTS",
+      concat!(
+        "ELEMENT STRESSES IN LOCAL ELEMENT COORDINATE SYSTEM ",
+        "FOR ELEMENT TYPE QUAD4"
+      )
+    ]
+  },
+  // quad strains
+  {
+    "Strains in quadrilateral elements",
+    QuadStrains,
+    QuadStrainsDecoder,
+    [
+      "STRAINS IN QUADRILATERAL ELEMENTS",
+      concat!(
+        "ELEMENT STRAINS IN LOCAL ELEMENT COORDINATE SYSTEM ",
+        "FOR ELEMENT TYPE QUAD4"
+      )
+    ]
+  },
+  // quad forces
+  {
+    "Engineering forces in quadrilateral elements",
+    QuadForces,
+    QuadForcesDecoder,
+    [
+      "FORCES IN QUADRILATERAL ELEMENTS",
+      "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE QUAD4"
     ]
   },
 );
