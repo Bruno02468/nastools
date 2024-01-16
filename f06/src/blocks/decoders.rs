@@ -802,7 +802,7 @@ impl BlockDecoder for BarForcesDecoder {
 }
 
 /// Decoder for ELAS1 engineering force blocks.
-pub struct Elas1ForcesDecoder {
+pub(crate) struct Elas1ForcesDecoder {
   /// The inner data block.
   data: RowBlock<f64, ElementRef, SingleForce, { Self::MATWIDTH }>
 }
@@ -852,7 +852,7 @@ impl BlockDecoder for Elas1ForcesDecoder {
 }
 
 /// A decoder for triangular elements' stresses.
-pub struct TriaStressesDecoder {
+pub(crate) struct TriaStressesDecoder {
   /// The flavour of solver we're doing.
   flavour: Flavour,
   /// The data within.
@@ -1155,4 +1155,68 @@ converting_decoder!(
   (BarStrainField, BarStressField),
   BlockType::BarStrains,
   15
+);
+
+/// Decoder for ELAS1 element stresses.
+pub(crate) struct Elas1StressesDecoder {
+  /// The data within.
+  data: RowBlock<f64, ElementRef, SingleStress, { Self::MATWIDTH }>
+}
+
+impl BlockDecoder for Elas1StressesDecoder {
+  type MatScalar = f64;
+  type RowIndex = ElementRef;
+  type ColumnIndex = SingleStress;
+  const MATWIDTH: usize = 1;
+  const BLOCK_TYPE: BlockType = BlockType::Elas1Stresses;
+
+  fn new(_flavour: Flavour) -> Self {
+    return Self {
+      data: RowBlock::new(SingleStress::canonical_cols())
+    };
+  }
+
+  fn unwrap(
+    self,
+    subcase: usize,
+    line_range: Option<(usize, usize)>
+  ) -> FinalBlock {
+    return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
+  }
+
+  fn consume(&mut self, line: &str) -> LineResponse {
+    let etype = Some(ElementType::Elas1);
+    let mut added: usize = 0;
+    for (eid, floats) in int_pattern(line) {
+      match floats.len() {
+        0 => continue,
+        1 => {
+          let eref = ElementRef { eid, etype };
+          let vals = [floats[0]];
+          self.data.insert_raw(eref, &vals);
+          added += 1;
+        },
+        _ => {
+          warn!("more than one float in elas1 stress/strain line {}", line);
+          return LineResponse::Abort;
+        }
+      };
+    }
+    if added > 0 {
+      return LineResponse::Data;
+    } else {
+      return LineResponse::Useless;
+    }
+  }
+}
+
+converting_decoder!(
+  "Decoder for ELAS1 element strains",
+  Elas1StrainsDecoder,
+  Elas1StressesDecoder,
+  f64,
+  (ElementRef, ElementRef),
+  (SingleStrain, SingleStress),
+  BlockType::Elas1Strains,
+  1
 );

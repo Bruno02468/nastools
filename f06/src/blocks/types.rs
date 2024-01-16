@@ -237,6 +237,30 @@ gen_block_types!(
       )
     ]
   },
+  {
+    "Stresses in ELAS1 elements",
+    Elas1Stresses,
+    Elas1StressesDecoder,
+    [
+      "STRESSES IN SCALAR SPRINGS (CELAS1)",
+      concat!(
+        "ELEMENT STRESSES IN LOCAL ELEMENT COORDINATE SYSTEM ",
+        "FOR ELEMENT TYPE ELAS1"
+      )
+    ]
+  },
+  {
+    "Strains in ELAS1 elements",
+    Elas1Strains,
+    Elas1StrainsDecoder,
+    [
+      "STRAINS IN SCALAR SPRINGS (CELAS1)",
+      concat!(
+        "ELEMENT STRAINS IN LOCAL ELEMENT COORDINATE SYSTEM ",
+        "FOR ELEMENT TYPE ELAS1"
+      )
+    ]
+  },
 );
 
 impl Display for BlockType {

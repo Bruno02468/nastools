@@ -127,23 +127,25 @@ macro_rules! gen_nasindex {
 gen_nasindex!(
   Axis,
   Dof,
-  ForceOrigin,
   GridPointRef,
   ElementRef,
   CsysRef,
-  GridPointForceOrigin,
+  ForceOrigin,
   PointInElement,
+  GridPointForceOrigin,
   ElementSidedPoint,
-  PlateStressField,
-  PlateStrainField,
-  PlateForceField,
-  RodForceField,
-  BarForceField,
   SingleForce,
-  RodStressField,
-  RodStrainField,
+  SingleStress,
+  SingleStrain,
+  BarForceField,
   BarStressField,
   BarStrainField,
+  RodForceField,
+  RodStressField,
+  RodStrainField,
+  PlateForceField,
+  PlateStressField,
+  PlateStrainField,
 );
 
 /// All field indexing types must implement this trait.
@@ -556,8 +558,39 @@ from_enum!(
   ]
 );
 
+from_enum!(
+  "Generic single-stress field.",
+  SingleStress,
+  [
+    (Stress, "STRESS"),
+  ]
+);
+
+from_enum!(
+  "Generic single-strain field.",
+  SingleStrain,
+  [
+    (Strain, "STRAIN"),
+  ]
+);
+
 impl IndexType for SingleForce {
   const INDEX_NAME: &'static str = "FORCE";
+}
+
+impl IndexType for SingleStress {
+  const INDEX_NAME: &'static str = "STRESS";
+}
+
+
+impl IndexType for SingleStrain {
+  const INDEX_NAME: &'static str = "STRAIN";
+}
+
+impl From<SingleStress> for SingleStrain {
+  fn from(_value: SingleStress) -> Self {
+    return Self::Strain;
+  }
 }
 
 from_enum!(
