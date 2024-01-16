@@ -354,6 +354,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "nas_csv"
+version = "0.1.0"
+dependencies = [
+ "convert_case 0.6.0",
+ "csv",
+ "derive_more",
+ "f06",
+ "log",
+ "serde",
+]
+
+[[package]]
 name = "num"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
