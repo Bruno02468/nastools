@@ -7,6 +7,26 @@ use serde::{Deserialize, Serialize};
 /// Stupid constant so the code is more readable.
 pub const SIXDOF: usize = 6;
 
+/// X-translation DOF for short.
+pub const DOF_TX: Dof = Dof{ dof_type: DofType::Translational, axis: Axis::X };
+
+/// Y-translation DOF for short.
+pub const DOF_TY: Dof = Dof{ dof_type: DofType::Translational, axis: Axis::Y };
+
+/// Z-translation DOF for short.
+pub const DOF_TZ: Dof = Dof{ dof_type: DofType::Translational, axis: Axis::Z };
+
+/// X-translation DOF for short.
+pub const DOF_RX: Dof = Dof{ dof_type: DofType::Rotational, axis: Axis::X };
+
+/// Y-translation DOF for short.
+pub const DOF_RY: Dof = Dof{ dof_type: DofType::Rotational, axis: Axis::Y };
+
+/// Z-translation DOF for short.
+pub const DOF_RZ: Dof = Dof{ dof_type: DofType::Rotational, axis: Axis::Z };
+
+
+
 /// The two type of degree of freedom.
 #[derive(
   Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq

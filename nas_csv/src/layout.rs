@@ -14,6 +14,7 @@ pub const NAS_CSV_COLS: usize = 11;
 #[derive(
   Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord
 )]
+#[non_exhaustive]
 pub enum CsvBlockId {
   /// The 0-block: general solution info; subcase IDs, solution types, etc.
   SolInfo,
@@ -27,6 +28,35 @@ pub enum CsvBlockId {
   Forces,
   /// The 5-block: grid point force balance.
   GridPointForceBalance
+}
+
+impl From<CsvBlockId> for usize {
+  fn from(value: CsvBlockId) -> Self {
+    return match value {
+      CsvBlockId::SolInfo => 0,
+      CsvBlockId::Displacements => 1,
+      CsvBlockId::Stresses => 2,
+      CsvBlockId::Strains => 3,
+      CsvBlockId::Forces => 4,
+      CsvBlockId::GridPointForceBalance => 5
+    };
+  }
+}
+
+impl TryFrom<usize> for CsvBlockId {
+  type Error = ();
+
+  fn try_from(value: usize) -> Result<Self, Self::Error> {
+    return Ok(match value {
+      0 => CsvBlockId::SolInfo,
+      1 => CsvBlockId::Displacements,
+      2 => CsvBlockId::Stresses,
+      3 => CsvBlockId::Strains,
+      4 => CsvBlockId::Forces,
+      5 => CsvBlockId::GridPointForceBalance,
+      _ => return Err(())
+    });
+  }
 }
 
 /// The kinds of CSV records we can find in our format.
@@ -43,8 +73,20 @@ pub enum CsvField {
   Natural(usize),
   /// A real number.
   Real(f64),
-  /// A Nastran index.
-  NasIndex(NasIndex)
+  /// An alloc'd string.
+  String(String),
+  /// An element type.
+  ElementType(ElementType)
+}
+
+impl From<F06Number> for CsvField {
+  fn from(value: F06Number) -> Self {
+    return match value {
+      F06Number::Real(x) => Self::Real(x),
+      F06Number::Integer(i) => Self::Integer(i),
+      F06Number::Natural(n) => Self::Natural(n)
+    };
+  }
 }
 
 impl Display for CsvField {
@@ -54,7 +96,8 @@ impl Display for CsvField {
       Self::Integer(i) => i.fmt(f),
       Self::Natural(n) => n.fmt(f),
       Self::Real(x) => x.fmt(f),
-      Self::NasIndex(ix) => ix.fmt(f)
+      Self::String(s) => s.fmt(f),
+      Self::ElementType(et) => et.fmt(f)
     };
   }
 }
@@ -66,7 +109,12 @@ pub struct CsvRecord {
   pub block_id: CsvBlockId,
   /// Block type that originated this record. If none, it's the 0-block.
   pub block_type: Option<BlockType>,
-  /// If this record relates to an element
+  /// If this record relates to an element, the element ID.
+  pub eid: Option<usize>,
+  /// If this record relates to an element, its type.
+  pub etype: Option<ElementType>,
+  /// If this record relates to a grid point, its ID.
+  pub gid: Option<usize>,
   /// The remaining ten fields.
   pub fields: [CsvField; NAS_CSV_COLS-1]
 }

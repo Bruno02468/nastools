@@ -6,8 +6,7 @@ use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 
-use crate::elements::ElementType;
-use crate::geometry::{Axis, Dof};
+use crate::prelude::*;
 
 /// Generates a NasIndex type from pure enum fields. Saves some time.
 macro_rules! from_enum {
@@ -125,12 +124,9 @@ macro_rules! gen_nasindex {
 }
 
 gen_nasindex!(
-  Axis,
   Dof,
   GridPointRef,
   ElementRef,
-  CsysRef,
-  ForceOrigin,
   PointInElement,
   GridPointForceOrigin,
   ElementSidedPoint,
@@ -152,10 +148,6 @@ gen_nasindex!(
 pub trait IndexType: Copy + Ord + Eq + Into<NasIndex> + Display + DebugTrait {
   /// The name of this type of index, all caps.
   const INDEX_NAME: &'static str;
-}
-
-impl IndexType for Axis {
-  const INDEX_NAME: &'static str = "AXIS";
 }
 
 impl IndexType for Dof {
@@ -190,10 +182,6 @@ impl Display for ForceOrigin {
       Self::MultiPointConstraint => write!(f, "MULTI-POINT CONSTRAINT"),
     };
   }
-}
-
-impl IndexType for ForceOrigin {
-  const INDEX_NAME: &'static str = "FORCE ORIGIN";
 }
 
 /// A grid point, referenced by its ID.
@@ -255,10 +243,6 @@ impl Display for CsysRef {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     return write!(f, "COORD SYS {}", self.cid);
   }
-}
-
-impl IndexType for CsysRef {
-  const INDEX_NAME: &'static str = "COORD SYS ID";
 }
 
 /// A combination of a grid point reference and a force origin.
