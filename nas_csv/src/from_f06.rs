@@ -95,7 +95,9 @@ pub enum ColumnGenerator {
   /// Output a constant number.
   ConstantNumber(F06Number),
   /// Output a constant string.
-  ConstantString(&'static str)
+  ConstantString(&'static str),
+  /// Runs another generator, with a default for errors.
+  WithDefault(&'static ColumnGenerator, &'static CsvField)
 }
 
 impl ColumnGenerator {
@@ -133,12 +135,15 @@ impl ColumnGenerator {
       Self::Subcase => block.subcase.into(),
       Self::ConstantNumber(x) => (*x).into(),
       Self::ConstantString(s) => s.to_string().into(),
+      Self::WithDefault(g, d) => {
+        g.convert(block, flavour, row).unwrap_or((*d).clone())
+      }
     });
   }
 }
 
 /// A template to convert an F06 block into a series of CSV records.
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct BlockConverter {
   /// The block type this is meant for.
   pub input_block_type: BlockType,

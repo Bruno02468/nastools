@@ -76,7 +76,7 @@ macro_rules! gen_with_inner(
       derive_more::From
     )]
     #[allow(missing_docs)] // nah
-    pub struct $outer_type($inner_type);
+    pub struct $outer_type(pub $inner_type);
 
     impl Display for $outer_type {
       fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -581,10 +581,10 @@ from_enum!(
   "Rod element stress field.",
   RodStressField,
   [
-    (AxialStress, "AXIAL STRESS"),
-    (AxialStressSafetyMargin, "AXIAL STRESS SAFETY MARGIN"),
-    (TorsionalStress, "TORSIONAL STRESS"),
-    (TorsionalStressSafetyMargin, "TORSIONAL STRESS SAFETY MARGIN"),
+    (Axial, "AXIAL"),
+    (AxialSafetyMargin, "AXIAL SAFETY MARGIN"),
+    (Torsional, "TORSIONAL"),
+    (TorsionalSafetyMargin, "TORSIONAL SAFETY MARGIN"),
   ]
 );
 
