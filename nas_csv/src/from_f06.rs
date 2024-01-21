@@ -297,6 +297,7 @@ pub fn to_records<'s>(
       .map(|c| usize::from(c.output_block_id))
       .unwrap_or(0)
   );
+  // get the blocks in the correct order
   let blocks = block_refs.into_iter()
     .flat_map(|br| file.blocks.get(br).unwrap())
     .filter_map(

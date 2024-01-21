@@ -16,46 +16,77 @@ use nas_csv::prelude::*;
 
 /// The arguments passed to the converter.
 #[derive(Clone, Debug, Parser)]
-#[command(author, version, about)]
+#[command(
+  name = "f06csv",
+  author,
+  version,
+  about = "A command-line utility to convert Nastran F06 output to CSV."
+)]
 struct Cli {
+  /// Path to write output to.
+  ///
+  /// If absent, writes to standard output.
+  #[arg(short = 'o')]
+  output: Option<PathBuf>,
   /// CSV blocks to write. Can be specified more than once, or comma-separated.
+  ///
   /// If absent, all blocks are written.
   #[arg(short = 'b', long = "blocks", num_args = 0.., value_delimiter = ',')]
   csv_blocks: Vec<CsvBlockId>,
+  /// Grid point ID filter.
+  ///
   /// If a record has a grid point ID, only output those that contain the
-  /// specified IDs. Can be specified more than once, or comma-separated.
+  /// specified IDs.
+  ///
+  /// Can be specified more than once, or comma-separated.
+  ///
   /// If absent, no grid point ID filter is applied.
   #[arg(short = 'g', long = "gids", num_args = 0.., value_delimiter = ',')]
   gids: Vec<usize>,
+  /// Element ID filter.
+  ///
   /// If a record has an element ID, only output those that contain the
-  /// specified IDs. Can be specified more than once, or comma-separated.
+  /// specified IDs.
+  ///
+  /// Can be specified more than once, or comma-separated.
+  ///
   /// If absent, no element ID filter is applied.
   #[arg(short = 'e', long = "eids", num_args = 0.., value_delimiter = ',')]
   eids: Vec<usize>,
+  /// Element type filter.
+  ///
   /// If a record has an element type, only output those that contain the
-  /// specified types. Can be specified more than once, or comma-separated.
+  /// specified types.
+  ///
+  /// Can be specified more than once, or comma-separated.
+  ///
   /// If absent, no element type filter is applied.
   #[arg(short = 't', long = "etypes", num_args = 0.., value_delimiter = ',')]
   etypes: Vec<ElementType>,
+  /// Subcase filter.
+  ///
   /// If a record has subcase ID, only output those that contain the
-  /// specified IDs. Can be specified more than once, or comma-separated.
+  /// specified IDs.
+  ///
+  /// Can be specified more than once, or comma-separated.
+  ///
   /// If absent, no subcase filter is applied.
   #[arg(short = 's', long = "subcases", num_args = 0.., value_delimiter = ',')]
   subcases: Vec<usize>,
-  /// The delimiter used in the CSV.
-  #[arg(short = 'd', long = "delim", default_value = ",")]
-  delim: char,
-  /// Output extra/debug info while parsing and converting.
-  #[arg(short = 'v', long = "verbose")]
-  verbose: bool,
-  /// Enable writing CSV headers. Be warned, they're written every time there's
-  /// a change.
+  /// Enable writing CSV headers.
+  ///
+  /// Be warned, they're written every time there's a change.
   #[arg(short = 'H', long = "headers")]
   headers: bool,
-  /// Path to write output to. If absent, writes to standard output.
-  #[arg(short = 'o')]
-  output: Option<PathBuf>,
-  /// The name of the input F06 file. If -, reads from standard input.
+  /// The delimiter used in the CSV.
+  #[arg(short = 'd', long, default_value = ",", verbatim_doc_comment)]
+  delim: char,
+  /// Output extra/debug info while parsing and converting.
+  #[arg(short = 'v', long = "verbose", verbatim_doc_comment)]
+  verbose: bool,
+  /// The name of the input F06 file.
+  ///
+  /// If -, reads from standard input.
   input: PathBuf,
 }
 
