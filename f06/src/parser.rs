@@ -269,8 +269,9 @@ impl OnePassParser {
     if let Some(ref mut dec) = self.current_decoder {
       // check for a block-ender
       let resp = if let Some(solver) = self.file.flavour.solver {
-        if solver.block_enders().iter().any(|s| line.contains(s)) {
-          // line has block ender
+        if solver.block_enders().iter().any(|s| line.contains(s))
+          && !solver.ender_exceptions().contains(&dec.block_type()){
+          // line has block ender and block is not exempt from ender
           LineResponse::Done
         } else {
           // no block ender, pass to decoder

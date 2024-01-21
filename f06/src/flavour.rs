@@ -5,6 +5,8 @@ use std::fmt::Display;
 
 use serde::{Serialize, Deserialize};
 
+use crate::prelude::BlockType;
+
 /// The different supported solvers.
 #[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[non_exhaustive]
@@ -45,6 +47,14 @@ impl Solver {
       Solver::Simcenter => &[
         "SIMCENTER NASTRAN"
       ],
+    };
+  }
+
+  /// Returns the exceptions to block enders.
+  pub const fn ender_exceptions(&self) -> &'static [BlockType] {
+    return match self {
+      Solver::Mystran => &[BlockType::GridPointForceBalance],
+      Solver::Simcenter => &[],
     };
   }
 }
