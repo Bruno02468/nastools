@@ -1,6 +1,7 @@
 //! This module contains types and subroutines to produce CSV-ready data from
 //! parsed F06 files.
 
+use std::collections::BTreeMap;
 use std::fmt::Display;
 
 use f06::prelude::*;
@@ -239,4 +240,51 @@ impl BlockConverter {
       })
     }));
   }
+}
+
+/// Generates the 0-block for a file.
+pub fn zeroth_block(file: &F06File) -> impl Iterator<Item = CsvRecord> + '_ {
+  return file.subcases().map(|s| CsvRecord {
+    block_id: CsvBlockId::SolInfo,
+    block_type: None,
+    eid: None,
+    etype: None,
+    gid: None,
+    fields: [
+      0usize.into(),
+      s.into(),
+      file.flavour.soltype.map(usize::from).unwrap_or(0).into(),
+      0usize.into(),
+      0usize.into(),
+      0usize.into(),
+      0usize.into(),
+      0usize.into(),
+      0usize.into(),
+      0usize.into()
+    ]
+  })
+}
+
+/// Generates all CSV records for a file.
+pub fn to_records<'s>(
+  file: &'s F06File,
+  converters: &'s BTreeMap<BlockType, BlockConverter>
+) -> impl Iterator<Item = CsvRecord> + 's {
+  // zeroth block
+  let zeroth = zeroth_block(file);
+  // sort the block refs by the output csv block id
+  let mut block_refs = file.blocks.keys().collect::<Vec<_>>();
+  block_refs.sort_by_key(
+    |br| converters.get(&br.block_type)
+      .map(|c| usize::from(c.output_block_id))
+      .unwrap_or(0)
+  );
+  let blocks = block_refs.into_iter()
+    .flat_map(|br| file.blocks.get(br).unwrap())
+    .filter_map(
+      |b| converters.get(&b.block_type).map(
+        |c| c.convert_block(b, &file.flavour)
+      )
+    ).flatten();
+  return zeroth.chain(blocks.flatten());
 }

@@ -226,6 +226,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "f06csv"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "csv",
+ "derive_more",
+ "env_logger",
+ "f06",
+ "log",
+ "nas_csv",
+ "serde",
+]
+
+[[package]]
 name = "f06diff"
 version = "0.1.0"
 dependencies = [
@@ -357,8 +371,8 @@ dependencies = [
 name = "nas_csv"
 version = "0.1.0"
 dependencies = [
+ "clap",
  "convert_case 0.6.0",
- "csv",
  "derive_more",
  "f06",
  "log",

@@ -3,8 +3,8 @@
 //! conversion.
 
 #![allow(clippy::needless_return)]
-#[warn(missing_docs)]
-#[warn(clippy::missing_docs_in_private_items)]
+#![warn(missing_docs)]
+#![warn(clippy::missing_docs_in_private_items)]
 
 pub mod from_f06;
 pub mod layout;

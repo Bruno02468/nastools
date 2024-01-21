@@ -4,7 +4,9 @@
 
 use std::fmt::Display;
 use core::str::FromStr;
+
 use serde::{Serialize, Deserialize};
+use clap::ValueEnum;
 
 /// Broadly-defined element categories.
 #[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
@@ -31,7 +33,10 @@ macro_rules! gen_elems {
     $(($vn:ident, $nm:literal, $cat:ident),)*
   ) => {
     /// Known element types.
-    #[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+    #[derive(
+      Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, ValueEnum
+    )]
+    #[clap(rename_all = "UPPER")]
     #[allow(missing_docs)]
     #[non_exhaustive]
     pub enum ElementType {

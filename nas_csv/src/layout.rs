@@ -4,6 +4,7 @@
 
 use std::fmt::Display;
 
+use clap::ValueEnum;
 use f06::prelude::*;
 use serde::{Serialize, Deserialize};
 
@@ -12,8 +13,10 @@ pub const NAS_CSV_COLS: usize = 11;
 
 /// CSV block IDs based on their content.]
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord
+  Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord,
+  ValueEnum
 )]
+#[clap(rename_all = "snake_case")]
 #[non_exhaustive]
 pub enum CsvBlockId {
   /// The 0-block: general solution info; subcase IDs, solution types, etc.
@@ -27,7 +30,7 @@ pub enum CsvBlockId {
   /// The 4-block: forces.
   Forces,
   /// The 5-block: grid point force balance.
-  GridPointForceBalance
+  GridPointForces
 }
 
 impl From<CsvBlockId> for usize {
@@ -38,8 +41,14 @@ impl From<CsvBlockId> for usize {
       CsvBlockId::Stresses => 2,
       CsvBlockId::Strains => 3,
       CsvBlockId::Forces => 4,
-      CsvBlockId::GridPointForceBalance => 5
+      CsvBlockId::GridPointForces => 5
     };
+  }
+}
+
+impl From<CsvBlockId> for CsvField {
+  fn from(value: CsvBlockId) -> Self {
+    return Self::Natural(value.into());
   }
 }
 
@@ -53,7 +62,7 @@ impl TryFrom<usize> for CsvBlockId {
       2 => CsvBlockId::Stresses,
       3 => CsvBlockId::Strains,
       4 => CsvBlockId::Forces,
-      5 => CsvBlockId::GridPointForceBalance,
+      5 => CsvBlockId::GridPointForces,
       _ => return Err(())
     });
   }
@@ -117,4 +126,11 @@ pub struct CsvRecord {
   pub gid: Option<usize>,
   /// The remaining ten fields.
   pub fields: [CsvField; NAS_CSV_COLS-1]
+}
+
+impl CsvRecord {
+  /// Returns this as eleven strings.
+  pub fn to_fields(self) -> impl Iterator<Item = CsvField> {
+    return [CsvField::from(self.block_id)].into_iter().chain(self.fields);
+  }
 }

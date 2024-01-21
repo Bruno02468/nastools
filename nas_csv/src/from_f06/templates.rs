@@ -158,7 +158,7 @@ pub const CT_DISPLACEMENTS: BlockConverter = BlockConverter {
 /// Conversion template for grid point force balance blocks.
 pub const CT_GPFORCEBALANCE: BlockConverter = BlockConverter {
   input_block_type: BlockType::GridPointForceBalance,
-  output_block_id: CsvBlockId::GridPointForceBalance,
+  output_block_id: CsvBlockId::GridPointForces,
   generators: &[
     cols!(
       Dof,
