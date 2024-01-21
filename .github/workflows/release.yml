@@ -20,7 +20,7 @@ jobs:
       - name: Compile and release f06info
         uses: rust-build/rust-build.action@v1.4.4
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.F06_BUILD_TOKEN }}
           SRC_DIR: f06info
         with:
           RUSTTARGET: ${{ matrix.target }}
@@ -28,7 +28,7 @@ jobs:
       - name: Compile and release f06csv
         uses: rust-build/rust-build.action@v1.4.4
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.F06_BUILD_TOKEN }}
           SRC_DIR: f06csv
         with:
           RUSTTARGET: ${{ matrix.target }}
@@ -36,7 +36,7 @@ jobs:
       - name: Compile and release f06diff
         uses: rust-build/rust-build.action@v1.4.4
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.F06_BUILD_TOKEN }}
           SRC_DIR: f06diff
         with:
           RUSTTARGET: ${{ matrix.target }}
