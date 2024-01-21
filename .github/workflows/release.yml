@@ -25,7 +25,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SRC_DIR: f06info
-          ARCHIVE_NAME: f06info-${{ github.event.release.tag_name  }}-${{ matrix.target }}.zip
+          INPUT_ARCHIVE_NAME: f06info-${{ github.event.release.tag_name  }}-${{ RUSTTARGET }}.zip
         with:
           RUSTTARGET: ${{ matrix.target }}
           ARCHIVE_TYPES: ${{ matrix.archive }}
@@ -34,7 +34,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SRC_DIR: f06csv
-          ARCHIVE_NAME: f06csv-${{ github.event.release.tag_name  }}-${{ matrix.target }}.zip
+          INPUT_ARCHIVE_NAME: f06csv-${{ github.event.release.tag_name  }}-${{ RUSTTARGET }}.zip
         with:
           RUSTTARGET: ${{ matrix.target }}
           ARCHIVE_TYPES: ${{ matrix.archive }}
@@ -43,7 +43,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SRC_DIR: f06diff
-          ARCHIVE_NAME: f06diff-${{ github.event.release.tag_name  }}-${{ matrix.target }}.zip
+          INPUT_ARCHIVE_NAME: f06diff-${{ github.event.release.tag_name  }}-${{ RUSTTARGET }}.zip
         with:
           RUSTTARGET: ${{ matrix.target }}
           ARCHIVE_TYPES: ${{ matrix.archive }}
