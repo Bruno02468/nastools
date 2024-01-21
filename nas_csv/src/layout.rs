@@ -11,6 +11,9 @@ use serde::{Serialize, Deserialize};
 /// Number of fields in a fixed-form CSV record.
 pub const NAS_CSV_COLS: usize = 11;
 
+/// Type that holds the headers for a row.
+pub type RowHeader = [&'static str; NAS_CSV_COLS-1];
+
 /// CSV block IDs based on their content.]
 #[derive(
   Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord,
@@ -31,6 +34,26 @@ pub enum CsvBlockId {
   Forces,
   /// The 5-block: grid point force balance.
   GridPointForces
+}
+
+impl CsvBlockId {
+  /// Returns a constant name for this block ID.
+  pub const fn name(&self) -> &'static str {
+    return match self {
+      Self::SolInfo => "Solution",
+      Self::Displacements => "Displacements",
+      Self::Stresses => "Stresses",
+      Self::Strains => "Strains",
+      Self::Forces => "Forces",
+      Self::GridPointForces => "GridPointForces"
+    };
+  }
+}
+
+impl Display for CsvBlockId {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    return write!(f, "{}", self.name());
+  }
 }
 
 impl From<CsvBlockId> for usize {
@@ -112,25 +135,36 @@ impl Display for CsvField {
 }
 
 /// A non-header line in a CSV file.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize)]
 pub struct CsvRecord {
   /// The CSV block type.
   pub block_id: CsvBlockId,
   /// Block type that originated this record. If none, it's the 0-block.
   pub block_type: Option<BlockType>,
+  /// If this record relates to a grid point, its ID.
+  pub gid: Option<usize>,
   /// If this record relates to an element, the element ID.
   pub eid: Option<usize>,
   /// If this record relates to an element, its type.
   pub etype: Option<ElementType>,
-  /// If this record relates to a grid point, its ID.
-  pub gid: Option<usize>,
+  /// If this record relates to a subcase, its ID.
+  pub subcase: Option<usize>,
   /// The remaining ten fields.
-  pub fields: [CsvField; NAS_CSV_COLS-1]
+  pub fields: [CsvField; NAS_CSV_COLS-1],
+  /// The headers for the ten fields.
+  pub headers: &'static RowHeader
 }
 
 impl CsvRecord {
   /// Returns this as eleven strings.
   pub fn to_fields(self) -> impl Iterator<Item = CsvField> {
     return [CsvField::from(self.block_id)].into_iter().chain(self.fields);
+  }
+
+  /// Returns this block's headers as eleven strings.
+  pub fn header_as_iter(&self) -> impl Iterator<Item = &str> {
+    return [self.block_id.name()].into_iter().chain(
+      self.headers.iter().copied()
+    );
   }
 }

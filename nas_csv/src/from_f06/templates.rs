@@ -153,6 +153,9 @@ pub const CT_DISPLACEMENTS: BlockConverter = BlockConverter {
       [ZERO, ONE,],
     )
   ],
+  headers: &[
+    ["GID", "Subcase", "Tx", "Ty", "Tz", "Rx", "Ry", "Rx", "Csys", "Ptype"]
+  ]
 };
 
 /// Conversion template for grid point force balance blocks.
@@ -175,6 +178,9 @@ pub const CT_GPFORCEBALANCE: BlockConverter = BlockConverter {
       [],
     )
   ],
+  headers: &[
+    ["GID", "Subcase", "EID", "TYPE", "Fx", "Fy", "Fz", "Mx", "My", "Mz"]
+  ]
 };
 
 /// Conversion template for quad stresses.
@@ -200,6 +206,12 @@ pub const CT_STRESSES_QUAD: BlockConverter = BlockConverter {
       [ShearXY,],
       [ZERO, ZERO,],
     )
+  ],
+  headers: &[
+    [
+      "EID", "Subcase", "GID", "FibreDistance",
+      "NormalX", "NormalY", BLANK, "ShearXY", BLANK, BLANK
+    ]
   ]
 };
 
@@ -207,7 +219,8 @@ pub const CT_STRESSES_QUAD: BlockConverter = BlockConverter {
 pub const CT_STRESSES_TRIA: BlockConverter = BlockConverter {
   input_block_type: BlockType::TriaStresses,
   output_block_id: CsvBlockId::Stresses,
-  generators: CT_STRESSES_QUAD.generators
+  generators: CT_STRESSES_QUAD.generators,
+  headers: CT_STRESSES_QUAD.headers
 };
 
 /// Conversion template for rod stresses.
@@ -232,8 +245,19 @@ pub const CT_STRESSES_ROD: BlockConverter = BlockConverter {
       [Torsional,],
       [ZERO, ZERO,],
     )
+  ],
+  headers: &[
+    [
+      "EID", "Subcase", BLANK, BLANK, "Axial",
+      BLANK, BLANK, "Torsional", BLANK, BLANK
+    ]
   ]
 };
+
+/// Header for bar stresses.
+const BAR_STRESSES_HEADER: [&str; 10] = [
+  "EID", "Subcase", "GID", "End", "Axial", "S1", "S2", "S3", "S4", BLANK
+];
 
 /// Conversion template for bar stresses.
 pub const CT_STRESSES_BAR: BlockConverter = BlockConverter {
@@ -276,7 +300,8 @@ pub const CT_STRESSES_BAR: BlockConverter = BlockConverter {
       [],
       [ZERO,],
     )
-  ]
+  ],
+  headers: &[BAR_STRESSES_HEADER, BAR_STRESSES_HEADER]
 };
 
 /// Conversion template for ELAS1 stresses.
@@ -296,6 +321,12 @@ pub const CT_STRESSES_ELAS1: BlockConverter = BlockConverter {
       [Stress,],
       [ZERO, ZERO, ZERO, ZERO, ZERO,],
     )
+  ],
+  headers: &[
+    [
+      "EID", "Subcase", BLANK, BLANK, "Stress",
+      BLANK, BLANK, BLANK, BLANK, BLANK
+    ]
   ]
 };
 
@@ -324,14 +355,16 @@ pub const CT_STRAINS_QUAD: BlockConverter = BlockConverter {
       [ShearXY,],
       [ZERO, ZERO,],
     )
-  ]
+  ],
+  headers: CT_STRESSES_QUAD.headers
 };
 
 /// Conversion template for tria stresses.
 pub const CT_STRAINS_TRIA: BlockConverter = BlockConverter {
   input_block_type: BlockType::TriaStrains,
   output_block_id: CsvBlockId::Strains,
-  generators: CT_STRAINS_QUAD.generators
+  generators: CT_STRAINS_QUAD.generators,
+  headers: CT_STRESSES_TRIA.headers
 };
 
 /// Conversion template for rod stresses.
@@ -358,7 +391,8 @@ pub const CT_STRAINS_ROD: BlockConverter = BlockConverter {
       [Torsional,],
       [ZERO, ZERO,],
     )
-  ]
+  ],
+  headers: CT_STRESSES_ROD.headers
 };
 
 /// Conversion template for bar stresses.
@@ -404,7 +438,8 @@ pub const CT_STRAINS_BAR: BlockConverter = BlockConverter {
       [],
       [ZERO,],
     )
-  ]
+  ],
+  headers: CT_STRESSES_BAR.headers
 };
 
 /// Conversion template for ELAS1 stresses.
@@ -424,6 +459,12 @@ pub const CT_STRAINS_ELAS1: BlockConverter = BlockConverter {
       [Strain,],
       [ZERO, ZERO, ZERO, ZERO, ZERO,],
     )
+  ],
+  headers: &[
+    [
+      "EID", "Subcase", BLANK, BLANK, "Strain",
+      BLANK, BLANK, BLANK, BLANK, BLANK
+    ]
   ]
 };
 
@@ -444,6 +485,12 @@ pub const CT_FORCES_QUAD: BlockConverter = BlockConverter {
       [NormalX, NormalY, NormalXY, MomentX, MomentY, MomentXY,],
       [],
     )
+  ],
+  headers: &[
+    [
+      "EID", "Subcase", BLANK, BLANK, "NormalX",
+      "NormalY", "NormalXY", "MomentX", "MomentY", "MomentXY"
+    ]
   ]
 };
 
@@ -451,7 +498,8 @@ pub const CT_FORCES_QUAD: BlockConverter = BlockConverter {
 pub const CT_FORCES_TRIA: BlockConverter = BlockConverter {
   input_block_type: BlockType::TriaForces,
   output_block_id: CsvBlockId::Forces,
-  generators: CT_FORCES_QUAD.generators
+  generators: CT_FORCES_QUAD.generators,
+  headers: CT_FORCES_QUAD.headers
 };
 
 /// Conversion template for rod forces.
@@ -476,8 +524,19 @@ pub const CT_FORCES_ROD: BlockConverter = BlockConverter {
       [Torque,],
       [],
     )
+  ],
+  headers: &[
+    [
+      "EID", "Subcase", BLANK, BLANK, "Axial",
+      BLANK, BLANK, BLANK, BLANK, "Torque"
+    ]
   ]
 };
+
+/// Header for bar forces. It appears twice.
+const BAR_FORCES_HEADER: [&str; 10] = [
+  "EID", "Subcase", "GID", "End", "Axial", "S1", "S2", "M1", "M2", "Torque"
+];
 
 /// Conversion template for bar forces.
 pub const CT_FORCES_BAR: BlockConverter = BlockConverter {
@@ -520,7 +579,8 @@ pub const CT_FORCES_BAR: BlockConverter = BlockConverter {
       [Torque,],
       [],
     )
-  ]
+  ],
+  headers: &[BAR_FORCES_HEADER, BAR_FORCES_HEADER]
 };
 
 /// Conversion template for ELAS1 forces.
@@ -540,5 +600,11 @@ pub const CT_FORCES_ELAS1: BlockConverter = BlockConverter {
       [Force,],
       [ZERO, ZERO, ZERO, ZERO, ZERO,],
     )
+  ],
+  headers: &[
+    [
+      "EID", "Subcase", BLANK, BLANK, "Force",
+      BLANK, BLANK, BLANK, BLANK, BLANK
+    ]
   ]
 };

@@ -20,6 +20,9 @@ pub type IndexFn = fn(NasIndex) -> Result<CsvField, ConversionError>;
 /// Contains ten generators, to make a CSV row's worth of values.
 pub type RowGenerator = [ColumnGenerator; 10];
 
+/// Blank value for row headers.
+pub const BLANK: &str = "<BLANK>";
+
 /// A conversion error.
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 #[non_exhaustive]
@@ -152,7 +155,9 @@ pub struct BlockConverter {
   pub output_block_id: CsvBlockId,
   /// Contains row generators, because a single data block row might produce
   /// more than one CSV row.
-  pub generators: &'static [RowGenerator]
+  pub generators: &'static [RowGenerator],
+  /// The headers for the row this produces.
+  pub headers: &'static [RowHeader]
 }
 
 impl BlockConverter {
@@ -174,6 +179,7 @@ impl BlockConverter {
     }
     return Ok(block.row_indexes.keys().flat_map(|row| {
       self.generators.iter().enumerate().map(|(irow, gens)| {
+        let headers = &self.headers[irow];
         let mut fields: [CsvField; NAS_CSV_COLS-1] = [
           CsvField::Blank,
           CsvField::Blank,
@@ -189,6 +195,7 @@ impl BlockConverter {
         let mut gid: Option<usize> = None;
         let mut eid: Option<usize> = None;
         let mut etype: Option<ElementType> = None;
+        let mut subcase: Option<usize> = None;
         for (i, cgen) in gens.iter().enumerate() {
           let fld = cgen.convert(block, *flavour, *row);
           if let Err(cverr) = fld {
@@ -227,15 +234,21 @@ impl BlockConverter {
           if matches!(cgen, ColumnGenerator::ElementType) && etype.is_none() {
             etype = fld_et;
           }
+          if matches!(cgen, ColumnGenerator::Subcase) && subcase.is_none() {
+            subcase = fld_nat;
+          }
           fields[i] = flderr;
         }
+        etype = etype.or(self.input_block_type.elem_type());
         return CsvRecord {
           block_id: self.output_block_id,
           block_type: Some(block.block_type),
+          gid,
           eid,
           etype,
-          gid,
+          subcase,
           fields,
+          headers
         }
       })
     }));
@@ -247,9 +260,10 @@ pub fn zeroth_block(file: &F06File) -> impl Iterator<Item = CsvRecord> + '_ {
   return file.subcases().map(|s| CsvRecord {
     block_id: CsvBlockId::SolInfo,
     block_type: None,
+    gid: None,
     eid: None,
     etype: None,
-    gid: None,
+    subcase: Some(s),
     fields: [
       0usize.into(),
       s.into(),
@@ -261,6 +275,10 @@ pub fn zeroth_block(file: &F06File) -> impl Iterator<Item = CsvRecord> + '_ {
       0usize.into(),
       0usize.into(),
       0usize.into()
+    ],
+    headers: &[
+      "ID", "Subcase", "Type", BLANK, BLANK,
+      BLANK, BLANK, BLANK, BLANK, BLANK
     ]
   })
 }

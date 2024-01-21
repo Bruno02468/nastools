@@ -6,9 +6,8 @@ use std::fmt::Display;
 use serde::{Serialize, Deserialize};
 use convert_case::{Case, Casing};
 
-use crate::blocks::{BlockDecoder, OpaqueDecoder};
+use crate::prelude::*;
 use crate::blocks::decoders::*;
-use crate::flavour::Flavour;
 
 /// Generates the BlockType enum and calls the init functions for them.
 macro_rules! gen_block_types {
@@ -18,6 +17,7 @@ macro_rules! gen_block_types {
         $desc:literal,
         $bname:ident,
         $dec:ty,
+        $etype:expr,
         $spaceds:expr
       },
     )*
@@ -78,6 +78,14 @@ macro_rules! gen_block_types {
           $(Self::$bname => self.short_name().to_case(Case::Snake),)*
         };
       }
+
+      /// If this block type relates to an element type, its type.
+      pub const fn elem_type(&self) -> Option<ElementType> {
+        return match self {
+          $(Self::$bname => $etype,)*
+        };
+      }
+
     }
   }
 }
@@ -88,6 +96,7 @@ gen_block_types!(
     "Grid point displacements",
     Displacements,
     DisplacementsDecoder,
+    None,
     ["DISPLACEMENTS", "DISPLACEMENT VECTOR"]
   },
   // grid point force balance
@@ -95,6 +104,7 @@ gen_block_types!(
     "Grid point force balance",
     GridPointForceBalance,
     GridPointForceBalanceDecoder,
+    None,
     ["GRID POINT FORCE BALANCE"]
   },
   // spc forces
@@ -102,6 +112,7 @@ gen_block_types!(
     "Forces of single-point constraint",
     SpcForces,
     SpcForcesDecoder,
+    None,
     ["SPC FORCES", "FORCES OF SINGLE-POINT CONSTRAINT"]
   },
   // applied forces
@@ -109,6 +120,7 @@ gen_block_types!(
     "Applied forces",
     AppliedForces,
     AppliedForcesDecoder,
+    None,
     ["APPLIED FORCES", "LOAD VECTOR"]
   },
   // elas1 forces
@@ -116,6 +128,7 @@ gen_block_types!(
     "Engineering forces in ELAS1 elements",
     Elas1Forces,
     Elas1ForcesDecoder,
+    Some(ElementType::Elas1),
     [
       "FORCES IN SCALAR SPRINGS (CELAS1)",
       "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE ELAS1"
@@ -126,6 +139,7 @@ gen_block_types!(
     "Stresses in ELAS1 elements",
     Elas1Stresses,
     Elas1StressesDecoder,
+    Some(ElementType::Elas1),
     [
       "STRESSES IN SCALAR SPRINGS (CELAS1)",
       concat!(
@@ -139,6 +153,7 @@ gen_block_types!(
     "Strains in ELAS1 elements",
     Elas1Strains,
     Elas1StrainsDecoder,
+    Some(ElementType::Elas1),
     [
       "STRAINS IN SCALAR SPRINGS (CELAS1)",
       concat!(
@@ -152,6 +167,7 @@ gen_block_types!(
     "Engineering forces in rod elements",
     RodForces,
     RodForcesDecoder,
+    Some(ElementType::Rod),
     [
       "FORCES IN ROD ELEMENTS",
       "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE ROD"
@@ -162,6 +178,7 @@ gen_block_types!(
     "Stresses in rod elements",
     RodStresses,
     RodStressesDecoder,
+    Some(ElementType::Rod),
     [
       "STRESSES IN ROD ELEMENTS (CROD)",
       concat!(
@@ -175,6 +192,7 @@ gen_block_types!(
     "Strains in rod elements",
     RodStrains,
     RodStrainsDecoder,
+    Some(ElementType::Rod),
     [
       "STRAINS IN ROD ELEMENTS (CROD)",
       concat!(
@@ -188,6 +206,7 @@ gen_block_types!(
     "Engineering forces in bar elements",
     BarForces,
     BarForcesDecoder,
+    Some(ElementType::Bar),
     [
       "FORCES IN BAR ELEMENTS",
       "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE BAR"
@@ -198,6 +217,7 @@ gen_block_types!(
     "Stresses in bar elements",
     BarStresses,
     BarStressesDecoder,
+    Some(ElementType::Bar),
     [
       "STRESSES IN BAR ELEMENTS (CBAR)",
       concat!(
@@ -211,6 +231,7 @@ gen_block_types!(
     "Strains in bar elements",
     BarStrains,
     BarStrainsDecoder,
+    Some(ElementType::Bar),
     [
       "STRAINS IN BAR ELEMENTS (CBAR)",
       concat!(
@@ -224,6 +245,7 @@ gen_block_types!(
     "Engineering forces in triangular elements",
     TriaForces,
     TriaForcesDecoder,
+    Some(ElementType::Tria3),
     [
       "FORCES IN TRIANGULAR ELEMENTS",
       "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE TRIA3"
@@ -234,6 +256,7 @@ gen_block_types!(
     "Stresses in triangular elements",
     TriaStresses,
     TriaStressesDecoder,
+    Some(ElementType::Tria3),
     [
       "STRESSES IN TRIANGULAR ELEMENTS (TRIA3)",
       concat!(
@@ -247,6 +270,7 @@ gen_block_types!(
     "Strains in triangular elements",
     TriaStrains,
     TriaStrainsDecoder,
+    Some(ElementType::Tria3),
     [
       "STRAINS IN TRIANGULAR ELEMENTS (TRIA3)",
       concat!(
@@ -260,6 +284,7 @@ gen_block_types!(
     "Engineering forces in quadrilateral elements",
     QuadForces,
     QuadForcesDecoder,
+    Some(ElementType::Quad4),
     [
       "FORCES IN QUADRILATERAL ELEMENTS",
       "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE QUAD4"
@@ -270,6 +295,7 @@ gen_block_types!(
     "Stresses in quadrilateral elements",
     QuadStresses,
     QuadStressesDecoder,
+    Some(ElementType::Quad4),
     [
       "STRESSES IN QUADRILATERAL ELEMENTS",
       concat!(
@@ -283,6 +309,7 @@ gen_block_types!(
     "Strains in quadrilateral elements",
     QuadStrains,
     QuadStrainsDecoder,
+    Some(ElementType::Quad4),
     [
       "STRAINS IN QUADRILATERAL ELEMENTS",
       concat!(

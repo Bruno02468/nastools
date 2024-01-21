@@ -369,7 +369,7 @@ dependencies = [
 
 [[package]]
 name = "nas_csv"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "clap",
  "convert_case 0.6.0",
