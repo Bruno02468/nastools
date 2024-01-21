@@ -13,11 +13,11 @@ jobs:
       matrix:
         include:
           - target: x86_64-pc-windows-gnu
-          archive: zip
+            archive: zip
           - target: x86_64-unknown-linux-musl
-          archive: zip
+            archive: zip
           - target: x86_64-apple-darwin
-          archive: zip
+            archive: zip
     steps:
       - uses: actions/checkout@master
       - name: Compile and release f06info
