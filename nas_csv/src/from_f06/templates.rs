@@ -154,7 +154,7 @@ pub const CT_DISPLACEMENTS: BlockConverter = BlockConverter {
     )
   ],
   headers: &[
-    ["GID", "Subcase", "Tx", "Ty", "Tz", "Rx", "Ry", "Rx", "Csys", "Ptype"]
+    ["GID", "Subcase", "Tx", "Ty", "Tz", "Rx", "Ry", "Rz", "Csys", "Ptype"]
   ]
 };
 
