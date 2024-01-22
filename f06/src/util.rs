@@ -424,3 +424,36 @@ impl PotentialHeader {
     return Err((first, second));
   }
 }
+
+/// Custom float formatting, stolen from StackOverflow but changed to use an
+/// actual formatter.
+pub fn fmt_f64(
+  f: &mut std::fmt::Formatter<'_>,
+  num: f64,
+  width: usize,
+  precision: usize,
+  exp_pad: usize
+) -> std::fmt::Result {
+  let mut num = format!(
+    "{}{:.precision$e}",
+    if num.is_sign_negative() { "" } else { "+" },
+    num,
+    precision = precision
+  );
+  // safe to `unwrap` as `num` is guaranteed to contain `'e'`
+  let exp = num.split_off(num.find('e').unwrap());
+  /* removed due to clippy warning
+  let (sign, exp) = if exp.starts_with("e-") {
+    ('-', &exp[2..])
+  } else {
+    ('+', &exp[1..])
+  };*/
+  let (sign, exp) = if let Some(spd) = exp.strip_prefix("e-") {
+    ('-', spd)
+  } else {
+    ('+', &exp[1..])
+  };
+  num.push_str(&format!("E{}{:0>pad$}", sign, exp, pad = exp_pad));
+
+  return write!(f, "{:>width$}", num, width = width);
+}

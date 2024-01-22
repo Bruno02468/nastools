@@ -6,6 +6,7 @@ use std::fmt::Display;
 
 use clap::ValueEnum;
 use f06::prelude::*;
+use f06::util::fmt_f64;
 use serde::{Serialize, Deserialize};
 
 /// Number of fields in a fixed-form CSV record.
@@ -140,7 +141,7 @@ impl Display for CsvField {
       Self::Blank => write!(f, ""),
       Self::Integer(i) => i.fmt(f),
       Self::Natural(n) => n.fmt(f),
-      Self::Real(x) => x.fmt(f),
+      Self::Real(x) => fmt_f64(f, *x, 0, 6, 3),
       Self::String(s) => s.fmt(f),
       Self::ElementType(et) => et.fmt(f)
     };
