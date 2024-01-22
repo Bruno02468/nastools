@@ -169,7 +169,7 @@ gen_block_types!(
     RodForcesDecoder,
     Some(ElementType::Rod),
     [
-      "FORCES IN ROD ELEMENTS",
+      "FORCES IN ROD ELEMENTS (CROD)",
       "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE ROD"
     ]
   },
@@ -208,7 +208,7 @@ gen_block_types!(
     BarForcesDecoder,
     Some(ElementType::Bar),
     [
-      "FORCES IN BAR ELEMENTS",
+      "FORCES IN BAR ELEMENTS (CBAR)",
       "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE BAR"
     ]
   },
@@ -247,7 +247,7 @@ gen_block_types!(
     TriaForcesDecoder,
     Some(ElementType::Tria3),
     [
-      "FORCES IN TRIANGULAR ELEMENTS",
+      "FORCES IN TRIANGULAR ELEMENTS (CTRIA3)",
       "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE TRIA3"
     ]
   },
@@ -258,7 +258,7 @@ gen_block_types!(
     TriaStressesDecoder,
     Some(ElementType::Tria3),
     [
-      "STRESSES IN TRIANGULAR ELEMENTS (TRIA3)",
+      "STRESSES IN TRIANGULAR ELEMENTS (CTRIA3)",
       concat!(
         "ELEMENT STRESSES IN LOCAL ELEMENT COORDINATE SYSTEM ",
         "FOR ELEMENT TYPE TRIA3"
@@ -272,7 +272,7 @@ gen_block_types!(
     TriaStrainsDecoder,
     Some(ElementType::Tria3),
     [
-      "STRAINS IN TRIANGULAR ELEMENTS (TRIA3)",
+      "STRAINS IN TRIANGULAR ELEMENTS (CTRIA3)",
       concat!(
         "ELEMENT STRAINS IN LOCAL ELEMENT COORDINATE SYSTEM ",
         "FOR ELEMENT TYPE TRIA3"
@@ -286,7 +286,7 @@ gen_block_types!(
     QuadForcesDecoder,
     Some(ElementType::Quad4),
     [
-      "FORCES IN QUADRILATERAL ELEMENTS",
+      "FORCES IN QUADRILATERAL ELEMENTS (CQUAD4)",
       "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE QUAD4"
     ]
   },
@@ -297,7 +297,7 @@ gen_block_types!(
     QuadStressesDecoder,
     Some(ElementType::Quad4),
     [
-      "STRESSES IN QUADRILATERAL ELEMENTS",
+      "STRESSES IN QUADRILATERAL ELEMENTS (CQUAD4)",
       concat!(
         "ELEMENT STRESSES IN LOCAL ELEMENT COORDINATE SYSTEM ",
         "FOR ELEMENT TYPE QUAD4"
@@ -311,10 +311,49 @@ gen_block_types!(
     QuadStrainsDecoder,
     Some(ElementType::Quad4),
     [
-      "STRAINS IN QUADRILATERAL ELEMENTS",
+      "STRAINS IN QUADRILATERAL ELEMENTS (QUAD4)",
       concat!(
         "ELEMENT STRAINS IN LOCAL ELEMENT COORDINATE SYSTEM ",
         "FOR ELEMENT TYPE QUAD4"
+      )
+    ]
+  },
+  // bush forces
+  {
+    "Engineering forces in BUSH elements",
+    BushForces,
+    BushForcesDecoder,
+    Some(ElementType::Bush),
+    [
+      "FORCES IN BUSH ELEMENTS (CBUSH)",
+      "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE BUSH"
+    ]
+  },
+  // bush stresses
+  {
+    "Stresses in BUSH elements",
+    BushStresses,
+    BushStressesDecoder,
+    Some(ElementType::Bush),
+    [
+      "STRESSES IN BUSH ELEMENTS (CBUSH)",
+      concat!(
+        "ELEMENT STRESSES IN LOCAL ELEMENT COORDINATE SYSTEM ",
+        "FOR ELEMENT TYPE BUSH"
+      )
+    ]
+  },
+  // bush strains
+  {
+    "Strains in BUSH elements",
+    BushStrains,
+    BushStrainsDecoder,
+    Some(ElementType::Bush),
+    [
+      "STRAINS IN BUSH ELEMENTS (CBUSH)",
+      concat!(
+        "ELEMENT STRAINS IN LOCAL ELEMENT COORDINATE SYSTEM ",
+        "FOR ELEMENT TYPE BUSH"
       )
     ]
   },

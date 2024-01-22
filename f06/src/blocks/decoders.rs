@@ -1220,3 +1220,72 @@ converting_decoder!(
   BlockType::Elas1Strains,
   1
 );
+
+/// This decodes a bush forces block.
+pub(crate) struct BushForcesDecoder {
+  /// The flavour of F06 file we're decoding displacements for.
+  flavour: Flavour,
+  /// The displacement data.
+  data: RowBlock<f64, ElementRef, Dof, { Self::MATWIDTH }>
+}
+
+impl BlockDecoder for BushForcesDecoder {
+  type MatScalar = f64;
+  type RowIndex = ElementRef;
+  type ColumnIndex = Dof;
+  const MATWIDTH: usize = SIXDOF;
+  const BLOCK_TYPE: BlockType = BlockType::BushForces;
+
+  fn new(flavour: Flavour) -> Self {
+    return Self {
+      flavour,
+      data: RowBlock::new(dof_cols())
+    };
+  }
+
+  fn unwrap(
+    self,
+    subcase: usize,
+    line_range: Option<(usize, usize)>
+  ) -> FinalBlock {
+    return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
+  }
+
+  fn consume(&mut self, line: &str) -> LineResponse {
+    let dofs: [f64; SIXDOF] = if let Some(arr) = extract_reals(line) {
+      arr
+    } else {
+      return LineResponse::Useless;
+    };
+    if let Some(eid) = last_natural(line) {
+      let eref = ElementRef { eid, etype: Some(ElementType::Bush) };
+      self.data.insert_raw(eref, &dofs);
+      return LineResponse::Data;
+    } else {
+      warn!("bush line has six floats but no EID!");
+      return LineResponse::Abort;
+    }
+  }
+}
+
+converting_decoder!(
+  "Decoder for BUSH stresses",
+  BushStressesDecoder,
+  BushForcesDecoder,
+  f64,
+  (ElementRef, ElementRef),
+  (Dof, Dof),
+  BlockType::BushStresses,
+  6
+);
+
+converting_decoder!(
+  "Decoder for BUSH strains",
+  BushStrainsDecoder,
+  BushStressesDecoder,
+  f64,
+  (ElementRef, ElementRef),
+  (Dof, Dof),
+  BlockType::BushStrains,
+  6
+);

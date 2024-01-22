@@ -264,6 +264,18 @@ pub(crate) fn int_pattern(line: &str) -> BTreeMap<usize, Vec<f64>> {
   return res;
 }
 
+/// Returns the last integer in a line.
+pub(crate) fn last_int(line: &str) -> Option<isize> {
+  return line_breakdown(line)
+    .filter_map(|f| if let LineField::Integer(i) = f { Some(i) } else { None })
+    .last()
+}
+
+/// Returns the last natural in a line.
+pub(crate) fn last_natural(line: &str) -> Option<usize> {
+  return last_int(line).map(|i| i as usize);
+}
+
 /// Checks if a character is an uppercase letter or a digit.
 fn upper_or_digit_or_special(ch: char) -> bool {
   /// Allowed special characters in a spaced header line.
