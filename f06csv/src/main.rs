@@ -140,11 +140,12 @@ fn main() -> io::Result<()> {
   }
   // should we write a record?
   let should_write = |r: &CsvRecord, a: &Cli| -> bool {
+    let f_blocks = lax_filter(&a.csv_blocks, &Some(r.block_id));
     let f_gids = lax_filter(&a.gids, &r.gid);
     let f_eids = lax_filter(&a.eids, &r.eid);
     let f_etypes = lax_filter(&a.etypes, &r.etype);
     let f_subcases = lax_filter(&a.subcases, &r.subcase);
-    return f_gids && f_eids && f_etypes && f_subcases;
+    return f_gids && f_eids && f_etypes && f_subcases && f_blocks;
   };
   // write blocks
   info!("Writing CSV records...");
