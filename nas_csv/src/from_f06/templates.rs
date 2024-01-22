@@ -471,7 +471,7 @@ pub const CT_STRAINS_ELAS1: BlockConverter = BlockConverter {
 /// Conversion template for quad forces.
 pub const CT_FORCES_QUAD: BlockConverter = BlockConverter {
   input_block_type: BlockType::QuadForces,
-  output_block_id: CsvBlockId::Forces,
+  output_block_id: CsvBlockId::EngForces,
   generators: &[
     cols!(
       PlateForceField,
@@ -497,7 +497,7 @@ pub const CT_FORCES_QUAD: BlockConverter = BlockConverter {
 /// Conversion template for tria forces.
 pub const CT_FORCES_TRIA: BlockConverter = BlockConverter {
   input_block_type: BlockType::TriaForces,
-  output_block_id: CsvBlockId::Forces,
+  output_block_id: CsvBlockId::EngForces,
   generators: CT_FORCES_QUAD.generators,
   headers: CT_FORCES_QUAD.headers
 };
@@ -505,7 +505,7 @@ pub const CT_FORCES_TRIA: BlockConverter = BlockConverter {
 /// Conversion template for rod forces.
 pub const CT_FORCES_ROD: BlockConverter = BlockConverter {
   input_block_type: BlockType::RodForces,
-  output_block_id: CsvBlockId::Forces,
+  output_block_id: CsvBlockId::EngForces,
   generators: &[
     cols!(
       RodForceField,
@@ -541,7 +541,7 @@ const BAR_FORCES_HEADER: [&str; 10] = [
 /// Conversion template for bar forces.
 pub const CT_FORCES_BAR: BlockConverter = BlockConverter {
   input_block_type: BlockType::BarForces,
-  output_block_id: CsvBlockId::Forces,
+  output_block_id: CsvBlockId::EngForces,
   generators: &[
     cols!(
       BarForceField,
@@ -586,7 +586,7 @@ pub const CT_FORCES_BAR: BlockConverter = BlockConverter {
 /// Conversion template for ELAS1 forces.
 pub const CT_FORCES_ELAS1: BlockConverter = BlockConverter {
   input_block_type: BlockType::Elas1Forces,
-  output_block_id: CsvBlockId::Forces,
+  output_block_id: CsvBlockId::EngForces,
   generators: &[
     cols!(
       SingleForce,

@@ -31,7 +31,7 @@ pub enum CsvBlockId {
   /// The 3-block: strains.
   Strains,
   /// The 4-block: forces.
-  Forces,
+  EngForces,
   /// The 5-block: grid point force balance.
   GridPointForces
 }
@@ -40,12 +40,24 @@ impl CsvBlockId {
   /// Returns a constant name for this block ID.
   pub const fn name(&self) -> &'static str {
     return match self {
-      Self::SolInfo => "Solution",
+      Self::SolInfo => "SolutionInfo",
       Self::Displacements => "Displacements",
       Self::Stresses => "Stresses",
       Self::Strains => "Strains",
-      Self::Forces => "Forces",
+      Self::EngForces => "EngForces",
       Self::GridPointForces => "GridPointForces"
+    };
+  }
+
+  /// Returns the name with block ID.
+  pub const fn name_with_id(&self) -> &'static str {
+    return match self {
+      Self::SolInfo => "SolutionInfo block ID",
+      Self::Displacements => "Displacements block ID",
+      Self::Stresses => "Stresses block ID",
+      Self::Strains => "Strains block ID",
+      Self::EngForces => "EngForces block ID",
+      Self::GridPointForces => "GridPointForces block ID"
     };
   }
 }
@@ -63,7 +75,7 @@ impl From<CsvBlockId> for usize {
       CsvBlockId::Displacements => 1,
       CsvBlockId::Stresses => 2,
       CsvBlockId::Strains => 3,
-      CsvBlockId::Forces => 4,
+      CsvBlockId::EngForces => 4,
       CsvBlockId::GridPointForces => 5
     };
   }
@@ -84,7 +96,7 @@ impl TryFrom<usize> for CsvBlockId {
       1 => CsvBlockId::Displacements,
       2 => CsvBlockId::Stresses,
       3 => CsvBlockId::Strains,
-      4 => CsvBlockId::Forces,
+      4 => CsvBlockId::EngForces,
       5 => CsvBlockId::GridPointForces,
       _ => return Err(())
     });
@@ -163,7 +175,7 @@ impl CsvRecord {
 
   /// Returns this block's headers as eleven strings.
   pub fn header_as_iter(&self) -> impl Iterator<Item = &str> {
-    return [self.block_id.name()].into_iter().chain(
+    return [self.block_id.name_with_id()].into_iter().chain(
       self.headers.iter().copied()
     );
   }
