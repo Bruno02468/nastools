@@ -49,7 +49,8 @@ impl CsvBlockId {
     };
   }
 
-  /// Returns the name with block ID.
+  /// Returns the name with "block ID" appended. Needed because headers gotta
+  /// be &'static str.
   pub const fn name_with_id(&self) -> &'static str {
     return match self {
       Self::SolInfo => "SolutionInfo block ID",

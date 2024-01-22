@@ -115,18 +115,21 @@ pub const ALL_CONVERTERS: &[BlockConverter] = &[
   CT_STRESSES_ROD,
   CT_STRESSES_BAR,
   CT_STRESSES_ELAS1,
+  CT_STRESSES_BUSH,
   // strains
   CT_STRAINS_QUAD,
   CT_STRAINS_TRIA,
   CT_STRAINS_ROD,
   CT_STRAINS_BAR,
   CT_STRAINS_ELAS1,
+  CT_STRAINS_BUSH,
   // forces
   CT_FORCES_QUAD,
   CT_FORCES_TRIA,
   CT_FORCES_ROD,
   CT_FORCES_BAR,
-  CT_FORCES_ELAS1
+  CT_FORCES_ELAS1,
+  CT_FORCES_BUSH,
 ];
 
 /// Returns all the converters in this source file, coded per-type.
@@ -330,7 +333,33 @@ pub const CT_STRESSES_ELAS1: BlockConverter = BlockConverter {
   ]
 };
 
-/// Conversion template for quad stresses.
+/// Header for bush stresses.
+pub const BUSH_STRESSES_HEADER: [&str; 10] = [
+  "EID", "Subcase", BLANK, BLANK, "Sx", "Sy", "Sx", "Mx", "My", "Mz"
+];
+
+/// Conversion template for BUSH stresses;
+pub const CT_STRESSES_BUSH: BlockConverter = BlockConverter {
+  input_block_type: BlockType::BushStresses,
+  output_block_id: CsvBlockId::Stresses,
+  generators: &[
+    cols!(
+      Dof,
+      [
+        ColumnGenerator::ElementId,
+        ColumnGenerator::Subcase,
+        ZERO,
+        ZERO,
+      ],
+      [DOF_TX, DOF_TY, DOF_TZ, DOF_RX, DOF_RY, DOF_RZ,],
+      [],
+      [],
+    )
+  ],
+  headers: &[BUSH_STRESSES_HEADER]
+};
+
+/// Conversion template for quad strains.
 pub const CT_STRAINS_QUAD: BlockConverter = BlockConverter {
   input_block_type: BlockType::QuadStrains,
   output_block_id: CsvBlockId::Strains,
@@ -359,7 +388,7 @@ pub const CT_STRAINS_QUAD: BlockConverter = BlockConverter {
   headers: CT_STRESSES_QUAD.headers
 };
 
-/// Conversion template for tria stresses.
+/// Conversion template for tria strains.
 pub const CT_STRAINS_TRIA: BlockConverter = BlockConverter {
   input_block_type: BlockType::TriaStrains,
   output_block_id: CsvBlockId::Strains,
@@ -367,7 +396,7 @@ pub const CT_STRAINS_TRIA: BlockConverter = BlockConverter {
   headers: CT_STRESSES_TRIA.headers
 };
 
-/// Conversion template for rod stresses.
+/// Conversion template for rod strains.
 pub const CT_STRAINS_ROD: BlockConverter = BlockConverter {
   input_block_type: BlockType::RodStrains,
   output_block_id: CsvBlockId::Strains,
@@ -395,7 +424,7 @@ pub const CT_STRAINS_ROD: BlockConverter = BlockConverter {
   headers: CT_STRESSES_ROD.headers
 };
 
-/// Conversion template for bar stresses.
+/// Conversion template for bar strains.
 pub const CT_STRAINS_BAR: BlockConverter = BlockConverter {
   input_block_type: BlockType::BarStrains,
   output_block_id: CsvBlockId::Strains,
@@ -442,7 +471,7 @@ pub const CT_STRAINS_BAR: BlockConverter = BlockConverter {
   headers: CT_STRESSES_BAR.headers
 };
 
-/// Conversion template for ELAS1 stresses.
+/// Conversion template for ELAS1 strains.
 pub const CT_STRAINS_ELAS1: BlockConverter = BlockConverter {
   input_block_type: BlockType::Elas1Strains,
   output_block_id: CsvBlockId::Strains,
@@ -466,6 +495,14 @@ pub const CT_STRAINS_ELAS1: BlockConverter = BlockConverter {
       BLANK, BLANK, BLANK, BLANK, BLANK
     ]
   ]
+};
+
+/// Conversion template for BUSH strains.
+pub const CT_STRAINS_BUSH: BlockConverter = BlockConverter {
+  input_block_type: BlockType::BushStrains,
+  output_block_id: CsvBlockId::Strains,
+  generators: CT_STRESSES_BUSH.generators,
+  headers: CT_STRESSES_BUSH.headers
 };
 
 /// Conversion template for quad forces.
@@ -606,5 +643,15 @@ pub const CT_FORCES_ELAS1: BlockConverter = BlockConverter {
       "EID", "Subcase", BLANK, BLANK, "Force",
       BLANK, BLANK, BLANK, BLANK, BLANK
     ]
+  ]
+};
+
+/// Conversion template for BUSH forces.
+pub const CT_FORCES_BUSH: BlockConverter = BlockConverter {
+  input_block_type: BlockType::BushForces,
+  output_block_id: CsvBlockId::EngForces,
+  generators: CT_STRESSES_BUSH.generators,
+  headers: &[
+    ["EID", "Subcase", BLANK, BLANK, "Fx", "Fy", "Fz", "Mx", "My", "Mz"]
   ]
 };
