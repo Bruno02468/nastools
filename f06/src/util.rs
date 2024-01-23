@@ -3,6 +3,7 @@
 
 use std::cell::Cell;
 use std::collections::BTreeMap;
+use std::fmt::Write;
 use serde::{Serialize, Deserialize};
 
 use crate::elements::ElementType;
@@ -426,20 +427,31 @@ impl PotentialHeader {
 }
 
 /// Custom float formatting, stolen from StackOverflow but changed to use an
-/// actual formatter.
-pub fn fmt_f64(
-  f: &mut std::fmt::Formatter<'_>,
+/// actual formatter and some other small things.
+pub fn fmt_f64<W: Write>(
+  f: &mut W,
   num: f64,
   width: usize,
   precision: usize,
-  exp_pad: usize
+  exp_pad: usize,
+  capital_e: bool,
+  omit_plus: bool
 ) -> std::fmt::Result {
-  let mut num = format!(
-    "{}{:.precision$e}",
-    if num.is_sign_negative() { "" } else { "+" },
-    num,
-    precision = precision
-  );
+  let mut num = if omit_plus {
+    format!(
+      "{:.precision$e}",
+      //if num.is_sign_negative() { "" } else { "+" },
+      num,
+      precision = precision
+    )
+  } else {
+    format!(
+      "{:+.precision$e}",
+      //if num.is_sign_negative() { "" } else { "+" },
+      num,
+      precision = precision
+    )
+  };
   // safe to `unwrap` as `num` is guaranteed to contain `'e'`
   let exp = num.split_off(num.find('e').unwrap());
   /* removed due to clippy warning
@@ -453,7 +465,8 @@ pub fn fmt_f64(
   } else {
     ('+', &exp[1..])
   };
-  num.push_str(&format!("E{}{:0>pad$}", sign, exp, pad = exp_pad));
+  let e = if capital_e { 'E' } else { 'e' };
+  num.push_str(&format!("{}{}{:0>pad$}", e, sign, exp, pad = exp_pad));
 
   return write!(f, "{:>width$}", num, width = width);
 }

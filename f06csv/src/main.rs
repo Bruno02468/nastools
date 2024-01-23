@@ -4,11 +4,13 @@
 #![warn(missing_docs)]
 #![warn(clippy::missing_docs_in_private_items)]
 
+use std::error::Error;
 use std::fs::File;
 use std::io::{self, BufReader, BufWriter, Write};
 use std::path::PathBuf;
 
 use clap::Parser;
+use csv::Terminator;
 use log::*;
 use f06::prelude::*;
 use nas_csv::from_f06::templates::all_converters;
@@ -29,6 +31,8 @@ struct Cli {
   #[arg(short = 'o')]
   output: Option<PathBuf>,
   /// CSV blocks to write. Can be specified more than once, or comma-separated.
+  ///
+  /// You can also write the numerical IDs for shorthand.
   ///
   /// If absent, all blocks are written.
   #[arg(short = 'b', long = "blocks", num_args = 0.., value_delimiter = ',')]
@@ -81,6 +85,12 @@ struct Cli {
   /// The delimiter used in the CSV.
   #[arg(short = 'd', long, default_value = ",", verbatim_doc_comment)]
   delim: char,
+  /// Use CRLF (Windows) line breaks. Default is Unix (LF).
+  #[arg(long = "crlf", verbatim_doc_comment)]
+  crlf: bool,
+  /// Formatting options.
+  #[command(flatten)]
+  fmtr: CsvFormatting,
   /// Output extra/debug info while parsing and converting.
   #[arg(short = 'v', long = "verbose", verbatim_doc_comment)]
   verbose: bool,
@@ -90,7 +100,7 @@ struct Cli {
   input: PathBuf,
 }
 
-fn main() -> io::Result<()> {
+fn main() -> Result<(), Box<dyn Error>> {
   // init cli stuff
   let args = Cli::parse();
   let log_level = if args.verbose {
@@ -129,8 +139,10 @@ fn main() -> io::Result<()> {
   );
   let delim_byte: u8 = args.delim.try_into()
     .expect("Delimiter must not be a special character1");
+  let term = if args.crlf { Terminator::CRLF } else { Terminator::default() };
   let mut wtr = csv::WriterBuilder::new()
     .delimiter(delim_byte)
+    .terminator(term)
     .from_writer(output);
   /// Filter only if there is at least one in the filter.
   fn lax_filter<T: PartialEq>(v: &Vec<T>, x: &Option<T>) -> bool {
@@ -162,7 +174,7 @@ fn main() -> io::Result<()> {
           wtr.write_record(rec.header_as_iter())?;
         }
       }
-      wtr.write_record(rec.to_fields().map(|f| f.to_string()))?;
+      wtr.write_record(rec.to_fields().map(|f| args.fmtr.to_string(f)))?;
     }
   }
   info!("All done.");

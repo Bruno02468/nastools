@@ -6,11 +6,13 @@
 #![warn(missing_docs)]
 #![warn(clippy::missing_docs_in_private_items)]
 
+pub mod formatting;
 pub mod from_f06;
 pub mod layout;
 
 /// Imports the most relevant exports from the library.
 pub mod prelude {
+  pub use super::formatting::*;
   pub use super::from_f06::*;
   pub use super::layout::*;
 }

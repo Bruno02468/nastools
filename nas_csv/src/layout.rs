@@ -4,6 +4,7 @@
 
 use std::fmt::Display;
 
+use clap::builder::PossibleValue;
 use clap::ValueEnum;
 use f06::prelude::*;
 use f06::util::fmt_f64;
@@ -17,10 +18,8 @@ pub type RowHeader = [&'static str; NAS_CSV_COLS-1];
 
 /// CSV block IDs based on their content.]
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord,
-  ValueEnum
+  Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord
 )]
-#[clap(rename_all = "snake_case")]
 #[non_exhaustive]
 pub enum CsvBlockId {
   /// The 0-block: general solution info; subcase IDs, solution types, etc.
@@ -37,7 +36,32 @@ pub enum CsvBlockId {
   GridPointForces
 }
 
+// this impl allow numerical shorthands
+impl ValueEnum for CsvBlockId {
+  fn value_variants<'a>() -> &'a [Self] {
+    return Self::all();
+  }
+
+  fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
+    let mut pv: PossibleValue = self.shorthand().into();
+    pv = pv.aliases(self.aliases());
+    return Some(pv);
+  }
+}
+
 impl CsvBlockId {
+  /// Returns all known block IDs.
+  pub const fn all() -> &'static [Self] {
+    return &[
+      Self::SolInfo,
+      Self::Displacements,
+      Self::Stresses,
+      Self::Strains,
+      Self::EngForces,
+      Self::GridPointForces
+    ];
+  }
+
   /// Returns a constant name for this block ID.
   pub const fn name(&self) -> &'static str {
     return match self {
@@ -61,6 +85,33 @@ impl CsvBlockId {
       Self::EngForces => "EngForces block ID",
       Self::GridPointForces => "GridPointForces block ID"
     };
+  }
+
+  /// Returns the shorthand for the block ID.
+  pub const fn shorthand(&self) -> &'static str {
+    return match self {
+      Self::SolInfo => "sol",
+      Self::Displacements => "disp",
+      Self::Stresses => "stress",
+      Self::Strains => "strain",
+      Self::EngForces => "engfor",
+      Self::GridPointForces => "gpforce"
+    }
+  }
+
+  /// Returns the hidden aliases for each block ID.
+  pub const fn aliases(&self) -> &'static [&'static str] {
+    return match self {
+      CsvBlockId::SolInfo => &["0", "solinfo", "sol_info", "info"],
+      CsvBlockId::Displacements => &["1", "disp", "displs", "displacements"],
+      CsvBlockId::Stresses => &["2", "stresses"],
+      CsvBlockId::Strains => &["3", "strains"],
+      CsvBlockId::EngForces => &["4", "engforces", "eng_forces"],
+      CsvBlockId::GridPointForces => &[
+        "5", "gpfb", "gpforces", "grid_point_forces",
+        "grid_point_force_balance"
+      ],
+    }
   }
 }
 
@@ -141,7 +192,7 @@ impl Display for CsvField {
       Self::Blank => write!(f, ""),
       Self::Integer(i) => i.fmt(f),
       Self::Natural(n) => n.fmt(f),
-      Self::Real(x) => fmt_f64(f, *x, 0, 6, 3),
+      Self::Real(x) => fmt_f64(f, *x, 0, 6, 3, true, false),
       Self::String(s) => s.fmt(f),
       Self::ElementType(et) => et.fmt(f)
     };
