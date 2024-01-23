@@ -21,7 +21,7 @@ pub type IndexFn = fn(NasIndex) -> Result<CsvField, ConversionError>;
 pub type RowGenerator = [ColumnGenerator; 10];
 
 /// Blank value for row headers.
-pub const BLANK: &str = "<BLANK>";
+pub(crate) const HBLANK: &str = "<BLANK>";
 
 /// A conversion error.
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
@@ -277,8 +277,8 @@ pub fn zeroth_block(file: &F06File) -> impl Iterator<Item = CsvRecord> + '_ {
       0usize.into()
     ],
     headers: &[
-      "ID", "Subcase", "Type", BLANK, BLANK,
-      BLANK, BLANK, BLANK, BLANK, BLANK
+      "ID", "Subcase", "Type", HBLANK, HBLANK,
+      HBLANK, HBLANK, HBLANK, HBLANK, HBLANK
     ]
   })
 }
