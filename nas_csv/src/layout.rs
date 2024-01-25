@@ -30,10 +30,14 @@ pub enum CsvBlockId {
   Stresses,
   /// The 3-block: strains.
   Strains,
-  /// The 4-block: forces.
+  /// The 4-block: element engineering forces.
   EngForces,
   /// The 5-block: grid point force balance.
-  GridPointForces
+  GridPointForces,
+  /// The 6-block: applied forces.
+  AppliedForces,
+  /// The 7-block: forces of single-point constraint.
+  SpcForces,
 }
 
 // this impl allow numerical shorthands
@@ -70,7 +74,9 @@ impl CsvBlockId {
       Self::Stresses => "Stresses",
       Self::Strains => "Strains",
       Self::EngForces => "EngForces",
-      Self::GridPointForces => "GridPointForces"
+      Self::GridPointForces => "GridPointForces",
+      Self::AppliedForces => "AppliedForces",
+      Self::SpcForces => "SpcForces"
     };
   }
 
@@ -83,7 +89,9 @@ impl CsvBlockId {
       Self::Stresses => "Stresses block ID",
       Self::Strains => "Strains block ID",
       Self::EngForces => "EngForces block ID",
-      Self::GridPointForces => "GridPointForces block ID"
+      Self::GridPointForces => "GridPointForces block ID",
+      Self::AppliedForces => "AppliedForces block ID",
+      Self::SpcForces => "SpcForces block ID"
     };
   }
 
@@ -95,22 +103,26 @@ impl CsvBlockId {
       Self::Stresses => "stress",
       Self::Strains => "strain",
       Self::EngForces => "engfor",
-      Self::GridPointForces => "gpforce"
+      Self::GridPointForces => "gpforce",
+      Self::AppliedForces => "load",
+      Self::SpcForces => "spcfor"
     }
   }
 
   /// Returns the hidden aliases for each block ID.
   pub const fn aliases(&self) -> &'static [&'static str] {
     return match self {
-      CsvBlockId::SolInfo => &["0", "solinfo", "sol_info", "info"],
-      CsvBlockId::Displacements => &["1", "disp", "displs", "displacements"],
-      CsvBlockId::Stresses => &["2", "stresses"],
-      CsvBlockId::Strains => &["3", "strains"],
-      CsvBlockId::EngForces => &["4", "engforces", "eng_forces"],
-      CsvBlockId::GridPointForces => &[
+      Self::SolInfo => &["0", "solinfo", "sol_info", "info"],
+      Self::Displacements => &["1", "disp", "displs", "displacements"],
+      Self::Stresses => &["2", "stresses"],
+      Self::Strains => &["3", "strains"],
+      Self::EngForces => &["4", "engforces", "eng_forces"],
+      Self::GridPointForces => &[
         "5", "gpfb", "gpforces", "grid_point_forces",
         "grid_point_force_balance"
       ],
+      Self::AppliedForces => &["6", "applied"],
+      Self::SpcForces => &["7", "spcf", "spcforces"]
     }
   }
 }
@@ -129,7 +141,9 @@ impl From<CsvBlockId> for usize {
       CsvBlockId::Stresses => 2,
       CsvBlockId::Strains => 3,
       CsvBlockId::EngForces => 4,
-      CsvBlockId::GridPointForces => 5
+      CsvBlockId::GridPointForces => 5,
+      CsvBlockId::AppliedForces => 6,
+      CsvBlockId::SpcForces => 7,
     };
   }
 }
@@ -151,6 +165,8 @@ impl TryFrom<usize> for CsvBlockId {
       3 => CsvBlockId::Strains,
       4 => CsvBlockId::EngForces,
       5 => CsvBlockId::GridPointForces,
+      6 => CsvBlockId::AppliedForces,
+      7 => CsvBlockId::SpcForces,
       _ => return Err(())
     });
   }

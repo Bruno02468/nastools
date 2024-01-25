@@ -112,27 +112,31 @@ pub const ALL_CONVERTERS: &[BlockConverter] = &[
   CT_DISPLACEMENTS,
   // grid point force balance
   CT_GPFORCEBALANCE,
-  // stresses
+  // element stresses
   CT_STRESSES_QUAD,
   CT_STRESSES_TRIA,
   CT_STRESSES_ROD,
   CT_STRESSES_BAR,
   CT_STRESSES_ELAS1,
   CT_STRESSES_BUSH,
-  // strains
+  // element strains
   CT_STRAINS_QUAD,
   CT_STRAINS_TRIA,
   CT_STRAINS_ROD,
   CT_STRAINS_BAR,
   CT_STRAINS_ELAS1,
   CT_STRAINS_BUSH,
-  // forces
+  // element engineering forces
   CT_FORCES_QUAD,
   CT_FORCES_TRIA,
   CT_FORCES_ROD,
   CT_FORCES_BAR,
   CT_FORCES_ELAS1,
   CT_FORCES_BUSH,
+  // applied forces
+  CT_APPLIED_FORCES,
+  // spc forces
+  CT_SPC_FORCES
 ];
 
 /// Returns all the converters in this source file, coded per-type.
@@ -656,5 +660,47 @@ pub const CT_FORCES_BUSH: BlockConverter = BlockConverter {
   generators: CT_STRESSES_BUSH.generators,
   headers: &[
     ["EID", "Subcase", HBLANK, HBLANK, "Fx", "Fy", "Fz", "Mx", "My", "Mz"]
+  ]
+};
+
+/// Conversion template for the load vector.
+pub const CT_APPLIED_FORCES: BlockConverter = BlockConverter {
+  input_block_type: BlockType::AppliedForces,
+  output_block_id: CsvBlockId::AppliedForces,
+  generators: &[
+    cols!(
+      Dof,
+      [
+        ColumnGenerator::GridId,
+        ColumnGenerator::Subcase,
+      ],
+      [DOF_TX, DOF_TY, DOF_TZ, DOF_RX, DOF_RY, DOF_RZ,],
+      [],
+      [BLANK, BLANK,],
+    )
+  ],
+  headers: &[
+    ["GID", "Subcase", "Fx", "Fy", "Fz", "Mx", "My", "Mz", HBLANK, HBLANK]
+  ]
+};
+
+/// Conversion template for SPC forces.
+pub const CT_SPC_FORCES: BlockConverter = BlockConverter {
+  input_block_type: BlockType::SpcForces,
+  output_block_id: CsvBlockId::SpcForces,
+  generators: &[
+    cols!(
+      Dof,
+      [
+        ColumnGenerator::GridId,
+        ColumnGenerator::Subcase,
+      ],
+      [DOF_TX, DOF_TY, DOF_TZ, DOF_RX, DOF_RY, DOF_RZ,],
+      [],
+      [BLANK, BLANK,],
+    )
+  ],
+  headers: &[
+    ["GID", "Subcase", "Fx", "Fy", "Fz", "Mx", "My", "Mz", HBLANK, HBLANK]
   ]
 };

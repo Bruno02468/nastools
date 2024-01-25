@@ -161,16 +161,17 @@ fn main() -> Result<(), Box<dyn Error>> {
   };
   // write blocks
   info!("Writing CSV records...");
-  let mut last_header: Option<&RowHeader> = None;
+  let mut last_header: Option<(&RowHeader, CsvBlockId)> = None;
   for rec in to_records(&f06, &all_converters()) {
     if should_write(&rec, &args) {
       if args.headers {
         let cur_header = &rec.headers;
+        let cur_bid = rec.block_id;
         let was_none = last_header.is_none();
-        last_header = last_header.or(Some(cur_header));
-        if last_header != Some(cur_header) || was_none {
+        last_header = last_header.or(Some((cur_header, cur_bid)));
+        if last_header != Some((cur_header, cur_bid)) || was_none {
           // header change
-          last_header = Some(cur_header);
+          last_header = Some((cur_header, cur_bid));
           wtr.write_record(rec.header_as_iter())?;
         }
       }
