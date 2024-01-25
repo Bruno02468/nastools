@@ -1,0 +1,259 @@
+  1231152240
+
+ MYSTRAN Version 15.1.4   Dec 20 2023 MYSTRAN developed by Dr Bill Case
+*** Please report any problems to mystransolver@gmail.com ***                                                                                                                                                                                                   
+
+ >> MYSTRAN BEGIN  : 12/31/2023 at 15:22:40.469 The input file is SB-BUSH-01-OFFSET-2b.DAT                                                                                                                                                                                                                                        
+
+
+ >> LINK  0 BEGIN
+
+
+ID BUSH                                                                                                                                                                                                                                                         
+SOL 1                                                                                                                                                                                                                                                           
+CEND                                                                                                                                                                                                                                                            
+TITLE = 1 BUSH element, offset is 3D with DX, DY, DZ so use S1,S2,S3                                                                                                                                                                                            
+STITLE= BUSH OCID is rotated from the basic coord system                                                                                                                                                                                                        
+ELDATA(1,PRINT) = ALL                                                                                                                                                                                                                                           
+ELDATA(2,PRINT) = ALL                                                                                                                                                                                                                                           
+ELDATA(3,PRINT) = ALL                                                                                                                                                                                                                                           
+ELDATA(4,PRINT) = ALL                                                                                                                                                                                                                                           
+ELDATA(5,PRINT) = ALL                                                                                                                                                                                                                                           
+ELDATA(6,PRINT) = ALL                                                                                                                                                                                                                                           
+ELDATA(7,PRINT) = ALL                                                                                                                                                                                                                                           
+DISP = ALL                                                                                                                                                                                                                                                      
+SPCF = ALL                                                                                                                                                                                                                                                      
+OLOA = ALL                                                                                                                                                                                                                                                      
+GPFO = ALL                                                                                                                                                                                                                                                      
+ELFO(BOTH) = ALL                                                                                                                                                                                                                                                
+STRE = ALL                                                                                                                                                                                                                                                      
+STRN = ALL                                                                                                                                                                                                                                                      
+SPC = 1                                                                                                                                                                                                                                                         
+LOAD = 1                                                                                                                                                                                                                                                        
+BEGIN BULK                                                                                                                                                                                                                                                      
+$                                                                                                                                                                                                                                                               
+GRID           1       0      0.      0.      0.       0                                                                                                                                                                                                        
+GRID           2       0     10.      0.      0.       0                                                                                                                                                                                                        
+$                                                                                                                                                                                                                                                               
+CBUSH          1       1       1       2      0.      1.      0.        +CB1                                                                                                                                                                                    
++CB1                  20      3.      4.      2.                                                                                                                                                                                                                
+$                                                                                                                                                                                                                                                               
+CORD2R        20       0      0.      0.      0.      1.      0.      0.+C2R                                                                                                                                                                                    
++C2R          0.      1.      0.                                                                                                                                                                                                                                
+$                                                                                                                                                                                                                                                               
+PBUSH          1       K   1000.   2000.   3000.   4000.   5000.   6000.+CP1                                                                                                                                                                                    
++CP1                 RCV      6.      5.      4.      3.                                                                                                                                                                                                        
+$                                                                                                                                                                                                                                                               
+FORCE          1       2       0      1.    100.      0.      0.                                                                                                                                                                                                
+FORCE          1       2       0      1.      0.    200.      0.                                                                                                                                                                                                
+FORCE          1       2       0      1.      0.      0.    300.                                                                                                                                                                                                
+MOMENT         1       2       0      1.    400.      0.      0.                                                                                                                                                                                                
+MOMENT         1       2       0      1.      0.    500.      0.                                                                                                                                                                                                
+MOMENT         1       2       0      1.      0.      0.    600.                                                                                                                                                                                                
+$                                                                                                                                                                                                                                                               
+SPC1           1  123456       1                                                                                                                                                                                                                                
+$                                                                                                                                                                                                                                                               
+PARAM   SOLLIB  BANDED                                                                                                                                                                                                                                          
+DEBUG   200     9                                                       ANS                                                                                                                                                                                     
+$                                                                                                                                                                                                                                                               
+ENDDATA                                                                                                                                                                                                                                                         
+
+
+
+
+
+ >> LINK  0 END
+
+
+ >> LINK  1 BEGIN
+
+
+
+               DEALLOCATED  2.30E-03 MB MEMORY FROM ARRAY STF3
+
+               DEALLOCATED  4.80E-05 MB MEMORY FROM ARRAY STFKEY
+               DEALLOCATED  2.30E-03 MB MEMORY FROM ARRAY STF3
+
+ >> LINK  1 END
+
+
+ >> LINK  2 BEGIN
+
+
+
+
+ *INFORMATION: AUTOSPC Summary, Overall: after identification of all AUTOSPC's                                                               
+
+                                     AUTOSPC_RAT = 1.000000E-08
+
+                       Number of DOF's identified for AUTOSPC in component  1         =            0
+                       Number of DOF's identified for AUTOSPC in component  2         =            0
+                       Number of DOF's identified for AUTOSPC in component  3         =            0
+                       Number of DOF's identified for AUTOSPC in component  4         =            0
+                       Number of DOF's identified for AUTOSPC in component  5         =            0
+                       Number of DOF's identified for AUTOSPC in component  6         =            0
+                                                                                        ------------
+                       Total number of DOF's identified overall                       =            0
+
+
+ >> LINK  2 END
+
+
+ >> LINK  3 BEGIN
+
+ *INFORMATION: MAXIMUM DIAGONAL TERM IN MATRIX         KLL                            =  2.130000E+05 Occurs in row/col no.        5
+ *INFORMATION: MINIMUM DIAGONAL TERM IN MATRIX         KLL                            =  1.000000E+03 Occurs in row/col no.        1
+ *INFORMATION: RATIO OF MAX TO MIN DIAGONALS IN MATRIX         KLL                    =  2.130000E+02
+
+ *INFORMATION: THE MAXIMUM ABSOLUTE VALUE OF THE RATIO OF MATRIX DIAGONAL TO FACTOR DIAG FOR MATRIX KLL =   5.656854E+01
+               THIS IS FOR ROW AND COL IN THE MATRIX FOR GRID POINT        2 COMP   5. THE CALLING SUBR WAS: LINK3                          
+
+
+ In DPBTRS calling DTBSV with j =            1
+ *INFORMATION: FOR INTERNAL SUBCASE NUMBER        1 EPSILON ERROR ESTIMATE            = -4.224118E-15 Based on U'*(K*U - P)/(U'*P)
+
+
+ >> LINK  3 END
+
+
+ >> LINK  5 BEGIN
+
+
+ >> LINK  5 END
+
+
+ >> LINK  9 BEGIN
+
+
+
+ OUTPUT FOR SUBCASE        1
+ 1 BUSH element, offset is 3D with DX, DY, DZ so use S1,S2,S3                                                                                                                                                                                                    
+
+                                                       D I S P L A C E M E N T S
+                                              (in global coordinate system at each grid)
+           GRID     COORD      T1            T2            T3            R1            R2            R3
+                     SYS
+              1        0  0.0           0.0           0.0           0.0           0.0           0.0         
+              2        0  3.190000E+00  3.733333E+00  3.555000E+00  7.500000E-02 -4.600000E-01  4.166667E-01
+
+
+ OUTPUT FOR SUBCASE        1
+ 1 BUSH element, offset is 3D with DX, DY, DZ so use S1,S2,S3                                                                                                                                                                                                    
+
+                                                     A P P L I E D    F O R C E S
+                                              (in global coordinate system at each grid)
+           GRID     COORD      T1            T2            T3            R1            R2            R3
+                     SYS
+              2        0  1.000000E+02  2.000000E+02  3.000000E+02  4.000000E+02  5.000000E+02  6.000000E+02
+
+
+ OUTPUT FOR SUBCASE        1
+ 1 BUSH element, offset is 3D with DX, DY, DZ so use S1,S2,S3                                                                                                                                                                                                    
+
+                                                          S P C   F O R C E S
+                                              (in global coordinate system at each grid)
+           GRID     COORD      T1            T2            T3            R1            R2            R3
+                     SYS
+              1        0 -1.000000E+02 -2.000000E+02 -3.000000E+02 -4.000000E+02  2.500000E+03 -2.600000E+03
+
+
+ OUTPUT FOR SUBCASE        1
+ 1 BUSH element, offset is 3D with DX, DY, DZ so use S1,S2,S3                                                                                                                                                                                                    
+
+
+
+                                           G R I D   P O I N T   F O R C E   B A L A N C E
+                                             (in global coordinate system at each grid)
+
+                                FORCE BALANCE FOR GRID POINT        1 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ SPC FORCE               -1.000000E+02 -2.000000E+02 -3.000000E+02 -4.000000E+02  2.500000E+03 -2.600000E+03
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+
+ BUSH     ELEM         1  1.000000E+02  2.000000E+02  3.000000E+02  4.000000E+02 -2.500000E+03  2.600000E+03
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                :  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT        2 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            1.000000E+02  2.000000E+02  3.000000E+02  4.000000E+02  5.000000E+02  6.000000E+02
+ SPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+
+ BUSH     ELEM         1 -1.000000E+02 -2.000000E+02 -3.000000E+02 -4.000000E+02 -5.000000E+02 -6.000000E+02
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                :  4.547474E-13  0.000000E+00  3.637979E-12  3.637979E-12  1.182343E-11  0.000000E+00
+ (should all be 0)
+
+
+
+
+
+ OUTPUT FOR SUBCASE        1
+ 1 BUSH element, offset is 3D with DX, DY, DZ so use S1,S2,S3                                                                                                                                                                                                    
+
+                                  E L E M   N O D A L   F O R C E S   I N   G L O B A L   C O O R D S
+                                               F O R   E L E M E N T   T Y P E   B U S H    
+      Element     Grid         T1            T2            T3            R1            R2            R3
+         ID      Point
+              1        1 -1.000000E+02 -2.000000E+02 -3.000000E+02 -4.000000E+02  2.500000E+03 -2.600000E+03
+                       2  1.000000E+02  2.000000E+02  3.000000E+02  4.000000E+02  5.000000E+02  6.000000E+02
+
+                         ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    1.000000E+02  2.000000E+02  3.000000E+02  4.000000E+02  2.500000E+03  6.000000E+02
+                MIN* :   -1.000000E+02 -2.000000E+02 -3.000000E+02 -4.000000E+02  5.000000E+02 -2.600000E+03
+
+                ABS* :    1.000000E+02  2.000000E+02  3.000000E+02  4.000000E+02  2.500000E+03  2.600000E+03
+                * for output set
+
+
+
+ OUTPUT FOR SUBCASE        1
+ 1 BUSH element, offset is 3D with DX, DY, DZ so use S1,S2,S3                                                                                                                                                                                                    
+
+                                        E L E M E N T   E N G I N E E R I N G   F O R C E S
+                                             F O R   E L E M E N T   T Y P E   B U S H    
+                 Element      Force         Force         Force        Moment        Moment        Moment
+                    ID         XE            YE            ZE            XE            YE            ZE
+                       1  1.000000E+02  2.000000E+02  3.000000E+02  3.000000E+02 -2.300000E+03  2.500000E+03
+                          ------------- ------------- ------------- ------------- ------------- ------------- 
+                MAX* :    1.000000E+02  2.000000E+02  3.000000E+02  3.000000E+02 -2.300000E+03  2.500000E+03
+                MIN* :    1.000000E+02  2.000000E+02  3.000000E+02  3.000000E+02 -2.300000E+03  2.500000E+03
+
+                ABS* :    1.000000E+02  2.000000E+02  3.000000E+02  3.000000E+02  2.300000E+03  2.500000E+03
+                *for output set
+
+
+
+ OUTPUT FOR SUBCASE        1
+ 1 BUSH element, offset is 3D with DX, DY, DZ so use S1,S2,S3                                                                                                                                                                                                    
+
+           E L E M E N T   S T R E S S E S   I N   L O C A L   E L E M E N T   C O O R D I N A T E   S Y S T E M
+                                        F O R   E L E M E N T   T Y P E   B U S H    
+                     Element   Stress-1      Stress-2      Stress-3      Stress-4      Stress-5      Stress-6
+                        ID
+                          1  1.914000E+04  4.480000E+04  6.399000E+04 -9.141667E+03  3.513000E+05 -2.383167E+05
+
+
+
+ OUTPUT FOR SUBCASE        1
+ 1 BUSH element, offset is 3D with DX, DY, DZ so use S1,S2,S3                                                                                                                                                                                                    
+
+           E L E M E N T   S T R A I N S   I N   L O C A L   E L E M E N T   C O O R D I N A T E   S Y S T E M
+                                       F O R   E L E M E N T   T Y P E   B U S H    
+                     Element    Strain-1      Strain-2      Strain-3      Strain-4      Strain-5      Strain-6
+                        ID
+                          1  1.276000E+01  1.493333E+01  1.422000E+01  2.250000E-01 -1.380000E+00  1.250000E+00
+
+ >> LINK  9 END
+
+    Total CPU time =  2.70E-02 seconds
+
+ >> MYSTRAN END    : 12/31/2023 at 15:22:40.548

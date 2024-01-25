@@ -1,0 +1,1338 @@
+1
+ 
+ 
+ 
+ 
+                                                             
+                        Copyright 2020 Siemens               
+                         All Rights Reserved.                
+                                                             
+               This software and related documentation are   
+                    proprietary to Siemens Industry          
+                             Software Inc.                   
+                                                             
+              Siemens and the Siemens logo are registered    
+           trademarks of Siemens AG. Simcenter is a trademark
+              or registered trademark of Siemens Product     
+               Lifecycle Management Software Inc. or its     
+             subsidiaries in the United States and in other  
+             countries.  NASTRAN is a registered trademark   
+                 of the National Aeronautics and Space       
+                 Administration.  All other trademarks,      
+              registered trademarks or service marks belong  
+                      to their respective holders.           
+                                                             
+           LIMITATIONS TO U.S. GOVERNMENT RIGHTS. UNPUBLISHED
+           - RIGHTS RESERVED UNDER THE COPYRIGHT LAWS OF THE 
+            UNITED STATES. This computer software and related
+               computer software documentation have been     
+            developed exclusively at private expense and are 
+           provided subject to the following rights:  If this
+               computer software and computer  software      
+            documentation qualify as "commercial items" (as  
+             that term is defined in FAR 2.101), their use,  
+            duplication or disclosure by the U.S. Government 
+           is subject to the protections and restrictions as 
+            set forth in the Siemens commercial license for  
+            software and/or documentation, as prescribed in  
+           FAR 12.212 and FAR 27.405(b)(2)(i) (for civilian  
+             agencies) and in DFARS 227.7202-1(a) and DFARS  
+           227.7202-3(a) (for the Department of Defense), or 
+           any successor or similar regulation, as applicable
+           or as amended from time to time.  If this computer
+           software and computer documentation do not qualify
+            as "commercial items", then they are "restricted 
+           computer software" and are provided with "restric-
+            tive rights", and their use, duplication or dis- 
+            closure by the U.S. Government is subject to the 
+            protections and restrictions as set forth in FAR 
+           27.404(b) and FAR 52-227-14 (for civilian agencies
+           ), and DFARS 227.7203-5(c) and DFARS 252.227-7014 
+           (for the Department of Defense), or any successor 
+           or similar regulation, as applicable or as amended
+           from time to time. Siemens Industry Software Inc. 
+           5800 Granite Parkway, Suite 600, Plano, TX 75024  
+ 
+
+                * * * * * * * * * * * * * * * * * * * *
+                * * * * * * * * * * * * * * * * * * * *
+                * *                                 * *
+                * *                                 * *
+                * *                                 * *
+                * *                                 * *
+                * *     Simcenter Nastran 2021.1    * *
+                * *                                 * *
+                * *       VERSION - 1965.0032       * *
+                * *                                 * *
+                * *          FEB 11, 2021           * *
+                * *                                 * *
+                * *                                 * *
+                * *AMD64 Family 23 Model 113 Steppi * *
+                * *                                 * *
+                * *MODEL AMD Ryzen 5 3600 6-Core Pr * *
+                * *                                 * *
+                * *           Windows 10            * *
+                * *                                 * *
+                * *       Compiled for X86-64       * *
+                * *                                 * *
+                * * * * * * * * * * * * * * * * * * * *
+                * * * * * * * * * * * * * * * * * * * *
+1 
+  
+                      Welcome to Simcenter Nastran
+                      ----------------------------
+  
+  
+ This "news" information can be turned off by setting "news=no" in the runtime
+ configuration (RC) file.  The "news" keyword can be set in the system RC file
+ for global, or multi-user control, and in a local file for local control.
+ Individual jobs can be controlled by setting news to yes or no on the command
+ line.
+1                                                                           JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE     1
+                                                                                                                                    
+0        N A S T R A N    F I L E    A N D    S Y S T E M    P A R A M E T E R    E C H O                                           
+0                                                                                                                                   
+                                                                                                                                    
+                                                                                                                                    
+     NASTRAN BUFFSIZE=32769 $(M:/TRANQUEIRAS/FEMAP/NASTRAN/CONF/NASTRAN.RCF[4])      
+     NASTRAN BUFFPOOL=5871                                                           
+     NASTRAN DIAGA=128 DIAGB=0 $(M:/TRANQUEIRAS/FEMAP/NASTRAN/CONF/NASTRAN.RCF[11])  
+     NASTRAN REAL=2136866816 $(MEMORY LIMIT FOR MPI AND OTHER SPECIALIZED MODULES)   
+     INIT MASTER(S)                                                                  
+     NASTRAN SYSTEM(442)=-1,SYSTEM(319)=1                                            
+1                                                                           JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE     2
+                                                                                                                                    
+0        N A S T R A N    E X E C U T I V E    C O N T R O L    E C H O                                                             
+0                                                                                                                                   
+                                                                                                                                    
+                                                                                                                                    
+     ID PLATE,FEMAP                                                                          
+     SOL 1                                                                                   
+     CEND                                                                                    
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE     3
+      TRUSS SUPPORTED SHELF                                                                                                         
+0                                                                                                                                   
+0                                        C A S E    C O N T R O L    E C H O                                                        
+                 COMMAND                                                                                                            
+                 COUNT                                                                                                              
+                  1      $ELFORCE(BOTH) = ALL                                                                    
+                  2      $GPFORCE       = ALL                                                                    
+                  3      $ELDATA(0,PRINT) = ALL                                                                  
+                  4      $ELDATA(1,PRINT) = ALL                                                                  
+                  5      $ELDATA(2,PRINT) = ALL                                                                  
+                  6      $ELDATA(3,PRINT) = ALL                                                                  
+                  7      $ELDATA(4,PRINT) = ALL                                                                  
+                  8      $ELDATA(5,PRINT) = ALL                                                                  
+                  9        TITLE = TEST OF ALL ELEMENTS                                                          
+                 10        SUBTITLE = TRUSS SUPPORTED SHELF                                                      
+                 11        ECHO = UNSORT                                                                         
+                 12        DISPLACEMENT(PRINT) = ALL                                                             
+                 13        SPCFORCE(PRINT) = ALL                                                                 
+                 14        OLOAD(PRINT) = ALL                                                                    
+                 15        MPCFORCE(PRINT) = ALL                                                                 
+                 16        GPFORCE(PRINT) = ALL                                                                  
+                 17        FORCE(PRINT) = ALL                                                                    
+                 18        STRESS(PRINT) = ALL                                                                   
+                 19        ESE(PRINT) = ALL                                                                      
+                 20        STRAIN(PRINT,FIBER) = ALL                                                             
+                 21        THSTRN(PRINT,FIBER) = ALL                                                             
+                 22        SPC = 998                                                                             
+                 23      SUBCASE 91                                                                              
+                 24        LABEL = PRESSURE LOAD ON PLATE ELEMENTS                                               
+                 25        LOAD = 1991                                                                           
+                 26      SUBCASE 92                                                                              
+                 27        LABEL = END LOADS ON TRUSS                                                            
+                 28        LOAD = 1992                                                                           
+                 29      BEGIN BULK                                                                              
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE     4
+      TRUSS SUPPORTED SHELF                                                                                                         
+0                                                                                                                                   
+0                                             I N P U T   B U L K   D A T A   E C H O                                               
+                                                                                                                                    
+                              .   1  ..   2  ..   3  ..   4  ..   5  ..   6  ..   7  ..   8  ..   9  ..  10  .                      
+                              PARAM   SOLLIB   BANDED                                                         
+                              $ ***************************************************************************   
+                              $   WRITTEN BY : FEMAP                                                          
+                              $   VERSION    : 2021.2.1                                                       
+                              $   TRANSLATOR : SIMCENTER NASTRAN                                              
+                              $   FROM MODEL :                                                                
+                              $   DATE       : FRI JAN 12 10:48:57 2024                                       
+                              $   OUTPUT TO  : C:\USERS\BRUNO\APPDATA\LOCAL\TEMP\                             
+                              $ ***************************************************************************   
+                              $                                                                               
+                              PARAM,PRGPST,NO                                                                 
+                              PARAM,POST,-1                                                                   
+                              PARAM,OGEOM,NO                                                                  
+                              PARAM,AUTOSPC,YES                                                               
+                              PARAM,GRDPNT,0                                                                  
+                              PARAM,WTMASS,.002591                                                            
+                              CORD2C         1       0      0.      0.      0.      0.      0.      1.+FEMAPC1
+                              +FEMAPC1      1.      0.      1.                                                
+                              CORD2S         2       0      0.      0.      0.      0.      0.      1.+FEMAPC2
+                              +FEMAPC2      1.      0.      1.                                                
+                              $ FEMAP LOAD SET 1991 : NASTRAN 1991                                            
+                              PLOAD4      1991      11    -.75                                                
+                              PLOAD4      1991      12    -.75                                                
+                              PLOAD4      1991      21    -.75                                                
+                              PLOAD4      1991      22    -.75                                                
+                              PLOAD4      1991      23    -.75                                                
+                              PLOAD4      1991      24    -.75                                                
+                              $ FEMAP LOAD SET 1992 : NASTRAN 1992                                            
+                              FORCE       1992    1031       0      1.      0.   1000.  -3000.                
+                              FORCE       1992    1032       0      1.      0.   1000.  -3000.                
+                              FORCE       1992    1033       0      1.      0.   1000.  -3000.                
+                              $ FEMAP CONSTRAINT SET 998 : NASTRAN SPC 998                                    
+                              SPC1         998     123    1011                                                
+                              SPC1         998     123    1012                                                
+                              SPC1         998     123    1013                                                
+                              SPC1         998   12456    1041                                                
+                              SPC1         998   12456    1042                                                
+                              SPC1         998   12456    1043                                                
+                              $ FEMAP PROPERTY 75 : DOF SPRING PROPERTY                                       
+                              PELAS         75  15000.      0.     .75                                        
+                              $ FEMAP PROPERTY 91 : PLATE PROPERTY                                            
+                              PSHELL        91      20    .125      20              20              0.        
+                              $ FEMAP PROPERTY 92 : ROD PROPERTY                                              
+                              PROD          92      20      1.      0.      0.      0.                        
+                              $ FEMAP PROPERTY 97 : BAR PROPERTY                                              
+                              PBAR          97      20      2.      2.      1.     2.5      0.        +       
+                              +             1.      1.      1.     -1.     -1.     -1.     -1.      1.+       
+                              +                             0.                                                
+                              $ FEMAP PROPERTY 98 : BAR PROPERTY                                              
+                              PBAR          98      20      2.      8.      1.     2.5      0.        +       
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE     5
+      TRUSS SUPPORTED SHELF                                                                                                         
+0                                                                                                                                   
+0                                             I N P U T   B U L K   D A T A   E C H O                                               
+                                                                                                                                    
+                              .   1  ..   2  ..   3  ..   4  ..   5  ..   6  ..   7  ..   8  ..   9  ..  10  .                      
+                              +             1.      1.      1.     -1.     -1.     -1.     -1.      1.+       
+                              +                             0.                                                
+                              $ FEMAP MATERIAL 20 : ISOTROPIC MATERIAL                                        
+                              MAT1          20    1.+74000000.     .25      .1      0.      0.        +       
+                              +         20000.  20000.  20000.                                                
+                              GRID        1011       0      0.      0.      0.       0                        
+                              GRID        1012       0     50.      0.      0.       0                        
+                              GRID        1013       0    100.      0.      0.       0                        
+                              GRID        1021       0      0.     50.      0.       0                        
+                              GRID        1022       0     50.     50.      0.       0                        
+                              GRID        1023       0    100.     50.      0.       0                        
+                              GRID        1031       0      0.    100.      0.       0                        
+                              GRID        1032       0     50.    100.      0.       0                        
+                              GRID        1033       0    100.    100.      0.       0                        
+                              GRID        1041       0      0.      0.    -50.       0                        
+                              GRID        1042       0     50.      0.    -50.       0                        
+                              GRID        1043       0    100.      0.    -50.       0                        
+                              GRID        1051       0     50.     50.     20.       0  123456                
+                              CQUAD4        11      91    1011    1012    1022    1021                        
+                              CQUAD4        12      91    1012    1013    1023    1022                        
+                              CTRIA3        21      91    1021    1022    1032                                
+                              CTRIA3        22      91    1031    1021    1032                                
+                              CTRIA3        23      91    1022    1023    1032                                
+                              CTRIA3        24      91    1033    1032    1023                                
+                              CELAS1        58      75    1022       3    1051       3                        
+                              CBAR        1112      97    1011    1012      0.      0.      1.                
+                              CBAR        1121      98    1011    1021      0.      0.      1.                
+                              CROD        1141      92    1011    1041                                        
+                              CBAR        1213      97    1012    1013      0.      0.      1.                
+                              CBAR        1222      98    1012    1022      0.      0.      1.                
+                              CROD        1242      92    1012    1042                                        
+                              CBAR        1323      98    1013    1023      0.      0.      1.                
+                              CROD        1343      92    1013    1043                                        
+                              CBAR        2122      98    1021    1022      0.      0.      1.                
+                              CBAR        2131      98    1021    1031      0.      0.      1.                
+                              CBAR        2223      98    1022    1023      0.      0.      1.                
+                              CBAR        2232      98    1022    1032      0.      0.      1.                
+                              CBAR        2333      98    1023    1033      0.      0.      1.                
+                              CBAR        3132      97    1031    1032      0.      0.      1.                
+                              CBAR        3233      97    1032    1033      0.      0.      1.                
+                              CROD        4131      92    1041    1031                                        
+                              CBAR        4142      97    1041    1042      0.      0.      1.                
+                              CROD        4232      92    1042    1032                                        
+                              CBAR        4243      97    1042    1043      0.      0.      1.                
+                              CROD        4333      92    1043    1033                                        
+                              ENDDATA
+0                             INPUT BULK DATA ENTRY COUNT =          96
+0                       TOTAL COUNT=        78
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE     6
+      TRUSS SUPPORTED SHELF                                                                                                         
+0                                                                                                                                   
+0
+0
+0
+ 
+
+
+                                        M O D E L   S U M M A R Y
+
+                                   NUMBER OF GRID     POINTS   =       13
+ 
+ 
+                                   NUMBER OF CBAR     ELEMENTS =       14
+                                   NUMBER OF CELAS1   ELEMENTS =        1
+                                   NUMBER OF CQUAD4   ELEMENTS =        2
+                                   NUMBER OF CROD     ELEMENTS =        6
+                                   NUMBER OF CTRIA3   ELEMENTS =        4
+ 
+ ^^^IN ASSEMBLED VERSION OF STATICS1 
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE     7
+      TRUSS SUPPORTED SHELF                                                                                                         
+0                                                                                                                                   
+                           O U T P U T   F R O M   G R I D   P O I N T   W E I G H T   G E N E R A T O R
+0                                                     REFERENCE POINT =        0
+                                                                M O
+                      *  3.135410E+02  6.661338E-16 -1.332268E-15 -4.996004E-14 -2.213525E+03 -1.392705E+04 *
+                      *  6.661338E-16  3.135410E+02 -3.996803E-15  2.213525E+03  1.831868E-13  1.567705E+04 *
+                      * -1.332268E-15 -3.996803E-15  3.135410E+02  1.392705E+04 -1.567705E+04 -1.332268E-13 *
+                      * -4.996004E-14  2.213525E+03  1.392705E+04  1.222131E+06 -6.963525E+05  1.106763E+05 *
+                      * -2.213525E+03  1.831868E-13 -1.567705E+04 -6.963525E+05  1.331681E+06  1.249001E-11 *
+                      * -1.392705E+04  1.567705E+04 -1.332268E-13  1.106763E+05  1.249001E-11  2.332459E+06 *
+                                                                 S
+                                           *  1.000000E+00  0.000000E+00  0.000000E+00 *
+                                           *  0.000000E+00  1.000000E+00  0.000000E+00 *
+                                           *  0.000000E+00  0.000000E+00  1.000000E+00 *
+                               DIRECTION
+                          MASS AXIS SYSTEM (S)     MASS              X-C.G.        Y-C.G.        Z-C.G.
+                                  X            3.135410E+02     -1.593413E-16  4.441859E+01 -7.059764E+00
+                                  Y            3.135410E+02      5.000000E+01  5.842515E-16 -7.059764E+00
+                                  Z            3.135410E+02      5.000000E+01  4.441859E+01 -4.249102E-16
+                                                                I(S)
+                                           *  5.878844E+05  1.164153E-10  0.000000E+00 *
+                                           *  1.164153E-10  5.322010E+05  9.832169E+04 *
+                                           *  0.000000E+00  9.832169E+04  9.299868E+05 *
+                                                                I(Q)
+                                           *  5.878844E+05                             *
+                                           *                9.529622E+05               *
+                                           *                              5.092256E+05 *
+                                                                 Q
+                                           *  1.000000E+00  0.000000E+00  0.000000E+00 *
+                                           *  0.000000E+00  2.275458E-01  9.737674E-01 *
+                                           *  0.000000E+00 -9.737674E-01  2.275458E-01 *
+
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE     8
+      TRUSS SUPPORTED SHELF                                                                                                         
+0                                                                                                                                   
+ *** USER INFORMATION MESSAGE - SINGULARITIES FOUND USING EIGENVALUE METHOD
+ ***       0 SINGULARITIES FOUND         0 SINGULARITIES ELIMINATED
+ *** SYSTEM INFORMATION MESSAGE 6916 (DFMSYN)
+     DECOMP ORDERING METHOD CHOSEN: DEFAULT, ORDERING METHOD USED: BEND
+ *** USER INFORMATION MESSAGE 5293 (SSG3A)
+    FOR DATA BLOCK KLL     
+    LOAD SEQ. NO.             EPSILON              EXTERNAL WORK      EPSILONS LARGER THAN 0.001 ARE FLAGGED WITH ASTERISKS
+    User information:
+    One line of output is printed for each static loading condition.
+    Small values of EPSILON are due to accumulated round-off error. Large
+    values of EPSILON indicate possible singularities in the stiffness
+    matrix.  See Section 9.5.1.
+                1          5.3482390E-16          4.2147120E+02
+                2          5.7184029E-17          9.1858026E+02
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE     9
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                                             D I S P L A C E M E N T   V E C T O R
+ 
+      POINT ID.   TYPE          T1             T2             T3             R1             R2             R3
+          1011      G      0.0            0.0            0.0           -6.666946E-03  -3.347734E-04  -4.039165E-06
+          1012      G      0.0            0.0            0.0           -3.458348E-03   8.131516E-20   2.117582E-22
+          1013      G      0.0            0.0            0.0           -6.666946E-03   3.347734E-04   4.039165E-06
+          1021      G      3.087484E-04   1.498929E-03  -2.342869E-01  -5.308547E-04  -3.145626E-03  -2.070844E-06
+          1022      G     -3.350545E-19   1.478215E-03  -1.228641E-01  -8.403456E-04   2.385257E-18   1.863472E-20
+          1023      G     -3.087484E-04   1.498929E-03  -2.342869E-01  -5.308547E-04   3.145626E-03   2.070844E-06
+          1031      G      2.363331E-04   2.977287E-03  -5.296893E-02   5.587108E-03   4.873306E-04   2.270742E-06
+          1032      G     -9.855261E-19   3.027197E-03  -8.428731E-02   1.813671E-03   2.846121E-19   1.355253E-20
+          1033      G     -2.363331E-04   2.977287E-03  -5.296893E-02   5.587108E-03  -4.873306E-04  -2.270742E-06
+          1041      G      0.0            0.0           -3.881859E-03   0.0            0.0            0.0
+          1042      G      0.0            0.0           -6.378878E-03   0.0            0.0            0.0
+          1043      G      0.0            0.0           -3.881859E-03   0.0            0.0            0.0
+          1051      G      0.0            0.0            0.0            0.0            0.0            0.0
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    10
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                                             D I S P L A C E M E N T   V E C T O R
+ 
+      POINT ID.   TYPE          T1             T2             T3             R1             R2             R3
+          1011      G      0.0            0.0            0.0           -1.170728E-03  -1.313807E-04  -7.129574E-06
+          1012      G      0.0            0.0            0.0           -3.486247E-05   2.202286E-20   2.991085E-21
+          1013      G      0.0            0.0            0.0           -1.170728E-03   1.313807E-04   7.129574E-06
+          1021      G      7.882973E-04   5.948687E-03  -7.417765E-02  -2.040673E-03  -1.235733E-03  -1.901498E-05
+          1022      G     -1.693854E-18   4.676792E-03  -3.105303E-02  -1.930628E-03   1.436610E-18   6.596269E-20
+          1023      G     -7.882973E-04   5.948687E-03  -7.417765E-02  -2.040673E-03   1.235733E-03   1.901498E-05
+          1031      G      1.470425E-03   1.214781E-02  -2.040535E-01  -2.905143E-03  -4.304730E-04  -4.684913E-05
+          1032      G     -4.466425E-18   9.328127E-03  -1.930719E-01  -3.837257E-03   5.421101E-19   1.355253E-20
+          1033      G     -1.470425E-03   1.214781E-02  -2.040535E-01  -2.905143E-03   4.304730E-04   4.684913E-05
+          1041      G      0.0            0.0           -1.475427E-02   0.0            0.0            0.0
+          1042      G      0.0            0.0           -1.432697E-02   0.0            0.0            0.0
+          1043      G      0.0            0.0           -1.475427E-02   0.0            0.0            0.0
+          1051      G      0.0            0.0            0.0            0.0            0.0            0.0
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    11
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                                                     L O A D   V E C T O R
+ 
+      POINT ID.   TYPE          T1             T2             T3             R1             R2             R3
+          1011      G      0.0            0.0           -4.687500E+02   0.0            0.0            0.0
+          1012      G      0.0            0.0           -9.375000E+02   0.0            0.0            0.0
+          1013      G      0.0            0.0           -4.687500E+02   0.0            0.0            0.0
+          1021      G      0.0            0.0           -1.093750E+03   0.0            0.0            0.0
+          1022      G      0.0            0.0           -1.562500E+03   0.0            0.0            0.0
+          1023      G      0.0            0.0           -1.093750E+03   0.0            0.0            0.0
+          1031      G      0.0            0.0           -3.125000E+02   0.0            0.0            0.0
+          1032      G      0.0            0.0           -1.250000E+03   0.0            0.0            0.0
+          1033      G      0.0            0.0           -3.125000E+02   0.0            0.0            0.0
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    12
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                                                     L O A D   V E C T O R
+ 
+      POINT ID.   TYPE          T1             T2             T3             R1             R2             R3
+          1031      G      0.0            1.000000E+03  -3.000000E+03   0.0            0.0            0.0
+          1032      G      0.0            1.000000E+03  -3.000000E+03   0.0            0.0            0.0
+          1033      G      0.0            1.000000E+03  -3.000000E+03   0.0            0.0            0.0
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    13
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                               F O R C E S   O F   S I N G L E - P O I N T   C O N S T R A I N T
+ 
+      POINT ID.   TYPE          T1             T2             T3             R1             R2             R3
+          1011      G     -2.134948E+02  -1.604484E+03   1.680854E+03   0.0            0.0            0.0
+          1012      G     -2.557954E-13  -2.448070E+03   2.295330E+03   0.0            0.0            0.0
+          1013      G      2.134948E+02  -1.604484E+03   1.680854E+03   0.0            0.0            0.0
+          1041      G      0.0            1.543155E+03   0.0            0.0           -1.198569E+02   0.0
+          1042      G      0.0            2.570728E+03   0.0            0.0           -1.136868E-13   0.0
+          1043      G      0.0            1.543155E+03   0.0            0.0            1.198569E+02   0.0
+          1051      G      0.0            0.0            1.842961E+03   0.0            0.0            0.0
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    14
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                               F O R C E S   O F   S I N G L E - P O I N T   C O N S T R A I N T
+ 
+      POINT ID.   TYPE          T1             T2             T3             R1             R2             R3
+          1011      G     -6.444876E+02  -5.927819E+03   2.910950E+03   0.0            0.0            0.0
+          1012      G     -2.842171E-13  -8.678567E+03   2.712305E+03   0.0            0.0            0.0
+          1013      G      6.444876E+02  -5.927819E+03   2.910950E+03   0.0            0.0            0.0
+          1041      G      0.0            5.903349E+03   0.0            0.0            2.051032E+01   0.0
+          1042      G      0.0            5.727507E+03   0.0            0.0           -3.410605E-13   0.0
+          1043      G      0.0            5.903349E+03   0.0            0.0           -2.051032E+01   0.0
+          1051      G      0.0            0.0            4.657955E+02   0.0            0.0            0.0
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    15
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                                 F O R C E S   I N   B A R   E L E M E N T S         ( C B A R )
+0    ELEMENT         BEND-MOMENT END-A            BEND-MOMENT END-B                - SHEAR -               AXIAL
+       ID.         PLANE 1       PLANE 2        PLANE 1       PLANE 2        PLANE 1       PLANE 2         FORCE         TORQUE
+         1112    -5.356374E+02 -3.231332E+00   2.678187E+02  1.615666E+00  -1.606912E+01 -9.693996E-02   0.0            6.417196E+02
+         1121    -6.158923E+02  3.350292E+00   2.025138E+04 -4.137620E+00  -4.173455E+02  1.497582E-01   5.995717E+02  -5.621706E+02
+         1213     2.678187E+02  1.615666E+00  -5.356374E+02 -3.231332E+00   1.606912E+01  9.693996E-02   0.0           -6.417196E+02
+         1222     1.232626E+03 -4.180108E-16   7.144981E+03 -6.951176E-15  -1.182471E+02  1.306633E-16   5.912859E+02   4.607883E-13
+         1323    -6.158923E+02 -3.350292E+00   2.025138E+04  4.137620E+00  -4.173455E+02 -1.497582E-01   5.995717E+02   5.621706E+02
+         2122     1.261165E+03 -1.159524E+00  -1.132717E+04  3.311860E-01   2.517667E+02 -2.981419E-02  -1.234994E+02  -6.189817E+01
+         2131     2.033177E+04 -2.486346E+00  -7.542892E+02  7.497120E-01   4.217212E+02 -6.472117E-02   5.913432E+02   7.265914E+02
+         2223    -1.132717E+04  3.311860E-01   1.261165E+03 -1.159524E+00  -2.517667E+02  2.981419E-02  -1.234994E+02   6.189817E+01
+         2232     6.981208E+03  4.717473E-15   1.511645E+03 -2.684594E-15   1.093913E+02  1.480413E-16   6.195927E+02  -4.201289E-13
+         2333     2.033177E+04  2.486346E+00  -7.542892E+02 -7.497120E-01   4.217212E+02  6.472117E-02   5.913432E+02  -7.265914E+02
+         3132    -7.235529E+02  6.187748E-01   1.113417E+03  2.895219E-01  -3.673941E+01  6.585058E-03  -9.453323E+01  -7.546874E+02
+         3233     1.113417E+03  2.895219E-01  -7.235529E+02  6.187748E-01   3.673941E+01 -6.585058E-03  -9.453323E+01   7.546874E+02
+         4142    -1.198569E+02  0.0            1.198569E+02  0.0           -4.794275E+00  0.0            0.0            0.0
+         4243     1.198569E+02  0.0           -1.198569E+02  0.0            4.794275E+00  0.0            0.0            0.0
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    16
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                              F O R C E S   I N   S C A L A R   S P R I N G S        ( C E L A S 1 )
+      ELEMENT         FORCE            ELEMENT         FORCE            ELEMENT         FORCE            ELEMENT         FORCE
+        ID.                              ID.                              ID.                              ID.
+           58     -1.842961E+03
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    17
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+
+                          F O R C E S   I N   Q U A D R I L A T E R A L   E L E M E N T S   ( Q U A D 4 )
+ 
+    ELEMENT                - MEMBRANE  FORCES -                        - BENDING  MOMENTS -              - TRANSVERSE SHEAR FORCES -
+      ID              FX            FY            FXY             MX            MY            MXY             QX            QY
+         11       5.807168E+00  3.866609E+01  1.440169E+00   -2.242841E-02  1.368749E-01  3.717422E-02    2.034358E-03 -5.811436E-03
+         12       5.807168E+00  3.866609E+01 -1.440169E+00   -2.242841E-02  1.368749E-01 -3.717422E-02   -2.034358E-03 -5.811436E-03
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    18
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                                           F O R C E S   I N   R O D   E L E M E N T S     ( C R O D )
+       ELEMENT           AXIAL                                     ELEMENT           AXIAL
+         ID.             FORCE          TORQUE                       ID.             FORCE          TORQUE
+          1141        7.763719E+02   0.0                              1242        1.275776E+03   0.0
+          1343        7.763719E+02   0.0                              4131       -1.725300E+03   0.0
+          4232       -2.874161E+03   0.0                              4333       -1.725300E+03   0.0
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    19
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                             F O R C E S   I N   T R I A N G U L A R   E L E M E N T S   ( T R I A 3 )
+ 
+    ELEMENT                - MEMBRANE  FORCES -                        - BENDING  MOMENTS -              - TRANSVERSE SHEAR FORCES -
+      ID              FX            FY            FXY             MX            MY            MXY             QX            QY
+         21       2.093255E+00  3.924786E+01 -2.071466E-01   -8.618480E-02  6.484757E-02 -4.029829E-03    5.450334E-03 -7.289091E-04
+         22       3.784733E+01  3.553505E+00  2.250621E-01    2.166596E-01  7.002852E-02  9.643742E-02   -1.444248E-02 -1.023878E-02
+         23       2.093255E+00  3.924786E+01  2.071466E-01   -8.618480E-02  6.484757E-02  4.029829E-03   -5.450334E-03 -7.289091E-04
+         24       3.553505E+00  3.784733E+01  2.250621E-01    7.002852E-02  2.166596E-01  9.643742E-02   -1.023878E-02 -1.444248E-02
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    20
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                                 F O R C E S   I N   B A R   E L E M E N T S         ( C B A R )
+0    ELEMENT         BEND-MOMENT END-A            BEND-MOMENT END-B                - SHEAR -               AXIAL
+       ID.         PLANE 1       PLANE 2        PLANE 1       PLANE 2        PLANE 1       PLANE 2         FORCE         TORQUE
+         1112    -2.102091E+02 -5.703659E+00   1.051046E+02  2.851829E+00  -6.306273E+00 -1.711098E-01   0.0            2.271731E+02
+         1121    -2.192954E+02  5.609484E+00  -2.564529E+03 -8.553219E-01   4.690468E+01  1.292961E-01   2.379475E+03  -2.208705E+02
+         1213     1.051046E+02  2.851829E+00  -2.102091E+02 -5.703659E+00   6.306273E+00  1.711098E-01   0.0           -2.271731E+02
+         1222     4.389459E+02 -1.187455E-14  -6.505395E+03 -1.331409E-14   1.388868E+02  2.879065E-17   1.870717E+03   2.829175E-13
+         1323    -2.192954E+02 -5.609484E+00  -2.564529E+03  8.553219E-01   4.690468E+01 -1.292961E-01   2.379475E+03   2.208705E+02
+         2122     3.712321E+02  1.531349E+01  -4.325579E+03 -2.291949E+01   9.393622E+01  7.646596E-01  -3.153189E+02   2.200908E+01
+         2131    -2.579399E+03 -1.758057E+01  -1.869044E+02  2.871423E+01  -4.784990E+01 -9.258961E-01   2.479650E+03   1.610521E+02
+         2223    -4.325579E+03 -2.291949E+01   3.712321E+02  1.531349E+01  -9.393622E+01 -7.646596E-01  -3.153189E+02  -2.200908E+01
+         2232    -6.472386E+03 -8.350536E-15   3.711736E+02  2.931460E-14  -1.368712E+02 -7.533028E-16   1.860534E+03  -1.789000E-13
+         2333    -2.579399E+03  1.758057E+01  -1.869044E+02 -2.871423E+01  -4.784990E+01  9.258961E-01   2.479650E+03  -1.610521E+02
+         3132    -1.616402E+02  3.019311E+01  -1.827382E+02 -4.893276E+01   4.219613E-01  1.582517E+00  -5.881700E+02  -1.864227E+02
+         3233    -1.827382E+02 -4.893276E+01  -1.616402E+02  3.019311E+01  -4.219613E-01 -1.582517E+00  -5.881700E+02   1.864227E+02
+         4142     2.051032E+01  0.0           -2.051032E+01  0.0            8.204130E-01  0.0            0.0            0.0
+         4243    -2.051032E+01  0.0            2.051032E+01  0.0           -8.204130E-01  0.0            0.0            0.0
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    21
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                              F O R C E S   I N   S C A L A R   S P R I N G S        ( C E L A S 1 )
+      ELEMENT         FORCE            ELEMENT         FORCE            ELEMENT         FORCE            ELEMENT         FORCE
+        ID.                              ID.                              ID.                              ID.
+           58     -4.657955E+02
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    22
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+
+                          F O R C E S   I N   Q U A D R I L A T E R A L   E L E M E N T S   ( Q U A D 4 )
+ 
+    ELEMENT                - MEMBRANE  FORCES -                        - BENDING  MOMENTS -              - TRANSVERSE SHEAR FORCES -
+      ID              FX            FY            FXY             MX            MY            MXY             QX            QY
+         11       2.490763E+01  1.390454E+02 -2.417988E+00   -3.573857E-02 -5.394946E-02  1.530119E-02    7.455485E-04  2.015926E-03
+         12       2.490763E+01  1.390454E+02  2.417988E+00   -3.573857E-02 -5.394946E-02 -1.530119E-02   -7.455485E-04  2.015926E-03
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    23
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                                           F O R C E S   I N   R O D   E L E M E N T S     ( C R O D )
+       ELEMENT           AXIAL                                     ELEMENT           AXIAL
+         ID.             FORCE          TORQUE                       ID.             FORCE          TORQUE
+          1141        2.950854E+03   0.0                              1242        2.865394E+03   0.0
+          1343        2.950854E+03   0.0                              4131       -6.600145E+03   0.0
+          4232       -6.403547E+03   0.0                              4333       -6.600145E+03   0.0
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    24
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                             F O R C E S   I N   T R I A N G U L A R   E L E M E N T S   ( T R I A 3 )
+ 
+    ELEMENT                - MEMBRANE  FORCES -                        - BENDING  MOMENTS -              - TRANSVERSE SHEAR FORCES -
+      ID              FX            FY            FXY             MX            MY            MXY             QX            QY
+         21       9.987639E+00  1.187803E+02 -1.271895E+01   -5.945801E-02 -7.692924E-02  1.432883E-03    4.787593E-03 -5.229689E-03
+         22       1.555071E+02  2.116161E+00  2.137556E+01   -3.375306E-02 -2.245106E-02  2.262206E-02    1.305712E-03  8.442778E-04
+         23       9.987639E+00  1.187803E+02  1.271895E+01   -5.945801E-02 -7.692924E-02 -1.432883E-03   -4.787593E-03 -5.229689E-03
+         24       2.116161E+00  1.555071E+02  2.137556E+01   -2.245106E-02 -3.375306E-02  2.262206E-02    8.442778E-04  1.305712E-03
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    25
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                                 S T R E S S E S   I N   B A R   E L E M E N T S          ( C B A R )
+  ELEMENT        SA1            SA2            SA3            SA4           AXIAL          SA-MAX         SA-MIN     M.S.-T
+    ID.          SB1            SB2            SB3            SB4           STRESS         SB-MAX         SB-MIN     M.S.-C
+0    1112    2.710500E+02   2.645874E+02  -2.710500E+02  -2.645874E+02   0.0            2.710500E+02  -2.710500E+02  7.3E+01
+            -1.355250E+02  -1.322937E+02   1.355250E+02   1.322937E+02                  1.355250E+02  -1.355250E+02  7.3E+01
+0    1121    7.363624E+01   8.033682E+01  -7.363624E+01  -8.033682E+01   2.997859E+02   3.801227E+02   2.194490E+02  6.1E+00
+            -2.527285E+03  -2.535561E+03   2.527285E+03   2.535561E+03                  2.835346E+03  -2.235775E+03  7.9E+00
+0    1213   -1.355250E+02  -1.322937E+02   1.355250E+02   1.322937E+02   0.0            1.355250E+02  -1.355250E+02  7.3E+01
+             2.710500E+02   2.645874E+02  -2.710500E+02  -2.645874E+02                  2.710500E+02  -2.710500E+02  7.3E+01
+0    1222   -1.540782E+02  -1.540782E+02   1.540782E+02   1.540782E+02   2.956429E+02   4.497211E+02   1.415647E+02  1.6E+01
+            -8.931227E+02  -8.931227E+02   8.931227E+02   8.931227E+02                  1.188766E+03  -5.974797E+02  3.2E+01
+0    1323    8.033682E+01   7.363624E+01  -8.033682E+01  -7.363624E+01   2.997859E+02   3.801227E+02   2.194490E+02  6.1E+00
+            -2.535561E+03  -2.527285E+03   2.535561E+03   2.527285E+03                  2.835346E+03  -2.235775E+03  7.9E+00
+0    2122   -1.564862E+02  -1.588052E+02   1.564862E+02   1.588052E+02  -6.174968E+01   9.705553E+01  -2.205549E+02  1.4E+01
+             1.415565E+03   1.416227E+03  -1.415565E+03  -1.416227E+03                  1.354478E+03  -1.477977E+03  1.3E+01
+0    2131   -2.538985E+03  -2.543958E+03   2.538985E+03   2.543958E+03   2.956716E+02   2.839629E+03  -2.248286E+03  6.0E+00
+             9.353644E+01   9.503586E+01  -9.353644E+01  -9.503586E+01                  3.907075E+02   2.006358E+02  7.9E+00
+0    2223    1.415565E+03   1.416227E+03  -1.415565E+03  -1.416227E+03  -6.174968E+01   1.354478E+03  -1.477977E+03  1.4E+01
+            -1.564862E+02  -1.588052E+02   1.564862E+02   1.588052E+02                  9.705553E+01  -2.205549E+02  1.3E+01
+0    2232   -8.726510E+02  -8.726510E+02   8.726510E+02   8.726510E+02   3.097964E+02   1.182447E+03  -5.628546E+02  1.6E+01
+            -1.889556E+02  -1.889556E+02   1.889556E+02   1.889556E+02                  4.987520E+02   1.208407E+02  3.5E+01
+0    2333   -2.543958E+03  -2.538985E+03   2.543958E+03   2.538985E+03   2.956716E+02   2.839629E+03  -2.248286E+03  6.0E+00
+             9.503586E+01   9.353644E+01  -9.503586E+01  -9.353644E+01                  3.907075E+02   2.006358E+02  7.9E+00
+0    3132    3.611577E+02   3.623952E+02  -3.611577E+02  -3.623952E+02  -4.726662E+01   3.151286E+02  -4.096618E+02  3.8E+01
+            -5.569982E+02  -5.564192E+02   5.569982E+02   5.564192E+02                  5.097316E+02  -6.042648E+02  3.2E+01
+0    3233   -5.569982E+02  -5.564192E+02   5.569982E+02   5.564192E+02  -4.726662E+01   5.097316E+02  -6.042648E+02  3.8E+01
+             3.611577E+02   3.623952E+02  -3.611577E+02  -3.623952E+02                  3.151286E+02  -4.096618E+02  3.2E+01
+0    4142    5.992843E+01   5.992843E+01  -5.992843E+01  -5.992843E+01   0.0            5.992843E+01  -5.992843E+01  3.3E+02
+            -5.992843E+01  -5.992843E+01   5.992843E+01   5.992843E+01                  5.992843E+01  -5.992843E+01  3.3E+02
+0    4243   -5.992843E+01  -5.992843E+01   5.992843E+01   5.992843E+01   0.0            5.992843E+01  -5.992843E+01  3.3E+02
+             5.992843E+01   5.992843E+01  -5.992843E+01  -5.992843E+01                  5.992843E+01  -5.992843E+01  3.3E+02
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    26
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                              S T R E S S E S   I N   S C A L A R   S P R I N G S        ( C E L A S 1 )
+      ELEMENT         STRESS           ELEMENT         STRESS           ELEMENT         STRESS           ELEMENT         STRESS
+        ID.                              ID.                              ID.                              ID.
+           58     -1.382221E+03
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    27
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                         S T R E S S E S   I N   Q U A D R I L A T E R A L   E L E M E N T S   ( Q U A D 4 )
+  ELEMENT      FIBER               STRESSES IN ELEMENT COORD SYSTEM             PRINCIPAL STRESSES (ZERO SHEAR)                 
+    ID.       DISTANCE           NORMAL-X       NORMAL-Y      SHEAR-XY       ANGLE         MAJOR           MINOR        VON MISES
+0      11   -6.250000E-02      3.784484E+01   3.618887E+02   2.579625E+01    85.4768    3.639294E+02    3.580412E+01   3.474138E+02
+             6.250000E-02      5.506985E+01   2.567688E+02  -2.753551E+00   -89.2180    2.568064E+02    5.503227E+01   2.341910E+02
+0      12   -6.250000E-02      3.784484E+01   3.618887E+02  -2.579625E+01   -85.4768    3.639294E+02    3.580412E+01   3.474138E+02
+             6.250000E-02      5.506985E+01   2.567688E+02   2.753551E+00    89.2180    2.568064E+02    5.503227E+01   2.341910E+02
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    28
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                                     S T R E S S E S   I N   R O D   E L E M E N T S      ( C R O D )
+       ELEMENT       AXIAL       SAFETY      TORSIONAL     SAFETY       ELEMENT       AXIAL       SAFETY      TORSIONAL     SAFETY
+         ID.        STRESS       MARGIN        STRESS      MARGIN         ID.        STRESS       MARGIN        STRESS      MARGIN
+          1141    7.763719E+02   2.5E+01    0.0                            1242    1.275776E+03   1.5E+01    0.0           
+          1343    7.763719E+02   2.5E+01    0.0                            4131   -1.725300E+03   1.1E+01    0.0           
+          4232   -2.874161E+03   6.0E+00    0.0                            4333   -1.725300E+03   1.1E+01    0.0           
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    29
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                           S T R E S S E S   I N   T R I A N G U L A R   E L E M E N T S   ( T R I A 3 )
+  ELEMENT      FIBER               STRESSES IN ELEMENT COORD SYSTEM             PRINCIPAL STRESSES (ZERO SHEAR)                 
+    ID.       DISTANCE           NORMAL-X       NORMAL-Y      SHEAR-XY       ANGLE         MAJOR           MINOR        VON MISES
+0      21   -6.250000E-02     -1.634892E+01   3.388843E+02  -3.204627E+00   -89.4832    3.389133E+02   -1.637783E+01   3.473918E+02
+             6.250000E-02      4.984100E+01   2.890814E+02  -1.097184E-01   -89.9737    2.890815E+02    4.984095E+01   2.676642E+02
+0      22   -6.250000E-02      3.859759E+02   5.531899E+01   3.883247E+01     6.6090    3.904752E+02    5.081971E+01   3.677087E+02
+             6.250000E-02      2.195814E+02   1.537089E+00  -3.523147E+01    -8.9544    2.251327E+02   -4.014257E+00   2.271664E+02
+0      23   -6.250000E-02     -1.634892E+01   3.388843E+02   3.204627E+00    89.4832    3.389133E+02   -1.637783E+01   3.473918E+02
+             6.250000E-02      4.984100E+01   2.890814E+02   1.097184E-01    89.9737    2.890815E+02    4.984095E+01   2.676642E+02
+0      24   -6.250000E-02      5.531899E+01   3.859759E+02   3.883247E+01    83.3910    3.904752E+02    5.081971E+01   3.677087E+02
+             6.250000E-02      1.537089E+00   2.195814E+02  -3.523147E+01   -81.0456    2.251327E+02   -4.014257E+00   2.271664E+02
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    30
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                                 S T R E S S E S   I N   B A R   E L E M E N T S          ( C B A R )
+  ELEMENT        SA1            SA2            SA3            SA4           AXIAL          SA-MAX         SA-MIN     M.S.-T
+    ID.          SB1            SB2            SB3            SB4           STRESS         SB-MAX         SB-MIN     M.S.-C
+0    1112    1.108082E+02   9.940089E+01  -1.108082E+02  -9.940089E+01   0.0            1.108082E+02  -1.108082E+02  1.8E+02
+            -5.540411E+01  -4.970045E+01   5.540411E+01   4.970045E+01                  5.540411E+01  -5.540411E+01  1.8E+02
+0    1121    2.180244E+01   3.302141E+01  -2.180244E+01  -3.302141E+01   1.189737E+03   1.222759E+03   1.156716E+03  1.2E+01
+             3.214215E+02   3.197108E+02  -3.214215E+02  -3.197108E+02                  1.511159E+03   8.683158E+02 
+0    1213   -5.540411E+01  -4.970045E+01   5.540411E+01   4.970045E+01   0.0            5.540411E+01  -5.540411E+01  1.8E+02
+             1.108082E+02   9.940089E+01  -1.108082E+02  -9.940089E+01                  1.108082E+02  -1.108082E+02  1.8E+02
+0    1222   -5.486823E+01  -5.486823E+01   5.486823E+01   5.486823E+01   9.353583E+02   9.902266E+02   8.804901E+02  1.0E+01
+             8.131743E+02   8.131743E+02  -8.131743E+02  -8.131743E+02                  1.748533E+03   1.221840E+02 
+0    1323    3.302141E+01   2.180244E+01  -3.302141E+01  -2.180244E+01   1.189737E+03   1.222759E+03   1.156716E+03  1.2E+01
+             3.197108E+02   3.214215E+02  -3.197108E+02  -3.214215E+02                  1.511159E+03   8.683158E+02 
+0    2122   -6.171750E+01  -3.109051E+01   6.171750E+01   3.109051E+01  -1.576595E+02  -9.594196E+01  -2.193770E+02  4.8E+01
+             5.636168E+02   5.177779E+02  -5.636168E+02  -5.177779E+02                  4.059574E+02  -7.212763E+02  2.7E+01
+0    2131    3.400055E+02   3.048444E+02  -3.400055E+02  -3.048444E+02   1.239825E+03   1.579830E+03   8.998193E+02  1.2E+01
+            -5.351188E+00   5.207728E+01   5.351188E+00  -5.207728E+01                  1.291902E+03   1.187748E+03 
+0    2223    5.636168E+02   5.177779E+02  -5.636168E+02  -5.177779E+02  -1.576595E+02   4.059574E+02  -7.212763E+02  4.8E+01
+            -6.171750E+01  -3.109051E+01   6.171750E+01   3.109051E+01                 -9.594196E+01  -2.193770E+02  2.7E+01
+0    2232    8.090482E+02   8.090482E+02  -8.090482E+02  -8.090482E+02   9.302670E+02   1.739315E+03   1.212188E+02  1.0E+01
+            -4.639670E+01  -4.639670E+01   4.639670E+01   4.639670E+01                  9.766637E+02   8.838703E+02 
+0    2333    3.048444E+02   3.400055E+02  -3.048444E+02  -3.400055E+02   1.239825E+03   1.579830E+03   8.998193E+02  1.2E+01
+             5.207728E+01  -5.351188E+00  -5.207728E+01   5.351188E+00                  1.291902E+03   1.187748E+03 
+0    3132    5.062697E+01   1.110132E+02  -5.062697E+01  -1.110132E+02  -2.940850E+02  -1.830718E+02  -4.050982E+02 
+             1.403019E+02   4.243635E+01  -1.403019E+02  -4.243635E+01                 -1.537831E+02  -4.343869E+02  4.5E+01
+0    3233    1.403019E+02   4.243635E+01  -1.403019E+02  -4.243635E+01  -2.940850E+02  -1.537831E+02  -4.343869E+02 
+             5.062697E+01   1.110132E+02  -5.062697E+01  -1.110132E+02                 -1.830718E+02  -4.050982E+02  4.5E+01
+0    4142   -1.025516E+01  -1.025516E+01   1.025516E+01   1.025516E+01   0.0            1.025516E+01  -1.025516E+01  1.9E+03
+             1.025516E+01   1.025516E+01  -1.025516E+01  -1.025516E+01                  1.025516E+01  -1.025516E+01  1.9E+03
+0    4243    1.025516E+01   1.025516E+01  -1.025516E+01  -1.025516E+01   0.0            1.025516E+01  -1.025516E+01  1.9E+03
+            -1.025516E+01  -1.025516E+01   1.025516E+01   1.025516E+01                  1.025516E+01  -1.025516E+01  1.9E+03
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    31
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                              S T R E S S E S   I N   S C A L A R   S P R I N G S        ( C E L A S 1 )
+      ELEMENT         STRESS           ELEMENT         STRESS           ELEMENT         STRESS           ELEMENT         STRESS
+        ID.                              ID.                              ID.                              ID.
+           58     -3.493466E+02
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    32
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                         S T R E S S E S   I N   Q U A D R I L A T E R A L   E L E M E N T S   ( Q U A D 4 )
+  ELEMENT      FIBER               STRESSES IN ELEMENT COORD SYSTEM             PRINCIPAL STRESSES (ZERO SHEAR)                 
+    ID.       DISTANCE           NORMAL-X       NORMAL-Y      SHEAR-XY       ANGLE         MAJOR           MINOR        VON MISES
+0      11   -6.250000E-02      1.855374E+02   1.091646E+03  -1.346824E+01   -89.1486    1.091847E+03    1.853373E+02   1.011988E+03
+             6.250000E-02      2.129847E+02   1.133080E+03  -2.521956E+01   -88.4311    1.133770E+03    2.122939E+02   1.043940E+03
+0      12   -6.250000E-02      1.855374E+02   1.091646E+03   1.346824E+01    89.1486    1.091847E+03    1.853373E+02   1.011988E+03
+             6.250000E-02      2.129847E+02   1.133080E+03   2.521956E+01    88.4311    1.133770E+03    2.122939E+02   1.043940E+03
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    33
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                                     S T R E S S E S   I N   R O D   E L E M E N T S      ( C R O D )
+       ELEMENT       AXIAL       SAFETY      TORSIONAL     SAFETY       ELEMENT       AXIAL       SAFETY      TORSIONAL     SAFETY
+         ID.        STRESS       MARGIN        STRESS      MARGIN         ID.        STRESS       MARGIN        STRESS      MARGIN
+          1141    2.950854E+03   5.8E+00    0.0                            1242    2.865394E+03   6.0E+00    0.0           
+          1343    2.950854E+03   5.8E+00    0.0                            4131   -6.600145E+03   2.0E+00    0.0           
+          4232   -6.403547E+03   2.1E+00    0.0                            4333   -6.600145E+03   2.0E+00    0.0           
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    34
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                           S T R E S S E S   I N   T R I A N G U L A R   E L E M E N T S   ( T R I A 3 )
+  ELEMENT      FIBER               STRESSES IN ELEMENT COORD SYSTEM             PRINCIPAL STRESSES (ZERO SHEAR)                 
+    ID.       DISTANCE           NORMAL-X       NORMAL-Y      SHEAR-XY       ANGLE         MAJOR           MINOR        VON MISES
+0      21   -6.250000E-02      5.706923E+01   9.207014E+02  -1.012014E+02   -83.4050    9.324018E+02    4.536886E+01   9.105655E+02
+             6.250000E-02      1.027330E+02   9.797831E+02  -1.023018E+02   -83.4343    9.915578E+02    9.095826E+01   9.493524E+02
+0      22   -6.250000E-02      1.231096E+03   8.308078E+00   1.796914E+02     8.1891    1.256955E+03   -1.755110E+01   1.265822E+03
+             6.250000E-02      1.257018E+03   2.555049E+01   1.623176E+02     7.3841    1.278054E+03    4.515005E+00   1.275802E+03
+0      23   -6.250000E-02      5.706923E+01   9.207014E+02   1.012014E+02    83.4050    9.324018E+02    4.536886E+01   9.105655E+02
+             6.250000E-02      1.027330E+02   9.797831E+02   1.023018E+02    83.4343    9.915578E+02    9.095826E+01   9.493524E+02
+0      24   -6.250000E-02      8.308078E+00   1.231096E+03   1.796914E+02    81.8109    1.256955E+03   -1.755110E+01   1.265822E+03
+             6.250000E-02      2.555049E+01   1.257018E+03   1.623176E+02    82.6159    1.278054E+03    4.515005E+00   1.275802E+03
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    35
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                                  S T R A I N S    I N   B A R   E L E M E N T S          ( C B A R )
+  ELEMENT        SA1            SA2            SA3            SA4           AXIAL          SA-MAX         SA-MIN     M.S.-T
+    ID.          SB1            SB2            SB3            SB4           STRAIN         SB-MAX         SB-MIN     M.S.-C
+0    1112    2.710500E-05   2.645874E-05  -2.710500E-05  -2.645874E-05   0.0            2.710500E-05  -2.710500E-05  7.3E+01
+            -1.355250E-05  -1.322937E-05   1.355250E-05   1.322937E-05                  1.355250E-05  -1.355250E-05  7.3E+01
+0    1121    7.363624E-06   8.033682E-06  -7.363624E-06  -8.033682E-06   2.997859E-05   3.801227E-05   2.194490E-05  6.1E+00
+            -2.527285E-04  -2.535561E-04   2.527285E-04   2.535561E-04                  2.835346E-04  -2.235775E-04  7.9E+00
+0    1213   -1.355250E-05  -1.322937E-05   1.355250E-05   1.322937E-05   0.0            1.355250E-05  -1.355250E-05  7.3E+01
+             2.710500E-05   2.645874E-05  -2.710500E-05  -2.645874E-05                  2.710500E-05  -2.710500E-05  7.3E+01
+0    1222   -1.540782E-05  -1.540782E-05   1.540782E-05   1.540782E-05   2.956429E-05   4.497211E-05   1.415647E-05  1.6E+01
+            -8.931227E-05  -8.931227E-05   8.931227E-05   8.931227E-05                  1.188766E-04  -5.974797E-05  3.2E+01
+0    1323    8.033682E-06   7.363624E-06  -8.033682E-06  -7.363624E-06   2.997859E-05   3.801227E-05   2.194490E-05  6.1E+00
+            -2.535561E-04  -2.527285E-04   2.535561E-04   2.527285E-04                  2.835346E-04  -2.235775E-04  7.9E+00
+0    2122   -1.564862E-05  -1.588052E-05   1.564862E-05   1.588052E-05  -6.174968E-06   9.705553E-06  -2.205549E-05  1.4E+01
+             1.415565E-04   1.416227E-04  -1.415565E-04  -1.416227E-04                  1.354478E-04  -1.477977E-04  1.3E+01
+0    2131   -2.538985E-04  -2.543958E-04   2.538985E-04   2.543958E-04   2.956716E-05   2.839629E-04  -2.248286E-04  6.0E+00
+             9.353644E-06   9.503586E-06  -9.353644E-06  -9.503586E-06                  3.907075E-05   2.006358E-05  7.9E+00
+0    2223    1.415565E-04   1.416227E-04  -1.415565E-04  -1.416227E-04  -6.174968E-06   1.354478E-04  -1.477977E-04  1.4E+01
+            -1.564862E-05  -1.588052E-05   1.564862E-05   1.588052E-05                  9.705553E-06  -2.205549E-05  1.3E+01
+0    2232   -8.726510E-05  -8.726510E-05   8.726510E-05   8.726510E-05   3.097964E-05   1.182447E-04  -5.628546E-05  1.6E+01
+            -1.889556E-05  -1.889556E-05   1.889556E-05   1.889556E-05                  4.987520E-05   1.208407E-05  3.5E+01
+0    2333   -2.543958E-04  -2.538985E-04   2.543958E-04   2.538985E-04   2.956716E-05   2.839629E-04  -2.248286E-04  6.0E+00
+             9.503586E-06   9.353644E-06  -9.503586E-06  -9.353644E-06                  3.907075E-05   2.006358E-05  7.9E+00
+0    3132    3.611577E-05   3.623952E-05  -3.611577E-05  -3.623952E-05  -4.726662E-06   3.151286E-05  -4.096618E-05  3.8E+01
+            -5.569982E-05  -5.564192E-05   5.569982E-05   5.564192E-05                  5.097316E-05  -6.042648E-05  3.2E+01
+0    3233   -5.569982E-05  -5.564192E-05   5.569982E-05   5.564192E-05  -4.726662E-06   5.097316E-05  -6.042648E-05  3.8E+01
+             3.611577E-05   3.623952E-05  -3.611577E-05  -3.623952E-05                  3.151286E-05  -4.096618E-05  3.2E+01
+0    4142    5.992843E-06   5.992843E-06  -5.992843E-06  -5.992843E-06   0.0            5.992843E-06  -5.992843E-06  3.3E+02
+            -5.992843E-06  -5.992843E-06   5.992843E-06   5.992843E-06                  5.992843E-06  -5.992843E-06  3.3E+02
+0    4243   -5.992843E-06  -5.992843E-06   5.992843E-06   5.992843E-06   0.0            5.992843E-06  -5.992843E-06  3.3E+02
+             5.992843E-06   5.992843E-06  -5.992843E-06  -5.992843E-06                  5.992843E-06  -5.992843E-06  3.3E+02
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    36
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                               S T R A I N S    I N   S C A L A R   S P R I N G S        ( C E L A S 1 )
+      ELEMENT         STRAIN           ELEMENT         STRAIN           ELEMENT         STRAIN           ELEMENT         STRAIN
+        ID.                              ID.                              ID.                              ID.
+           58     -9.214807E-02
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    37
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                           S T R A I N S   I N   Q U A D R I L A T E R A L   E L E M E N T S   ( Q U A D 4 )
+  ELEMENT      FIBER                STRAINS IN ELEMENT COORD SYSTEM             PRINCIPAL  STRAINS (ZERO SHEAR)                 
+    ID.       DISTANCE           NORMAL-X       NORMAL-Y      SHEAR-XY       ANGLE         MAJOR           MINOR        VON MISES
+0      11   -6.250000E-02     -5.262734E-06   3.524275E-05   6.449063E-06    85.4768    3.549784E-05   -5.517824E-06   2.570269E-05
+             6.250000E-02     -9.122341E-07   2.430013E-05  -6.883877E-07   -89.2180    2.430483E-05   -9.169321E-07   1.651735E-05
+0      12   -6.250000E-02     -5.262734E-06   3.524275E-05  -6.449063E-06   -85.4768    3.549784E-05   -5.517824E-06   2.570269E-05
+             6.250000E-02     -9.122341E-07   2.430013E-05   6.883877E-07    89.2180    2.430483E-05   -9.169321E-07   1.651735E-05
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    38
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                                       S T R A I N S   I N   R O D   E L E M E N T S      ( C R O D )
+       ELEMENT       AXIAL       SAFETY      TORSIONAL     SAFETY       ELEMENT       AXIAL       SAFETY      TORSIONAL     SAFETY
+         ID.        STRAIN       MARGIN        STRAIN      MARGIN         ID.        STRAIN       MARGIN        STRAIN      MARGIN
+          1141    7.763719E-05   2.5E+01    0.0                            1242    1.275776E-04   1.5E+01    0.0           
+          1343    7.763719E-05   2.5E+01    0.0                            4131   -1.725300E-04   1.1E+01    0.0           
+          4232   -2.874161E-04   6.0E+00    0.0                            4333   -1.725300E-04   1.1E+01    0.0           
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    39
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                             S T R A I N S   I N   T R I A N G U L A R   E L E M E N T S   ( T R I A 3 )
+  ELEMENT      FIBER                STRAINS IN ELEMENT COORD SYSTEM             PRINCIPAL  STRAINS (ZERO SHEAR)                 
+    ID.       DISTANCE           NORMAL-X       NORMAL-Y      SHEAR-XY       ANGLE         MAJOR           MINOR        VON MISES
+0      21   -6.250000E-02     -1.010700E-05   3.429716E-05  -8.011567E-07   -89.4832    3.430077E-05   -1.011061E-05   2.687890E-05
+             6.250000E-02     -2.242935E-06   2.766212E-05  -2.742959E-08   -89.9737    2.766212E-05   -2.242941E-06   1.923271E-05
+0      22   -6.250000E-02      3.721461E-05  -4.117498E-06   9.708117E-06     6.6090    3.777702E-05   -4.679908E-06   2.688079E-05
+             6.250000E-02      2.191971E-05  -5.335825E-06  -8.807868E-06    -8.9544    2.261363E-05   -6.029743E-06   1.743672E-05
+0      23   -6.250000E-02     -1.010700E-05   3.429716E-05   8.011567E-07    89.4832    3.430077E-05   -1.011061E-05   2.687890E-05
+             6.250000E-02     -2.242935E-06   2.766212E-05   2.742959E-08    89.9737    2.766212E-05   -2.242941E-06   1.923271E-05
+0      24   -6.250000E-02     -4.117498E-06   3.721461E-05   9.708117E-06    83.3910    3.777702E-05   -4.679908E-06   2.688079E-05
+             6.250000E-02     -5.335825E-06   2.191971E-05  -8.807868E-06   -81.0456    2.261363E-05   -6.029743E-06   1.743672E-05
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    40
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                                  S T R A I N S    I N   B A R   E L E M E N T S          ( C B A R )
+  ELEMENT        SA1            SA2            SA3            SA4           AXIAL          SA-MAX         SA-MIN     M.S.-T
+    ID.          SB1            SB2            SB3            SB4           STRAIN         SB-MAX         SB-MIN     M.S.-C
+0    1112    1.108082E-05   9.940089E-06  -1.108082E-05  -9.940089E-06   0.0            1.108082E-05  -1.108082E-05  1.8E+02
+            -5.540411E-06  -4.970045E-06   5.540411E-06   4.970045E-06                  5.540411E-06  -5.540411E-06  1.8E+02
+0    1121    2.180244E-06   3.302141E-06  -2.180244E-06  -3.302141E-06   1.189737E-04   1.222759E-04   1.156716E-04  1.2E+01
+             3.214215E-05   3.197108E-05  -3.214215E-05  -3.197108E-05                  1.511159E-04   8.683158E-05 
+0    1213   -5.540411E-06  -4.970045E-06   5.540411E-06   4.970045E-06   0.0            5.540411E-06  -5.540411E-06  1.8E+02
+             1.108082E-05   9.940089E-06  -1.108082E-05  -9.940089E-06                  1.108082E-05  -1.108082E-05  1.8E+02
+0    1222   -5.486823E-06  -5.486823E-06   5.486823E-06   5.486823E-06   9.353583E-05   9.902266E-05   8.804901E-05  1.0E+01
+             8.131743E-05   8.131743E-05  -8.131743E-05  -8.131743E-05                  1.748533E-04   1.221840E-05 
+0    1323    3.302141E-06   2.180244E-06  -3.302141E-06  -2.180244E-06   1.189737E-04   1.222759E-04   1.156716E-04  1.2E+01
+             3.197108E-05   3.214215E-05  -3.197108E-05  -3.214215E-05                  1.511159E-04   8.683158E-05 
+0    2122   -6.171750E-06  -3.109051E-06   6.171750E-06   3.109051E-06  -1.576595E-05  -9.594196E-06  -2.193770E-05  4.8E+01
+             5.636168E-05   5.177779E-05  -5.636168E-05  -5.177779E-05                  4.059574E-05  -7.212763E-05  2.7E+01
+0    2131    3.400055E-05   3.048444E-05  -3.400055E-05  -3.048444E-05   1.239825E-04   1.579830E-04   8.998193E-05  1.2E+01
+            -5.351188E-07   5.207728E-06   5.351188E-07  -5.207728E-06                  1.291902E-04   1.187748E-04 
+0    2223    5.636168E-05   5.177779E-05  -5.636168E-05  -5.177779E-05  -1.576595E-05   4.059574E-05  -7.212763E-05  4.8E+01
+            -6.171750E-06  -3.109051E-06   6.171750E-06   3.109051E-06                 -9.594196E-06  -2.193770E-05  2.7E+01
+0    2232    8.090482E-05   8.090482E-05  -8.090482E-05  -8.090482E-05   9.302670E-05   1.739315E-04   1.212188E-05  1.0E+01
+            -4.639670E-06  -4.639670E-06   4.639670E-06   4.639670E-06                  9.766637E-05   8.838703E-05 
+0    2333    3.048444E-05   3.400055E-05  -3.048444E-05  -3.400055E-05   1.239825E-04   1.579830E-04   8.998193E-05  1.2E+01
+             5.207728E-06  -5.351188E-07  -5.207728E-06   5.351188E-07                  1.291902E-04   1.187748E-04 
+0    3132    5.062697E-06   1.110132E-05  -5.062697E-06  -1.110132E-05  -2.940850E-05  -1.830718E-05  -4.050982E-05 
+             1.403019E-05   4.243635E-06  -1.403019E-05  -4.243635E-06                 -1.537831E-05  -4.343869E-05  4.5E+01
+0    3233    1.403019E-05   4.243635E-06  -1.403019E-05  -4.243635E-06  -2.940850E-05  -1.537831E-05  -4.343869E-05 
+             5.062697E-06   1.110132E-05  -5.062697E-06  -1.110132E-05                 -1.830718E-05  -4.050982E-05  4.5E+01
+0    4142   -1.025516E-06  -1.025516E-06   1.025516E-06   1.025516E-06   0.0            1.025516E-06  -1.025516E-06  1.9E+03
+             1.025516E-06   1.025516E-06  -1.025516E-06  -1.025516E-06                  1.025516E-06  -1.025516E-06  1.9E+03
+0    4243    1.025516E-06   1.025516E-06  -1.025516E-06  -1.025516E-06   0.0            1.025516E-06  -1.025516E-06  1.9E+03
+            -1.025516E-06  -1.025516E-06   1.025516E-06   1.025516E-06                  1.025516E-06  -1.025516E-06  1.9E+03
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    41
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                               S T R A I N S    I N   S C A L A R   S P R I N G S        ( C E L A S 1 )
+      ELEMENT         STRAIN           ELEMENT         STRAIN           ELEMENT         STRAIN           ELEMENT         STRAIN
+        ID.                              ID.                              ID.                              ID.
+           58     -2.328978E-02
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    42
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                           S T R A I N S   I N   Q U A D R I L A T E R A L   E L E M E N T S   ( Q U A D 4 )
+  ELEMENT      FIBER                STRAINS IN ELEMENT COORD SYSTEM             PRINCIPAL  STRAINS (ZERO SHEAR)                 
+    ID.       DISTANCE           NORMAL-X       NORMAL-Y      SHEAR-XY       ANGLE         MAJOR           MINOR        VON MISES
+0      11   -6.250000E-02     -8.737419E-06   1.045262E-04  -3.367061E-06   -89.1486    1.045512E-04   -8.762437E-06   7.279763E-05
+             6.250000E-02     -7.028527E-06   1.079834E-04  -6.304890E-06   -88.4311    1.080697E-04   -7.114869E-06   7.453137E-05
+0      12   -6.250000E-02     -8.737419E-06   1.045262E-04   3.367061E-06    89.1486    1.045512E-04   -8.762437E-06   7.279763E-05
+             6.250000E-02     -7.028527E-06   1.079834E-04   6.304890E-06    88.4311    1.080697E-04   -7.114869E-06   7.453137E-05
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    43
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                                       S T R A I N S   I N   R O D   E L E M E N T S      ( C R O D )
+       ELEMENT       AXIAL       SAFETY      TORSIONAL     SAFETY       ELEMENT       AXIAL       SAFETY      TORSIONAL     SAFETY
+         ID.        STRAIN       MARGIN        STRAIN      MARGIN         ID.        STRAIN       MARGIN        STRAIN      MARGIN
+          1141    2.950854E-04   5.8E+00    0.0                            1242    2.865394E-04   6.0E+00    0.0           
+          1343    2.950854E-04   5.8E+00    0.0                            4131   -6.600145E-04   2.0E+00    0.0           
+          4232   -6.403547E-04   2.1E+00    0.0                            4333   -6.600145E-04   2.0E+00    0.0           
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    44
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                             S T R A I N S   I N   T R I A N G U L A R   E L E M E N T S   ( T R I A 3 )
+  ELEMENT      FIBER                STRAINS IN ELEMENT COORD SYSTEM             PRINCIPAL  STRAINS (ZERO SHEAR)                 
+    ID.       DISTANCE           NORMAL-X       NORMAL-Y      SHEAR-XY       ANGLE         MAJOR           MINOR        VON MISES
+0      21   -6.250000E-02     -1.731061E-05   9.064341E-05  -2.530034E-05   -83.4050    9.210596E-05   -1.877316E-05   6.852431E-05
+             6.250000E-02     -1.422128E-05   9.540998E-05  -2.557545E-05   -83.4343    9.688182E-05   -1.569312E-05   7.040436E-05
+0      22   -6.250000E-02      1.229019E-04  -2.994659E-05   4.492284E-05     8.1891    1.261343E-04   -3.317899E-05   9.705832E-05
+             6.250000E-02      1.250631E-04  -2.887041E-05   4.057941E-05     7.3841    1.276925E-04   -3.149984E-05   9.734226E-05
+0      23   -6.250000E-02     -1.731061E-05   9.064341E-05   2.530034E-05    83.4050    9.210596E-05   -1.877316E-05   6.852431E-05
+             6.250000E-02     -1.422128E-05   9.540998E-05   2.557545E-05    83.4343    9.688182E-05   -1.569312E-05   7.040436E-05
+0      24   -6.250000E-02     -2.994659E-05   1.229019E-04   4.492284E-05    81.8109    1.261343E-04   -3.317899E-05   9.705832E-05
+             6.250000E-02     -2.887041E-05   1.250631E-04   4.057941E-05    82.6159    1.276925E-04   -3.149984E-05   9.734226E-05
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    45
+      TRUSS SUPPORTED SHELF                                                                                                         
+0                                                                                                                                   
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    46
+      TRUSS SUPPORTED SHELF                                                                                                         
+0                                                                                                                                   
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK OQG1     WRITTEN ON FORTRAN UNIT  12, TRL =
+                    101                 0               208                12                24                 0                 1
+     (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =    65538 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      146 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =       34 RECORDS.)
+     (TOTAL DATA WRITTEN FOR DATA BLOCK =      541 WORDS.)
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK OQMG1    WRITTEN ON FORTRAN UNIT  12, TRL =
+                    102                 0               208                12                24                 0                 1
+     (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =    65538 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      146 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =       34 RECORDS.)
+     (TOTAL DATA WRITTEN FOR DATA BLOCK =      541 WORDS.)
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK OUGV1    WRITTEN ON FORTRAN UNIT  12, TRL =
+                    101                 0               208                12                24                 0                 1
+     (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =    65538 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      146 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =       34 RECORDS.)
+     (TOTAL DATA WRITTEN FOR DATA BLOCK =      541 WORDS.)
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK OES1X    WRITTEN ON FORTRAN UNIT  12, TRL =
+                    101                63                 1                12                24                 0                 1
+     (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =    65538 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      224 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =      114 RECORDS.)
+     (TOTAL DATA WRITTEN FOR DATA BLOCK =     2281 WORDS.)
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK OEF1X    WRITTEN ON FORTRAN UNIT  12, TRL =
+                    101                63                 1                12                24                 0                 1
+     (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =    65538 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      146 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =      114 RECORDS.)
+     (TOTAL DATA WRITTEN FOR DATA BLOCK =     1965 WORDS.)
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK OSTR1X   WRITTEN ON FORTRAN UNIT  12, TRL =
+                    101                63                 1                12                24                 0                 1
+     (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =    65538 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      224 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =      114 RECORDS.)
+     (TOTAL DATA WRITTEN FOR DATA BLOCK =     2281 WORDS.)
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    47
+      TRUSS SUPPORTED SHELF                                                                                                         
+0                                                                                                                                   
+0                                                                                                                                   
+                                                                                                                                    
+                                                                                                                                    
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK OPG1     WRITTEN ON FORTRAN UNIT  12, TRL =
+                    101                 0               208                12                24                 0                 1
+     (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =    65538 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      146 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =       34 RECORDS.)
+     (TOTAL DATA WRITTEN FOR DATA BLOCK =      541 WORDS.)
+ *** USER INFORMATION MESSAGE 4507 (SDREE)
+     IN SUBCASE        92                     
+     THERE ARE      2 BAR      ELEMENTS HAVING STRAIN ENERGY WHICH IS LESS THAN   0.0010 PERCENT
+     OF THE TOTAL STRAIN ENERGY OF ALL ELEMENTS.
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    48
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                                           E L E M E N T   S T R A I N   E N E R G I E S
+ 
+                ELEMENT-TYPE = BAR                 * TOTAL ENERGY OF ALL ELEMENTS IN PROBLEM     =   4.214712E+02
+                SUBCASE              91            * TOTAL ENERGY OF ALL ELEMENTS IN SET      -1 =   4.214712E+02
+0
+                                    ELEMENT-ID          STRAIN-ENERGY           PERCENT OF TOTAL    STRAIN-ENERGY-DENSITY
+                                          1112          1.119175E+00                 0.2655              1.119175E-02
+                                          1121          4.270042E+01                10.1313              4.270042E-01
+                                          1213          1.119175E+00                 0.2655              1.119175E-02
+                                          1222          6.830483E+00                 1.6206              6.830483E-02
+                                          1323          4.270042E+01                10.1313              4.270042E-01
+                                          2122          1.207134E+01                 2.8641              1.207134E-01
+                                          2131          4.327922E+01                10.2686              4.327922E-01
+                                          2223          1.207134E+01                 2.8641              1.207134E-01
+                                          2232          6.893977E+00                 1.6357              6.893977E-02
+                                          2333          4.327922E+01                10.2686              4.327922E-01
+                                          3132          1.834058E+00                 0.4352              1.834058E-02
+                                          3233          1.834058E+00                 0.4352              1.834058E-02
+                                          4142          5.985695E-03                 0.0014              5.985695E-05
+                                          4243          5.985695E-03                 0.0014              5.985695E-05
+
+                        TYPE = BAR      SUBTOTAL        2.157449E+02                51.1885
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    49
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                                           E L E M E N T   S T R A I N   E N E R G I E S
+ 
+                ELEMENT-TYPE = ELAS1               * TOTAL ENERGY OF ALL ELEMENTS IN PROBLEM     =   4.214712E+02
+                SUBCASE              91            * TOTAL ENERGY OF ALL ELEMENTS IN SET      -1 =   4.214712E+02
+0
+                                    ELEMENT-ID          STRAIN-ENERGY           PERCENT OF TOTAL    STRAIN-ENERGY-DENSITY
+                                            58          1.132169E+02                26.8623    
+
+                        TYPE = ELAS1    SUBTOTAL        1.132169E+02                26.8623
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    50
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                                           E L E M E N T   S T R A I N   E N E R G I E S
+ 
+                ELEMENT-TYPE = QUAD4               * TOTAL ENERGY OF ALL ELEMENTS IN PROBLEM     =   4.214712E+02
+                SUBCASE              91            * TOTAL ENERGY OF ALL ELEMENTS IN SET      -1 =   4.214712E+02
+0
+                                    ELEMENT-ID          STRAIN-ENERGY           PERCENT OF TOTAL    STRAIN-ENERGY-DENSITY
+                                            11          1.496911E+00                 0.3552              4.790115E-03
+                                            12          1.496911E+00                 0.3552              4.790115E-03
+
+                        TYPE = QUAD4    SUBTOTAL        2.993822E+00                 0.7103
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    51
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                                           E L E M E N T   S T R A I N   E N E R G I E S
+ 
+                ELEMENT-TYPE = ROD                 * TOTAL ENERGY OF ALL ELEMENTS IN PROBLEM     =   4.214712E+02
+                SUBCASE              91            * TOTAL ENERGY OF ALL ELEMENTS IN SET      -1 =   4.214712E+02
+0
+                                    ELEMENT-ID          STRAIN-ENERGY           PERCENT OF TOTAL    STRAIN-ENERGY-DENSITY
+                                          1141          1.506883E+00                 0.3575              3.013767E-02
+                                          1242          4.069008E+00                 0.9654              8.138016E-02
+                                          1343          1.506883E+00                 0.3575              3.013767E-02
+                                          4131          1.664004E+01                 3.9481              1.488330E-01
+                                          4232          4.617930E+01                10.9567              4.130402E-01
+                                          4333          1.664004E+01                 3.9481              1.488330E-01
+
+                        TYPE = ROD      SUBTOTAL        8.654214E+01                20.5333
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    52
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                                           E L E M E N T   S T R A I N   E N E R G I E S
+ 
+                ELEMENT-TYPE = TRIA3               * TOTAL ENERGY OF ALL ELEMENTS IN PROBLEM     =   4.214712E+02
+                SUBCASE              91            * TOTAL ENERGY OF ALL ELEMENTS IN SET      -1 =   4.214712E+02
+0
+                                    ELEMENT-ID          STRAIN-ENERGY           PERCENT OF TOTAL    STRAIN-ENERGY-DENSITY
+                                            21          7.594394E-01                 0.1802              4.860412E-03
+                                            22          7.273075E-01                 0.1726              4.654768E-03
+                                            23          7.594394E-01                 0.1802              4.860412E-03
+                                            24          7.273075E-01                 0.1726              4.654768E-03
+
+                        TYPE = TRIA3    SUBTOTAL        2.973494E+00                 0.7055
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    53
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                                           E L E M E N T   S T R A I N   E N E R G I E S
+ 
+                ELEMENT-TYPE = BAR                 * TOTAL ENERGY OF ALL ELEMENTS IN PROBLEM     =   9.185803E+02
+                SUBCASE              92            * TOTAL ENERGY OF ALL ELEMENTS IN SET      -1 =   9.185803E+02
+0
+                                    ELEMENT-ID          STRAIN-ENERGY           PERCENT OF TOTAL    STRAIN-ENERGY-DENSITY
+                                          1112          1.428481E-01                 0.0156              1.428481E-03
+                                          1121          7.948033E+00                 0.8653              7.948033E-02
+                                          1213          1.428481E-01                 0.0156              1.428481E-03
+                                          1222          8.505447E+00                 0.9259              8.505447E-02
+                                          1323          7.948033E+00                 0.8653              7.948033E-02
+                                          2122          1.921944E+00                 0.2092              1.921944E-02
+                                          2131          8.498106E+00                 0.9251              8.498106E-02
+                                          2223          1.921944E+00                 0.2092              1.921944E-02
+                                          2232          8.454813E+00                 0.9204              8.454813E-02
+                                          2333          8.498106E+00                 0.9251              8.498106E-02
+                                          3132          5.579451E-01                 0.0607              5.579451E-03
+                                          3233          5.579451E-01                 0.0607              5.579451E-03
+
+                        TYPE = BAR      SUBTOTAL        5.509836E+01                 5.9982
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    54
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                                           E L E M E N T   S T R A I N   E N E R G I E S
+ 
+                ELEMENT-TYPE = ELAS1               * TOTAL ENERGY OF ALL ELEMENTS IN PROBLEM     =   9.185803E+02
+                SUBCASE              92            * TOTAL ENERGY OF ALL ELEMENTS IN SET      -1 =   9.185803E+02
+0
+                                    ELEMENT-ID          STRAIN-ENERGY           PERCENT OF TOTAL    STRAIN-ENERGY-DENSITY
+                                            58          7.232182E+00                 0.7873    
+
+                        TYPE = ELAS1    SUBTOTAL        7.232182E+00                 0.7873
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    55
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                                           E L E M E N T   S T R A I N   E N E R G I E S
+ 
+                ELEMENT-TYPE = QUAD4               * TOTAL ENERGY OF ALL ELEMENTS IN PROBLEM     =   9.185803E+02
+                SUBCASE              92            * TOTAL ENERGY OF ALL ELEMENTS IN SET      -1 =   9.185803E+02
+0
+                                    ELEMENT-ID          STRAIN-ENERGY           PERCENT OF TOTAL    STRAIN-ENERGY-DENSITY
+                                            11          1.836272E+01                 1.9990              5.876069E-02
+                                            12          1.836272E+01                 1.9990              5.876069E-02
+
+                        TYPE = QUAD4    SUBTOTAL        3.672543E+01                 3.9981
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    56
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                                           E L E M E N T   S T R A I N   E N E R G I E S
+ 
+                ELEMENT-TYPE = ROD                 * TOTAL ENERGY OF ALL ELEMENTS IN PROBLEM     =   9.185803E+02
+                SUBCASE              92            * TOTAL ENERGY OF ALL ELEMENTS IN SET      -1 =   9.185803E+02
+0
+                                    ELEMENT-ID          STRAIN-ENERGY           PERCENT OF TOTAL    STRAIN-ENERGY-DENSITY
+                                          1141          2.176885E+01                 2.3698              4.353770E-01
+                                          1242          2.052621E+01                 2.2346              4.105242E-01
+                                          1343          2.176885E+01                 2.3698              4.353770E-01
+                                          4131          2.435185E+02                26.5103              2.178095E+00
+                                          4232          2.292273E+02                24.9545              2.050271E+00
+                                          4333          2.435185E+02                26.5103              2.178095E+00
+
+                        TYPE = ROD      SUBTOTAL        7.803281E+02                84.9494
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    57
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                                           E L E M E N T   S T R A I N   E N E R G I E S
+ 
+                ELEMENT-TYPE = TRIA3               * TOTAL ENERGY OF ALL ELEMENTS IN PROBLEM     =   9.185803E+02
+                SUBCASE              92            * TOTAL ENERGY OF ALL ELEMENTS IN SET      -1 =   9.185803E+02
+0
+                                    ELEMENT-ID          STRAIN-ENERGY           PERCENT OF TOTAL    STRAIN-ENERGY-DENSITY
+                                            21          7.014556E+00                 0.7636              4.489316E-02
+                                            22          1.258353E+01                 1.3699              8.053457E-02
+                                            23          7.014556E+00                 0.7636              4.489316E-02
+                                            24          1.258353E+01                 1.3699              8.053457E-02
+
+                        TYPE = TRIA3    SUBTOTAL        3.919617E+01                 4.2670
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    58
+      TRUSS SUPPORTED SHELF                                                                                                         
+0                                                                                                                                   
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    59
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                                          G R I D   P O I N T   F O R C E   B A L A N C E
+ 
+   POINT-ID    ELEMENT-ID     SOURCE             T1             T2             T3             R1             R2             R3
+       1011                  APP-LOAD       0.0            0.0           -4.687500E+02   0.0            0.0            0.0
+       1011                  F-OF-SPC      -2.134948E+02  -1.604484E+03   1.680854E+03   0.0            0.0            0.0
+       1011          1112    BAR            0.0            9.693996E-02  -1.606912E+01   6.417196E+02   5.356374E+02   3.231332E+00
+       1011          1121    BAR            1.497582E-01   5.995717E+02  -4.173455E+02  -6.158923E+02  -5.621706E+02  -3.350292E+00
+       1011            11    QUAD4          2.133451E+02   1.004815E+03  -2.317553E+00  -2.582734E+01   2.653319E+01   1.189601E-01
+       1011          1141    ROD            0.0            0.0           -7.763719E+02   0.0            0.0            0.0
+       1011                  *TOTALS*       0.0           -3.410605E-13   1.136868E-13  -5.226042E-12   1.065814E-13  -3.108624E-15
+0      1012                  APP-LOAD       0.0            0.0           -9.375000E+02   0.0            0.0            0.0
+       1012                  F-OF-SPC      -2.557954E-13  -2.448070E+03   2.295330E+03   0.0            0.0            0.0
+       1012          1112    BAR            0.0           -9.693996E-02   1.606912E+01  -6.417196E+02   2.678187E+02   1.615666E+00
+       1012          1213    BAR            0.0           -9.693996E-02   1.606912E+01  -6.417196E+02  -2.678187E+02  -1.615666E+00
+       1012          1222    BAR            1.306633E-16   5.912859E+02  -1.182471E+02   1.232626E+03   4.607883E-13   4.180108E-16
+       1012            11    QUAD4         -1.413360E+02   9.284891E+02   2.026981E+00   2.540679E+01   2.617426E+01   3.923483E-16
+       1012            12    QUAD4          1.413360E+02   9.284891E+02   2.026981E+00   2.540679E+01  -2.617426E+01   3.923483E-16
+       1012          1242    ROD            0.0            0.0           -1.275776E+03   0.0            0.0            0.0
+       1012                  *TOTALS*      -2.842171E-14   5.684342E-13  -4.547474E-13   7.837286E-12   1.634248E-13  -3.516049E-16
+0      1013                  APP-LOAD       0.0            0.0           -4.687500E+02   0.0            0.0            0.0
+       1013                  F-OF-SPC       2.134948E+02  -1.604484E+03   1.680854E+03   0.0            0.0            0.0
+       1013          1213    BAR            0.0            9.693996E-02  -1.606912E+01   6.417196E+02  -5.356374E+02  -3.231332E+00
+       1013          1323    BAR           -1.497582E-01   5.995717E+02  -4.173455E+02  -6.158923E+02   5.621706E+02   3.350292E+00
+       1013            12    QUAD4         -2.133451E+02   1.004815E+03  -2.317553E+00  -2.582734E+01  -2.653319E+01  -1.189601E-01
+       1013          1343    ROD            0.0            0.0           -7.763719E+02   0.0            0.0            0.0
+       1013                  *TOTALS*       0.0           -2.273737E-13   1.136868E-13   4.803269E-12   2.131628E-14  -1.165734E-15
+0      1021                  APP-LOAD       0.0            0.0           -1.093750E+03   0.0            0.0            0.0
+       1021          1121    BAR           -1.497582E-01  -5.995717E+02   4.173455E+02  -2.025138E+04   5.621706E+02  -4.137620E+00
+       1021          2122    BAR           -1.234994E+02   2.981419E-02   2.517667E+02  -6.189817E+01  -1.261165E+03   1.159524E+00
+       1021          2131    BAR           -6.472117E-02   5.913432E+02   4.217212E+02   2.033177E+04   7.265914E+02   2.486346E+00
+       1021            11    QUAD4          7.701335E+01  -9.328077E+02   2.419271E+00  -3.362543E+01  -2.795472E+01  -1.529733E-01
+       1021            21    TRIA3          5.233137E+01  -5.176853E+00   1.362583E-01   6.944105E-01  -1.251839E+00   2.329622E-01
+       1021            22    TRIA3         -5.630889E+00   9.461832E+02   3.610619E-01   1.444304E+01   1.610031E+00   4.117611E-01
+       1021                  *TOTALS*      -4.689582E-13   3.410605E-13   2.043421E-12  -9.743317E-12   4.250822E-12  -3.186340E-14
+0      1022                  APP-LOAD       0.0            0.0           -1.562500E+03   0.0            0.0            0.0
+       1022          1222    BAR           -1.306633E-16  -5.912859E+02   1.182471E+02  -7.144981E+03  -4.607883E-13  -6.951176E-15
+       1022          2122    BAR            1.234994E+02  -2.981419E-02  -2.517667E+02   6.189817E+01  -1.132717E+04   3.311860E-01
+       1022          2223    BAR           -1.234994E+02  -2.981419E-02  -2.517667E+02   6.189817E+01   1.132717E+04  -3.311860E-01
+       1022          2232    BAR            1.480413E-16   6.195927E+02   1.093913E+02   6.981208E+03  -4.201289E-13  -4.717473E-15
+       1022            58    ELAS1          0.0            0.0            1.842961E+03   0.0            0.0            0.0
+       1022            11    QUAD4         -1.490224E+02  -1.000497E+03  -2.128699E+00   1.951739E+01  -2.983863E+01  -2.589332E-02
+       1022            12    QUAD4          1.490224E+02  -1.000497E+03  -2.128699E+00   1.951739E+01   2.983863E+01   2.589332E-02
+       1022            21    TRIA3         -5.751185E+01   9.863733E+02  -1.544811E-01   4.712104E-01  -4.665177E+00  -2.589332E-02
+       1022            23    TRIA3          5.751185E+01   9.863733E+02  -1.544811E-01   4.712104E-01   4.665177E+00   2.589332E-02
+       1022                  *TOTALS*       4.263256E-13   0.0            9.992007E-14   6.039613E-14  -2.299494E-12  -2.289835E-14
+0      1023                  APP-LOAD       0.0            0.0           -1.093750E+03   0.0            0.0            0.0
+       1023          1323    BAR            1.497582E-01  -5.995717E+02   4.173455E+02  -2.025138E+04  -5.621706E+02   4.137620E+00
+       1023          2223    BAR            1.234994E+02   2.981419E-02   2.517667E+02  -6.189817E+01   1.261165E+03  -1.159524E+00
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    60
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                                          G R I D   P O I N T   F O R C E   B A L A N C E
+ 
+   POINT-ID    ELEMENT-ID     SOURCE             T1             T2             T3             R1             R2             R3
+       1023          2333    BAR            6.472117E-02   5.913432E+02   4.217212E+02   2.033177E+04  -7.265914E+02  -2.486346E+00
+       1023            12    QUAD4         -7.701335E+01  -9.328077E+02   2.419271E+00  -3.362543E+01   2.795472E+01   1.529733E-01
+       1023            23    TRIA3         -5.233137E+01  -5.176853E+00   1.362583E-01   6.944105E-01   1.251839E+00  -2.329622E-01
+       1023            24    TRIA3          5.630889E+00   9.461832E+02   3.610619E-01   1.444304E+01  -1.610031E+00  -4.117611E-01
+       1023                  *TOTALS*       2.398082E-13   3.410605E-13   1.361855E-12  -6.085799E-12  -5.771605E-12   2.436940E-14
+0      1031                  APP-LOAD       0.0            0.0           -3.125000E+02   0.0            0.0            0.0
+       1031          2131    BAR            6.472117E-02  -5.913432E+02  -4.217212E+02   7.542892E+02  -7.265914E+02   7.497120E-01
+       1031          3132    BAR           -9.453323E+01  -6.585058E-03  -3.673941E+01  -7.546874E+02   7.235529E+02  -6.187748E-01
+       1031          4131    ROD            0.0            1.543155E+03   7.715776E+02   0.0            0.0            0.0
+       1031            22    TRIA3          9.446851E+01  -9.518054E+02  -6.170313E-01   3.982179E-01   3.038492E+00  -1.309372E-01
+       1031                  *TOTALS*      -2.842171E-14   2.273737E-13  -2.312595E-13  -6.658674E-12  -4.827250E-13  -3.885781E-15
+0      1032                  APP-LOAD       0.0            0.0           -1.250000E+03   0.0            0.0            0.0
+       1032          2232    BAR           -1.480413E-16  -6.195927E+02  -1.093913E+02  -1.511645E+03   4.201289E-13  -2.684594E-15
+       1032          3132    BAR            9.453323E+01   6.585058E-03   3.673941E+01   7.546874E+02   1.113417E+03   2.895219E-01
+       1032          3233    BAR           -9.453323E+01   6.585058E-03   3.673941E+01   7.546874E+02  -1.113417E+03  -2.895219E-01
+       1032          4232    ROD            0.0            2.570728E+03   1.285364E+03   0.0            0.0            0.0
+       1032            21    TRIA3          5.180476E+00  -9.811965E+02   1.822273E-02  -2.076757E+00  -8.959020E-01  -2.589332E-02
+       1032            22    TRIA3         -8.883762E+01   5.622215E+00   2.559694E-01   3.211840E+00   8.149949E+00   1.529055E-01
+       1032            23    TRIA3         -5.180476E+00  -9.811965E+02   1.822273E-02  -2.076757E+00   8.959020E-01   2.589332E-02
+       1032            24    TRIA3          8.883762E+01   5.622215E+00   2.559694E-01   3.211840E+00  -8.149949E+00  -1.529055E-01
+       1032                  *TOTALS*      -7.105427E-14   2.033929E-12   6.586953E-13   5.990319E-12   1.776357E-15   2.431388E-14
+0      1033                  APP-LOAD       0.0            0.0           -3.125000E+02   0.0            0.0            0.0
+       1033          2333    BAR           -6.472117E-02  -5.913432E+02  -4.217212E+02   7.542892E+02   7.265914E+02  -7.497120E-01
+       1033          3233    BAR            9.453323E+01  -6.585058E-03  -3.673941E+01  -7.546874E+02  -7.235529E+02   6.187748E-01
+       1033          4333    ROD            0.0            1.543155E+03   7.715776E+02   0.0            0.0            0.0
+       1033            24    TRIA3         -9.446851E+01  -9.518054E+02  -6.170313E-01   3.982179E-01  -3.038492E+00   1.309372E-01
+       1033                  *TOTALS*      -1.847411E-13  -2.273737E-13   4.505285E-13  -7.579826E-12  -2.025047E-13   4.279910E-14
+0      1041                  F-OF-SPC       0.0            1.543155E+03   0.0            0.0           -1.198569E+02   0.0
+       1041          4142    BAR            0.0            0.0           -4.794275E+00   0.0            1.198569E+02   0.0
+       1041          1141    ROD            0.0            0.0            7.763719E+02   0.0            0.0            0.0
+       1041          4131    ROD            0.0           -1.543155E+03  -7.715776E+02   0.0            0.0            0.0
+       1041                  *TOTALS*       0.0            0.0           -1.136868E-13   0.0            0.0            0.0
+0      1042                  F-OF-SPC       0.0            2.570728E+03   0.0            0.0           -1.136868E-13   0.0
+       1042          4142    BAR            0.0            0.0            4.794275E+00   0.0            1.198569E+02   0.0
+       1042          4243    BAR            0.0            0.0            4.794275E+00   0.0           -1.198569E+02   0.0
+       1042          1242    ROD            0.0            0.0            1.275776E+03   0.0            0.0            0.0
+       1042          4232    ROD            0.0           -2.570728E+03  -1.285364E+03   0.0            0.0            0.0
+       1042                  *TOTALS*       0.0            0.0           -6.821210E-13   0.0            0.0            0.0
+0      1043                  F-OF-SPC       0.0            1.543155E+03   0.0            0.0            1.198569E+02   0.0
+       1043          4243    BAR            0.0            0.0           -4.794275E+00   0.0           -1.198569E+02   0.0
+       1043          1343    ROD            0.0            0.0            7.763719E+02   0.0            0.0            0.0
+       1043          4333    ROD            0.0           -1.543155E+03  -7.715776E+02   0.0            0.0            0.0
+       1043                  *TOTALS*       0.0            0.0           -1.136868E-13   0.0            0.0            0.0
+0      1051                  F-OF-SPC       0.0            0.0            1.842961E+03   0.0            0.0            0.0
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    61
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     PRESSURE LOAD ON PLATE ELEMENTS                                                                        SUBCASE 91             
+ 
+                                          G R I D   P O I N T   F O R C E   B A L A N C E
+ 
+   POINT-ID    ELEMENT-ID     SOURCE             T1             T2             T3             R1             R2             R3
+       1051            58    ELAS1          0.0            0.0           -1.842961E+03   0.0            0.0            0.0
+       1051                  *TOTALS*       0.0            0.0            0.0            0.0            0.0            0.0
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    62
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                                          G R I D   P O I N T   F O R C E   B A L A N C E
+ 
+   POINT-ID    ELEMENT-ID     SOURCE             T1             T2             T3             R1             R2             R3
+       1011                  F-OF-SPC      -6.444876E+02  -5.927819E+03   2.910950E+03   0.0            0.0            0.0
+       1011          1112    BAR            0.0            1.711098E-01  -6.306273E+00   2.271731E+02   2.102091E+02   5.703659E+00
+       1011          1121    BAR            1.292961E-01   2.379475E+03   4.690468E+01  -2.192954E+02  -2.208705E+02  -5.609484E+00
+       1011            11    QUAD4          6.443583E+02   3.548173E+03  -6.940370E-01  -7.877719E+00   1.066142E+01  -9.417489E-02
+       1011          1141    ROD            0.0            0.0           -2.950854E+03   0.0            0.0            0.0
+       1011                  *TOTALS*      -1.136868E-13   1.364242E-12   0.0            5.861978E-13  -6.039613E-14  -6.661338E-16
+0      1012                  F-OF-SPC      -2.842171E-13  -8.678567E+03   2.712305E+03   0.0            0.0            0.0
+       1012          1112    BAR            0.0           -1.711098E-01   6.306273E+00  -2.271731E+02   1.051046E+02   2.851829E+00
+       1012          1213    BAR            0.0           -1.711098E-01   6.306273E+00  -2.271731E+02  -1.051046E+02  -2.851829E+00
+       1012          1222    BAR            2.879065E-17   1.870717E+03   1.388868E+02   4.389459E+02   2.829175E-13   1.187455E-14
+       1012            11    QUAD4         -7.652389E+02   3.404096E+03   7.948333E-01   7.700154E+00   9.174070E+00   1.743432E-15
+       1012            12    QUAD4          7.652389E+02   3.404096E+03   7.948333E-01   7.700154E+00  -9.174070E+00   1.743432E-15
+       1012          1242    ROD            0.0            0.0           -2.865394E+03   0.0            0.0            0.0
+       1012                  *TOTALS*       1.136868E-13  -1.818989E-12   4.547474E-13   6.847856E-13   4.796163E-14  -1.069882E-15
+0      1013                  F-OF-SPC       6.444876E+02  -5.927819E+03   2.910950E+03   0.0            0.0            0.0
+       1013          1213    BAR            0.0            1.711098E-01  -6.306273E+00   2.271731E+02  -2.102091E+02  -5.703659E+00
+       1013          1323    BAR           -1.292961E-01   2.379475E+03   4.690468E+01  -2.192954E+02   2.208705E+02   5.609484E+00
+       1013            12    QUAD4         -6.443583E+02   3.548173E+03  -6.940370E-01  -7.877719E+00  -1.066142E+01   9.417489E-02
+       1013          1343    ROD            0.0            0.0           -2.950854E+03   0.0            0.0            0.0
+       1013                  *TOTALS*       0.0            0.0            0.0            3.215206E-12   1.101341E-13  -1.132427E-14
+0      1021          1121    BAR           -1.292961E-01  -2.379475E+03  -4.690468E+01   2.564529E+03   2.208705E+02  -8.553219E-01
+       1021          2122    BAR           -3.153189E+02  -7.646596E-01   9.393622E+01   2.200908E+01  -3.712321E+02  -1.531349E+01
+       1021          2131    BAR           -9.258961E-01   2.479650E+03  -4.784990E+01  -2.579399E+03   1.610521E+02   1.758057E+01
+       1021            11    QUAD4          6.010232E+02  -3.669091E+03   7.313144E-01  -5.458517E+00  -9.806431E+00  -1.983678E-01
+       1021            21    TRIA3          2.496910E+02  -3.179976E+02   1.196898E-01  -2.052330E-02  -1.505796E+00   7.870038E-01
+       1021            22    TRIA3         -5.343401E+02   3.887679E+03  -3.264280E-02  -1.659897E+00   6.216820E-01  -2.000392E+00
+       1021                  *TOTALS*      -1.364242E-12   4.092726E-12   1.429898E-13   1.017186E-12   2.715939E-12  -7.460699E-14
+0      1022          1222    BAR           -2.879065E-17  -1.870717E+03  -1.388868E+02   6.505395E+03  -2.829175E-13  -1.331409E-14
+       1022          2122    BAR            3.153189E+02   7.646596E-01  -9.393622E+01  -2.200908E+01  -4.325579E+03  -2.291949E+01
+       1022          2223    BAR           -3.153189E+02   7.646596E-01  -9.393622E+01  -2.200908E+01   4.325579E+03   2.291949E+01
+       1022          2232    BAR           -7.533028E-16   1.860534E+03  -1.368712E+02  -6.472386E+03  -1.789000E-13   8.350536E-15
+       1022            58    ELAS1          0.0            0.0            4.657955E+02   0.0            0.0            0.0
+       1022            11    QUAD4         -4.801427E+02  -3.283178E+03  -8.321107E-01   1.067590E+01  -1.189293E+01  -1.589869E+00
+       1022            12    QUAD4          4.801427E+02  -3.283178E+03  -8.321107E-01   1.067590E+01   1.189293E+01   1.589869E+00
+       1022            21    TRIA3         -5.676408E+02   3.287505E+03  -2.504320E-01  -5.171263E+00  -4.570863E+00  -1.589869E+00
+       1022            23    TRIA3          5.676408E+02   3.287505E+03  -2.504320E-01  -5.171263E+00   4.570863E+00   1.589869E+00
+       1022                  *TOTALS*       7.958079E-13  -4.547474E-13   9.563461E-13   6.771472E-12  -2.904343E-12  -5.728751E-14
+0      1023          1323    BAR            1.292961E-01  -2.379475E+03  -4.690468E+01   2.564529E+03  -2.208705E+02   8.553219E-01
+       1023          2223    BAR            3.153189E+02  -7.646596E-01   9.393622E+01   2.200908E+01   3.712321E+02   1.531349E+01
+       1023          2333    BAR            9.258961E-01   2.479650E+03  -4.784990E+01  -2.579399E+03  -1.610521E+02  -1.758057E+01
+       1023            12    QUAD4         -6.010232E+02  -3.669091E+03   7.313144E-01  -5.458517E+00   9.806431E+00   1.983678E-01
+       1023            23    TRIA3         -2.496910E+02  -3.179976E+02   1.196898E-01  -2.052330E-02   1.505796E+00  -7.870038E-01
+       1023            24    TRIA3          5.343401E+02   3.887679E+03  -3.264280E-02  -1.659897E+00  -6.216820E-01   2.000392E+00
+       1023                  *TOTALS*       1.136868E-12   0.0            7.195633E-14  -8.552492E-12  -4.509060E-12   5.195844E-14
+0      1031                  APP-LOAD       0.0            1.000000E+03  -3.000000E+03   0.0            0.0            0.0
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    63
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     END LOADS ON TRUSS                                                                                     SUBCASE 92             
+ 
+                                          G R I D   P O I N T   F O R C E   B A L A N C E
+ 
+   POINT-ID    ELEMENT-ID     SOURCE             T1             T2             T3             R1             R2             R3
+       1031          2131    BAR            9.258961E-01  -2.479650E+03   4.784990E+01   1.869044E+02  -1.610521E+02   2.871423E+01
+       1031          3132    BAR           -5.881700E+02  -1.582517E+00   4.219613E-01  -1.864227E+02   1.616402E+02  -3.019311E+01
+       1031          4131    ROD            0.0            5.903349E+03   2.951674E+03   0.0            0.0            0.0
+       1031            22    TRIA3          5.872441E+02  -4.422117E+03   5.374974E-02  -4.816642E-01  -5.880792E-01   1.478877E+00
+       1031                  *TOTALS*      -1.136868E-12   0.0            1.308953E-13   3.208545E-12   1.432854E-12  -9.059420E-14
+0      1032                  APP-LOAD       0.0            1.000000E+03  -3.000000E+03   0.0            0.0            0.0
+       1032          2232    BAR            7.533028E-16  -1.860534E+03   1.368712E+02  -3.711736E+02   1.789000E-13   2.931460E-14
+       1032          3132    BAR            5.881700E+02   1.582517E+00  -4.219613E-01   1.864227E+02  -1.827382E+02  -4.893276E+01
+       1032          3233    BAR           -5.881700E+02   1.582517E+00  -4.219613E-01   1.864227E+02   1.827382E+02   4.893276E+01
+       1032          4232    ROD            0.0            5.727507E+03   2.863753E+03   0.0            0.0            0.0
+       1032            21    TRIA3          3.179498E+02  -2.969507E+03   1.307422E-01  -1.345324E+00   9.216743E-02  -1.589869E+00
+       1032            22    TRIA3         -5.290401E+01   5.344381E+02  -2.110694E-02   5.094207E-01  -1.088950E+00  -4.377265E+00
+       1032            23    TRIA3         -3.179498E+02  -2.969507E+03   1.307422E-01  -1.345324E+00  -9.216743E-02   1.589869E+00
+       1032            24    TRIA3          5.290401E+01   5.344381E+02  -2.110694E-02   5.094207E-01   1.088950E+00   4.377265E+00
+       1032                  *TOTALS*      -5.684342E-14   5.229595E-12   1.137947E-12   1.071188E-11  -2.042810E-13   1.287859E-13
+0      1033                  APP-LOAD       0.0            1.000000E+03  -3.000000E+03   0.0            0.0            0.0
+       1033          2333    BAR           -9.258961E-01  -2.479650E+03   4.784990E+01   1.869044E+02   1.610521E+02  -2.871423E+01
+       1033          3233    BAR            5.881700E+02  -1.582517E+00   4.219613E-01  -1.864227E+02  -1.616402E+02   3.019311E+01
+       1033          4333    ROD            0.0            5.903349E+03   2.951674E+03   0.0            0.0            0.0
+       1033            24    TRIA3         -5.872441E+02  -4.422117E+03   5.374974E-02  -4.816642E-01   5.880792E-01  -1.478877E+00
+       1033                  *TOTALS*       2.273737E-13  -1.818989E-12   5.855871E-13  -4.748257E-12  -4.725109E-13   1.507683E-13
+0      1041                  F-OF-SPC       0.0            5.903349E+03   0.0            0.0            2.051032E+01   0.0
+       1041          4142    BAR            0.0            0.0            8.204130E-01   0.0           -2.051032E+01   0.0
+       1041          1141    ROD            0.0            0.0            2.950854E+03   0.0            0.0            0.0
+       1041          4131    ROD            0.0           -5.903349E+03  -2.951674E+03   0.0            0.0            0.0
+       1041                  *TOTALS*       0.0            0.0           -1.364242E-12   0.0            0.0            0.0
+0      1042                  F-OF-SPC       0.0            5.727507E+03   0.0            0.0           -3.410605E-13   0.0
+       1042          4142    BAR            0.0            0.0           -8.204130E-01   0.0           -2.051032E+01   0.0
+       1042          4243    BAR            0.0            0.0           -8.204130E-01   0.0            2.051032E+01   0.0
+       1042          1242    ROD            0.0            0.0            2.865394E+03   0.0            0.0            0.0
+       1042          4232    ROD            0.0           -5.727507E+03  -2.863753E+03   0.0            0.0            0.0
+       1042                  *TOTALS*       0.0            0.0           -9.094947E-13   0.0            0.0            0.0
+0      1043                  F-OF-SPC       0.0            5.903349E+03   0.0            0.0           -2.051032E+01   0.0
+       1043          4243    BAR            0.0            0.0            8.204130E-01   0.0            2.051032E+01   0.0
+       1043          1343    ROD            0.0            0.0            2.950854E+03   0.0            0.0            0.0
+       1043          4333    ROD            0.0           -5.903349E+03  -2.951674E+03   0.0            0.0            0.0
+       1043                  *TOTALS*       0.0            0.0            0.0            0.0            0.0            0.0
+0      1051                  F-OF-SPC       0.0            0.0            4.657955E+02   0.0            0.0            0.0
+       1051            58    ELAS1          0.0            0.0           -4.657955E+02   0.0            0.0            0.0
+       1051                  *TOTALS*       0.0            0.0            0.0            0.0            0.0            0.0
+1    TEST OF ALL ELEMENTS                                                   JANUARY  12, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    64
+      TRUSS SUPPORTED SHELF                                                                                                         
+0                                                                                                                                   
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK OGPFB1   WRITTEN ON FORTRAN UNIT  12, TRL =
+                    101                91                 2                 0                 0                 1                 0
+     (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =    65538 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      910 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =       34 RECORDS.)
+     (TOTAL DATA WRITTEN FOR DATA BLOCK =     2088 WORDS.)
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK ONRGY    WRITTEN ON FORTRAN UNIT  12, TRL =
+                    101                 2                 0                 0                 0                 1                 0
+     (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =    65538 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      146 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =      114 RECORDS.)
+     (TOTAL DATA WRITTEN FOR DATA BLOCK =     1808 WORDS.)
+ *** USER INFORMATION MESSAGE 4110 (OUTPX2)
+                                 END-OF-DATA SIMULATION ON FORTRAN UNIT 12
+                                 (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      1 WORDS.)
+                                       (NUMBER OF FORTRAN RECORDS WRITTEN =      1 RECORDS.)
+                                       (TOTAL DATA WRITTEN FOR EOF MARKER =      1 WORDS.)
+1                                        * * * END OF JOB * * *
+ 
+ 

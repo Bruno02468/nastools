@@ -1,0 +1,289 @@
+1
+ 
+ 
+ 
+ 
+                                                             
+                        Copyright 2020 Siemens               
+                         All Rights Reserved.                
+                                                             
+               This software and related documentation are   
+                    proprietary to Siemens Industry          
+                             Software Inc.                   
+                                                             
+              Siemens and the Siemens logo are registered    
+           trademarks of Siemens AG. Simcenter is a trademark
+              or registered trademark of Siemens Product     
+               Lifecycle Management Software Inc. or its     
+             subsidiaries in the United States and in other  
+             countries.  NASTRAN is a registered trademark   
+                 of the National Aeronautics and Space       
+                 Administration.  All other trademarks,      
+              registered trademarks or service marks belong  
+                      to their respective holders.           
+                                                             
+           LIMITATIONS TO U.S. GOVERNMENT RIGHTS. UNPUBLISHED
+           - RIGHTS RESERVED UNDER THE COPYRIGHT LAWS OF THE 
+            UNITED STATES. This computer software and related
+               computer software documentation have been     
+            developed exclusively at private expense and are 
+           provided subject to the following rights:  If this
+               computer software and computer  software      
+            documentation qualify as "commercial items" (as  
+             that term is defined in FAR 2.101), their use,  
+            duplication or disclosure by the U.S. Government 
+           is subject to the protections and restrictions as 
+            set forth in the Siemens commercial license for  
+            software and/or documentation, as prescribed in  
+           FAR 12.212 and FAR 27.405(b)(2)(i) (for civilian  
+             agencies) and in DFARS 227.7202-1(a) and DFARS  
+           227.7202-3(a) (for the Department of Defense), or 
+           any successor or similar regulation, as applicable
+           or as amended from time to time.  If this computer
+           software and computer documentation do not qualify
+            as "commercial items", then they are "restricted 
+           computer software" and are provided with "restric-
+            tive rights", and their use, duplication or dis- 
+            closure by the U.S. Government is subject to the 
+            protections and restrictions as set forth in FAR 
+           27.404(b) and FAR 52-227-14 (for civilian agencies
+           ), and DFARS 227.7203-5(c) and DFARS 252.227-7014 
+           (for the Department of Defense), or any successor 
+           or similar regulation, as applicable or as amended
+           from time to time. Siemens Industry Software Inc. 
+           5800 Granite Parkway, Suite 600, Plano, TX 75024  
+ 
+
+                * * * * * * * * * * * * * * * * * * * *
+                * * * * * * * * * * * * * * * * * * * *
+                * *                                 * *
+                * *                                 * *
+                * *                                 * *
+                * *                                 * *
+                * *     Simcenter Nastran 2021.1    * *
+                * *                                 * *
+                * *       VERSION - 1965.0032       * *
+                * *                                 * *
+                * *          FEB 11, 2021           * *
+                * *                                 * *
+                * *                                 * *
+                * *AMD64 Family 23 Model 113 Steppi * *
+                * *                                 * *
+                * *MODEL AMD Ryzen 5 3600 6-Core Pr * *
+                * *                                 * *
+                * *           Windows 10            * *
+                * *                                 * *
+                * *       Compiled for X86-64       * *
+                * *                                 * *
+                * * * * * * * * * * * * * * * * * * * *
+                * * * * * * * * * * * * * * * * * * * *
+1 
+  
+                      Welcome to Simcenter Nastran
+                      ----------------------------
+  
+  
+ This "news" information can be turned off by setting "news=no" in the runtime
+ configuration (RC) file.  The "news" keyword can be set in the system RC file
+ for global, or multi-user control, and in a local file for local control.
+ Individual jobs can be controlled by setting news to yes or no on the command
+ line.
+1                                                                           JANUARY  22, 2024  SIMCENTER NASTRAN  2/11/21   PAGE     1
+                                                                                                                                    
+0        N A S T R A N    F I L E    A N D    S Y S T E M    P A R A M E T E R    E C H O                                           
+0                                                                                                                                   
+                                                                                                                                    
+                                                                                                                                    
+     NASTRAN BUFFSIZE=32769 $(M:/TRANQUEIRAS/FEMAP/NASTRAN/CONF/NASTRAN.RCF[4])      
+     NASTRAN BUFFPOOL=5871                                                           
+     NASTRAN DIAGA=128 DIAGB=0 $(M:/TRANQUEIRAS/FEMAP/NASTRAN/CONF/NASTRAN.RCF[11])  
+     NASTRAN REAL=2136866816 $(MEMORY LIMIT FOR MPI AND OTHER SPECIALIZED MODULES)   
+     INIT MASTER(S)                                                                  
+     NASTRAN SYSTEM(442)=-1,SYSTEM(319)=1                                            
+1                                                                           JANUARY  22, 2024  SIMCENTER NASTRAN  2/11/21   PAGE     2
+                                                                                                                                    
+0        N A S T R A N    E X E C U T I V E    C O N T R O L    E C H O                                                             
+0                                                                                                                                   
+                                                                                                                                    
+                                                                                                                                    
+     ID BUSH,FEMAP                                                                           
+     SOL 1                                                                                   
+     CEND                                                                                    
+1    1 BUSH ELEMENT, OFFSET IS 3D WITH DX, DY, DZ SO USE S1,S2,S3           JANUARY  22, 2024  SIMCENTER NASTRAN  2/11/21   PAGE     3
+                                                                                                                                    
+0                                                                                                                                   
+0                                        C A S E    C O N T R O L    E C H O                                                        
+                 COMMAND                                                                                                            
+                 COUNT                                                                                                              
+                  1      $STITLE= BUSH OCID IS ROTATED FROM THE BASIC COORD SYSTEM                               
+                  2      $ELDATA(1,PRINT) = ALL                                                                  
+                  3      $ELDATA(2,PRINT) = ALL                                                                  
+                  4      $ELDATA(3,PRINT) = ALL                                                                  
+                  5      $ELDATA(4,PRINT) = ALL                                                                  
+                  6      $ELDATA(5,PRINT) = ALL                                                                  
+                  7      $ELDATA(6,PRINT) = ALL                                                                  
+                  8      $ELDATA(7,PRINT) = ALL                                                                  
+                  9      $ELFO(BOTH) = ALL                                                                       
+                 10        TITLE = 1 BUSH ELEMENT, OFFSET IS 3D WITH DX, DY, DZ SO USE S1,S2,S3                  
+                 11        ECHO = NONE                                                                           
+                 12        DISPLACEMENT(PRINT) = ALL                                                             
+                 13        SPCFORCE(PRINT) = ALL                                                                 
+                 14        OLOAD(PRINT) = ALL                                                                    
+                 15        GPFORCE(PRINT) = ALL                                                                  
+                 16        FORCE(PRINT) = ALL                                                                    
+                 17        STRESS(PRINT) = ALL                                                                   
+                 18        STRAIN(PRINT) = ALL                                                                   
+                 19        SPC = 1                                                                               
+                 20        LOAD = 1                                                                              
+                 21      BEGIN BULK                                                                              
+0                             INPUT BULK DATA ENTRY COUNT =          58
+0                       TOTAL COUNT=        45
+
+
+                                        M O D E L   S U M M A R Y
+
+                                   NUMBER OF GRID     POINTS   =        2
+ 
+ 
+                                   NUMBER OF CBUSH    ELEMENTS =        1
+ 
+ ^^^IN ASSEMBLED VERSION OF STATICS1 
+ *** USER INFORMATION MESSAGE - SINGULARITIES FOUND USING EIGENVALUE METHOD
+ ***       0 SINGULARITIES FOUND         0 SINGULARITIES ELIMINATED
+ *** SYSTEM INFORMATION MESSAGE 6916 (DFMSYN)
+     UNABLE TO EXECUTE METIS REORDERING BECAUSE THE MATRIX DENSITY IS TOO HIGH: 100 %.
+     DECOMP ORDERING METHOD CHOSEN: DEFAULT, ORDERING METHOD USED: MMD
+ *** USER INFORMATION MESSAGE 5293 (SSG3A)
+    FOR DATA BLOCK KLL     
+    LOAD SEQ. NO.             EPSILON              EXTERNAL WORK      EPSILONS LARGER THAN 0.001 ARE FLAGGED WITH ASTERISKS
+    User information:
+    One line of output is printed for each static loading condition.
+    Small values of EPSILON are due to accumulated round-off error. Large
+    values of EPSILON indicate possible singularities in the stiffness
+    matrix.  See Section 9.5.1.
+                1          6.6477234E-16          1.0910833E+03
+1    1 BUSH ELEMENT, OFFSET IS 3D WITH DX, DY, DZ SO USE S1,S2,S3           JANUARY  22, 2024  SIMCENTER NASTRAN  2/11/21   PAGE     4
+                                                                                                                                    
+0                                                                                                                                   
+ 
+                                             D I S P L A C E M E N T   V E C T O R
+ 
+      POINT ID.   TYPE          T1             T2             T3             R1             R2             R3
+             1      G      0.0            0.0            0.0            0.0            0.0            0.0
+             2      G      3.190000E+00   3.733333E+00   3.555000E+00   7.500000E-02  -4.600000E-01   4.166667E-01
+1    1 BUSH ELEMENT, OFFSET IS 3D WITH DX, DY, DZ SO USE S1,S2,S3           JANUARY  22, 2024  SIMCENTER NASTRAN  2/11/21   PAGE     5
+                                                                                                                                    
+0                                                                                                                                   
+ 
+                                                     L O A D   V E C T O R
+ 
+      POINT ID.   TYPE          T1             T2             T3             R1             R2             R3
+             2      G      1.000000E+02   2.000000E+02   3.000000E+02   4.000000E+02   5.000000E+02   6.000000E+02
+1    1 BUSH ELEMENT, OFFSET IS 3D WITH DX, DY, DZ SO USE S1,S2,S3           JANUARY  22, 2024  SIMCENTER NASTRAN  2/11/21   PAGE     6
+                                                                                                                                    
+0                                                                                                                                   
+ 
+                               F O R C E S   O F   S I N G L E - P O I N T   C O N S T R A I N T
+ 
+      POINT ID.   TYPE          T1             T2             T3             R1             R2             R3
+             1      G     -1.000000E+02  -2.000000E+02  -3.000000E+02  -4.000000E+02   2.500000E+03  -2.600000E+03
+1    1 BUSH ELEMENT, OFFSET IS 3D WITH DX, DY, DZ SO USE S1,S2,S3           JANUARY  22, 2024  SIMCENTER NASTRAN  2/11/21   PAGE     7
+                                                                                                                                    
+0                                                                                                                                   
+ 
+                                 F O R C E S   I N   B U S H   E L E M E N T S        ( C B U S H )
+ 
+                  ELEMENT-ID        FORCE-X       FORCE-Y       FORCE-Z      MOMENT-X      MOMENT-Y      MOMENT-Z  
+0                          1      1.000000E+02  2.000000E+02  3.000000E+02  3.000000E+02 -2.300000E+03  2.500000E+03
+1    1 BUSH ELEMENT, OFFSET IS 3D WITH DX, DY, DZ SO USE S1,S2,S3           JANUARY  22, 2024  SIMCENTER NASTRAN  2/11/21   PAGE     8
+                                                                                                                                    
+0                                                                                                                                   
+ 
+                                  S T R E S S E S   I N   B U S H   E L E M E N T S        ( C B U S H )
+ 
+                  ELEMENT-ID        STRESS-TX     STRESS-TY     STRESS-TZ    STRESS-RX     STRESS-RY     STRESS-RZ 
+0                          1      6.000000E+02  1.200000E+03  1.800000E+03  1.500000E+03 -1.150000E+04  1.250000E+04
+1    1 BUSH ELEMENT, OFFSET IS 3D WITH DX, DY, DZ SO USE S1,S2,S3           JANUARY  22, 2024  SIMCENTER NASTRAN  2/11/21   PAGE     9
+                                                                                                                                    
+0                                                                                                                                   
+ 
+                                    S T R A I N S   I N   B U S H   E L E M E N T S        ( C B U S H )
+ 
+                  ELEMENT-ID        STRAIN-TX     STRAIN-TY     STRAIN-TZ    STRAIN-RX     STRAIN-RY     STRAIN-RZ 
+0                          1      4.000000E-01  4.000000E-01  4.000000E-01  2.250000E-01 -1.380000E+00  1.250000E+00
+1    1 BUSH ELEMENT, OFFSET IS 3D WITH DX, DY, DZ SO USE S1,S2,S3           JANUARY  22, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    10
+                                                                                                                                    
+0                                                                                                                                   
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK OQG1     WRITTEN ON FORTRAN UNIT  12, TRL =
+                    101                 0                16                22                24                 0                 1
+     (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =    65538 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      146 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =       24 RECORDS.)
+     (TOTAL DATA WRITTEN FOR DATA BLOCK =      195 WORDS.)
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK OUGV1    WRITTEN ON FORTRAN UNIT  12, TRL =
+                    101                 0                16                22                24                 0                 1
+     (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =    65538 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      146 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =       24 RECORDS.)
+     (TOTAL DATA WRITTEN FOR DATA BLOCK =      195 WORDS.)
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK OES1X    WRITTEN ON FORTRAN UNIT  12, TRL =
+                    101                63                 1                22                24                 0                 1
+     (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =    65538 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      146 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =       24 RECORDS.)
+     (TOTAL DATA WRITTEN FOR DATA BLOCK =      186 WORDS.)
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK OEF1X    WRITTEN ON FORTRAN UNIT  12, TRL =
+                    101                63                 1                22                24                 0                 1
+     (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =    65538 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      146 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =       24 RECORDS.)
+     (TOTAL DATA WRITTEN FOR DATA BLOCK =      186 WORDS.)
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK OSTR1X   WRITTEN ON FORTRAN UNIT  12, TRL =
+                    101                63                 1                22                24                 0                 1
+     (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =    65538 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      146 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =       24 RECORDS.)
+     (TOTAL DATA WRITTEN FOR DATA BLOCK =      186 WORDS.)
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK OPG1     WRITTEN ON FORTRAN UNIT  12, TRL =
+                    101                 0                16                22                24                 0                 1
+     (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =    65538 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      146 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =       24 RECORDS.)
+     (TOTAL DATA WRITTEN FOR DATA BLOCK =      195 WORDS.)
+1    1 BUSH ELEMENT, OFFSET IS 3D WITH DX, DY, DZ SO USE S1,S2,S3           JANUARY  22, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    11
+                                                                                                                                    
+0                                                                                                                                   
+ 
+                                          G R I D   P O I N T   F O R C E   B A L A N C E
+ 
+   POINT-ID    ELEMENT-ID     SOURCE             T1             T2             T3             R1             R2             R3
+          1                  F-OF-SPC      -1.000000E+02  -2.000000E+02  -3.000000E+02  -4.000000E+02   2.500000E+03  -2.600000E+03
+          1             1    BUSH           1.000000E+02   2.000000E+02   3.000000E+02   4.000000E+02  -2.500000E+03   2.600000E+03
+          1                  *TOTALS*       0.0            0.0            0.0            0.0            0.0            0.0
+0         2                  APP-LOAD       1.000000E+02   2.000000E+02   3.000000E+02   4.000000E+02   5.000000E+02   6.000000E+02
+          2             1    BUSH          -1.000000E+02  -2.000000E+02  -3.000000E+02  -4.000000E+02  -5.000000E+02  -6.000000E+02
+          2                  *TOTALS*      -4.547474E-13   0.0            0.0            0.0            0.0            0.0
+1    1 BUSH ELEMENT, OFFSET IS 3D WITH DX, DY, DZ SO USE S1,S2,S3           JANUARY  22, 2024  SIMCENTER NASTRAN  2/11/21   PAGE    12
+                                                                                                                                    
+0                                                                                                                                   
+ *** USER INFORMATION MESSAGE 4114 (OUTPX2)
+     DATA BLOCK OGPFB1   WRITTEN ON FORTRAN UNIT  12, TRL =
+                    101                 6                 1                 0                 0                 1                 0
+     (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =    65538 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      146 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =       24 RECORDS.)
+     (TOTAL DATA WRITTEN FOR DATA BLOCK =      234 WORDS.)
+ *** USER INFORMATION MESSAGE 4110 (OUTPX2)
+                                 END-OF-DATA SIMULATION ON FORTRAN UNIT 12
+                                 (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      1 WORDS.)
+                                       (NUMBER OF FORTRAN RECORDS WRITTEN =      1 RECORDS.)
+                                       (TOTAL DATA WRITTEN FOR EOF MARKER =      1 WORDS.)
+1                                        * * * END OF JOB * * *
+ 
+ 

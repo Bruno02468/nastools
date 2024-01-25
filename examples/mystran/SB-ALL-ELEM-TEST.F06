@@ -1,0 +1,1838 @@
+   112103824
+
+ MYSTRAN Version 15.1.3   Dec 20 2023 MYSTRAN developed by Dr Bill Case
+*** Please report any problems to mystransolver@gmail.com ***                                                                                                                                                                                                   
+
+ >> MYSTRAN BEGIN  :  1/12/2024 at 10:38:24.568 The input file is SB-ALL-ELEM-TEST.DAT                                                                                                                                                                                                                                            
+
+
+ >> LINK  0 BEGIN
+
+
+ID PLATE,STATICS                                                                                                                                                                                                                                                
+SOL 1                                                                                                                                                                                                                                                           
+CEND                                                                                                                                                                                                                                                            
+TITLE = TEST OF ALL ELEMENTS                                                                                                                                                                                                                                    
+SUBTI = TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                   
+SPC   = 998                                                                                                                                                                                                                                                     
+DISP          = ALL                                                                                                                                                                                                                                             
+ECHO          = UNSORT                                                                                                                                                                                                                                          
+ELFORCE(BOTH) = ALL                                                                                                                                                                                                                                             
+GPFORCE       = ALL                                                                                                                                                                                                                                             
+MPCFORCE      = ALL                                                                                                                                                                                                                                             
+OLOAD         = ALL                                                                                                                                                                                                                                             
+SPCFORCE      = ALL                                                                                                                                                                                                                                             
+STRESS        = ALL                                                                                                                                                                                                                                             
+STRAIN        = ALL                                                                                                                                                                                                                                             
+SET 1 = 11                                                                                                                                                                                                                                                      
+ELDATA(0,PRINT) = ALL                                                                                                                                                                                                                                           
+ELDATA(1,PRINT) = ALL                                                                                                                                                                                                                                           
+ELDATA(2,PRINT) = ALL                                                                                                                                                                                                                                           
+ELDATA(3,PRINT) = ALL                                                                                                                                                                                                                                           
+ELDATA(4,PRINT) = ALL                                                                                                                                                                                                                                           
+ELDATA(5,PRINT) = ALL                                                                                                                                                                                                                                           
+SUBCASE 91                                                                                                                                                                                                                                                      
+  LABEL = PRESSURE LOAD ON PLATE ELEMENTS                                                                                                                                                                                                                       
+  LOAD  = 1991                                                                                                                                                                                                                                                  
+SUBCASE 92                                                                                                                                                                                                                                                      
+  LABEL = END LOADS ON TRUSS                                                                                                                                                                                                                                    
+  LOAD  = 1992                                                                                                                                                                                                                                                  
+BEGIN BULK                                                                                                                                                                                                                                                      
+$                                                                                                                                                                                                                                                               
+GRID    1011              0.      0.      0.                                                                                                                                                                                                                    
+GRID    1012             50.      0.      0.                                                                                                                                                                                                                    
+GRID    1013            100.      0.      0.                            1                                                                                                                                                                                       
+$                                                                                                                                                                                                                                                               
+GRID    1021              0.     50.      0.                                                                                                                                                                                                                    
+GRID    1022             50.     50.      0.                                                                                                                                                                                                                    
+GRID    1023            100.     50.      0.                            1                                                                                                                                                                                       
+$                                                                                                                                                                                                                                                               
+GRID    1031              0.    100.      0.                                                                                                                                                                                                                    
+GRID    1032             50.    100.      0.                                                                                                                                                                                                                    
+GRID    1033            100.    100.      0.                            1                                                                                                                                                                                       
+$                                                                                                                                                                                                                                                               
+GRID    1041              0.      0.    -50.                                                                                                                                                                                                                    
+GRID    1042             50.      0.    -50.                                                                                                                                                                                                                    
+GRID    1043            100.      0.    -50.                            1                                                                                                                                                                                       
+$                                                                                                                                                                                                                                                               
+GRID    1051             50.     50.     20.            123456                                                                                                                                                                                                  
+$                                                                                                                                                                                                                                                               
+CQUAD4  11      91      1011    1012    1022    1021                                                                                                                                                                                                            
+CQUAD4  12      91      1012    1013    1023    1022                                                                                                                                                                                                            
+CTRIA3  21      91      1021    1022    1032                                                                                                                                                                                                                    
+CTRIA3  22      91      1031    1021    1032                                                                                                                                                                                                                    
+CTRIA3  23      91      1022    1023    1032                                                                                                                                                                                                                    
+CTRIA3  24      91      1033    1032    1023                                                                                                                                                                                                                    
+$                                                                                                                                                                                                                                                               
+PSHELL  91      20      .125    20              20                                                                                                                                                                                                              
+$                                                                                                                                                                                                                                                               
+BAROR                                   0.      0.      1.                                                                                                                                                                                                      
+$                                                                                                                                                                                                                                                               
+CBAR    1121    98      1011    1021                                                                                                                                                                                                                            
+CBAR    2131    98      1021    1031                                                                                                                                                                                                                            
+$                                                                                                                                                                                                                                                               
+CBAR    1222    98      1012    1022                                                                                                                                                                                                                            
+CBAR    2232    98      1022    1032                                                                                                                                                                                                                            
+$                                                                                                                                                                                                                                                               
+CBAR    1323    98      1013    1023                                                                                                                                                                                                                            
+CBAR    2333    98      1023    1033                                                                                                                                                                                                                            
+$                                                                                                                                                                                                                                                               
+CBAR    1112    97      1011    1012                                                                                                                                                                                                                            
+CBAR    1213    97      1012    1013                                                                                                                                                                                                                            
+$                                                                                                                                                                                                                                                               
+CBAR    2122    98      1021    1022                                                                                                                                                                                                                            
+CBAR    2223    98      1022    1023                                                                                                                                                                                                                            
+$                                                                                                                                                                                                                                                               
+CBAR    3132    97      1031    1032                                                                                                                                                                                                                            
+CBAR    3233    97      1032    1033                                                                                                                                                                                                                            
+$                                                                                                                                                                                                                                                               
+CBAR    4142    97      1041    1042                                                                                                                                                                                                                            
+CBAR    4243    97      1042    1043                                                                                                                                                                                                                            
+$                                                                                                                                                                                                                                                               
+PBAR    97      20      2.0     2.      1.      2.5                     +PB97A                                                                                                                                                                                  
++PB97A   1.0     1.0     1.0    -1.0    -1.0    -1.0    -1.0     1.0                                                                                                                                                                                            
+$                                                                                                                                                                                                                                                               
+PBAR    98      20      2.0     8.      1.      2.5                     +PB97A                                                                                                                                                                                  
++PB97A   1.0     1.0     1.0    -1.0    -1.0    -1.0    -1.0     1.0                                                                                                                                                                                            
+$                                                                                                                                                                                                                                                               
+CROD    1141    92      1011    1041                                                                                                                                                                                                                            
+CROD    1242    92      1012    1042                                                                                                                                                                                                                            
+CROD    1343    92      1013    1043                                                                                                                                                                                                                            
+$                                                                                                                                                                                                                                                               
+CROD    4131    92      1041    1031                                                                                                                                                                                                                            
+CROD    4232    92      1042    1032                                                                                                                                                                                                                            
+CROD    4333    92      1043    1033                                                                                                                                                                                                                            
+$                                                                                                                                                                                                                                                               
+PROD    92      20      1.0                                                                                                                                                                                                                                     
+$                                                                                                                                                                                                                                                               
+CELAS1  58      75      1022    3       1051    3                                                                                                                                                                                                               
+$                                                                                                                                                                                                                                                               
+PELAS   75      1.5E+4          .75                                                                                                                                                                                                                             
+$                                                                                                                                                                                                                                                               
+MAT1    20      10.+06  4.+06   .25     .1                              +MAT1                                                                                                                                                                                   
++MAT1   20000.  20000.  20000.                                                                                                                                                                                                                                  
+$                                                                                                                                                                                                                                                               
+PLOAD2  1991    -.75    11      12      21      22      23      24                                                                                                                                                                                              
+FORCE   1992    1031            1000.   0.      1.      -3.                                                                                                                                                                                                     
+FORCE   1992    1032            1000.   0.      1.      -3.                                                                                                                                                                                                     
+FORCE   1992    1033            1000.   0.      1.      -3.                                                                                                                                                                                                     
+$                                                                                                                                                                                                                                                               
+SPC1    998     123     1011    1012    1013                                                                                                                                                                                                                    
+SPC1    998     12 456  1041    1042    1043                                                                                                                                                                                                                    
+$                                                                                                                                                                                                                                                               
+$ PARAM ART_MASS needed for GIV for rot DOF's                                                                                                                                                                                                                   
+$ (that have no mass otherwise)                                                                                                                                                                                                                                 
+$                                                                                                                                                                                                                                                               
+PARAM   ART_MASS Y      0.      1.E-6                                                                                                                                                                                                                           
+PARAM   SOLLIB   BANDED                                                                                                                                                                                                                                         
+PARAM   WTMASS   .002591                                                                                                                                                                                                                                        
+$                                                                                                                                                                                                                                                               
+DEBUG   192     2                                                       GPFO summary                                                                                                                                                                            
+DEBUG   200     1                                                       ANS                                                                                                                                                                                     
+$                                                                                                                                                                                                                                                               
+$                                                                                                                                                                                                                                                               
+ENDDATA                                                                                                                                                                                                                                                         
+
+
+
+
+
+ >> LINK  0 END
+
+
+ >> LINK  1 BEGIN
+
+               DEALLOCATED  8.76E-02 MB MEMORY FROM ARRAY STF3
+
+               DEALLOCATED  3.12E-04 MB MEMORY FROM ARRAY STFKEY
+               DEALLOCATED  8.76E-02 MB MEMORY FROM ARRAY STF3
+
+ >> LINK  1 END
+
+
+ >> LINK  2 BEGIN
+
+
+
+
+ *INFORMATION: AUTOSPC Summary, Overall: after identification of all AUTOSPC's                                                               
+
+                                     AUTOSPC_RAT = 1.000000E-08
+
+                       Number of DOF's identified for AUTOSPC in component  1         =            0
+                       Number of DOF's identified for AUTOSPC in component  2         =            0
+                       Number of DOF's identified for AUTOSPC in component  3         =            0
+                       Number of DOF's identified for AUTOSPC in component  4         =            0
+                       Number of DOF's identified for AUTOSPC in component  5         =            0
+                       Number of DOF's identified for AUTOSPC in component  6         =            0
+                                                                                        ------------
+                       Total number of DOF's identified overall                       =            0
+
+
+ >> LINK  2 END
+
+
+ >> LINK  3 BEGIN
+
+ *INFORMATION: MAXIMUM DIAGONAL TERM IN MATRIX         KLL                            =  1.321290E+07 Occurs in row/col no.       19
+ *INFORMATION: MINIMUM DIAGONAL TERM IN MATRIX         KLL                            =  2.305619E+04 Occurs in row/col no.       12
+ *INFORMATION: RATIO OF MAX TO MIN DIAGONALS IN MATRIX         KLL                    =  5.730741E+02
+
+ *INFORMATION: THE MAXIMUM ABSOLUTE VALUE OF THE RATIO OF MATRIX DIAGONAL TO FACTOR DIAG FOR MATRIX KLL =   2.569760E+03
+               THIS IS FOR ROW AND COL IN THE MATRIX FOR GRID POINT     1011 COMP   4. THE CALLING SUBR WAS: LINK3                          
+
+
+ In DPBTRS calling DTBSV with j =            1
+ *INFORMATION: FOR INTERNAL SUBCASE NUMBER        1 EPSILON ERROR ESTIMATE            =  2.584605E-16 Based on U'*(K*U - P)/(U'*P)
+
+ In DPBTRS calling DTBSV with j =            1
+ *INFORMATION: FOR INTERNAL SUBCASE NUMBER        2 EPSILON ERROR ESTIMATE            = -1.582532E-17 Based on U'*(K*U - P)/(U'*P)
+
+
+ >> LINK  3 END
+
+
+ >> LINK  5 BEGIN
+
+
+ >> LINK  5 END
+
+
+ >> LINK  9 BEGIN
+
+
+
+ OUTPUT FOR SUBCASE       91
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ PRESSURE LOAD ON PLATE ELEMENTS                                                                                                                                                                                                                                 
+
+                                                       D I S P L A C E M E N T S
+                                              (in global coordinate system at each grid)
+           GRID     COORD      T1            T2            T3            R1            R2            R3
+                     SYS
+           1011        0  0.0           0.0           0.0          -7.312902E-03  2.138037E-03 -3.836540E-06
+           1012        0  0.0           0.0           0.0          -6.121435E-03  1.305959E-19  1.715764E-21
+           1013        0  0.0           0.0           0.0          -7.312902E-03 -2.138037E-03  3.836540E-06
+
+           1021        0  2.824261E-04  1.289258E-03 -2.338150E-01 -5.473155E-04 -2.385083E-04 -1.599404E-06
+           1022        0 -9.782771E-19  1.320245E-03 -1.703534E-01 -5.672817E-04  4.960013E-18  4.030030E-20
+           1023        0 -2.824261E-04  1.289258E-03 -2.338150E-01 -5.473155E-04  2.385083E-04  1.599404E-06
+
+           1031        0  1.812140E-04  2.547166E-03 -4.455676E-02  6.217420E-03  1.923608E-03  4.419369E-06
+           1032        0 -3.665924E-18  2.713922E-03 -7.707326E-02  4.988629E-03  9.197990E-19  7.788243E-20
+           1033        0 -1.812140E-04  2.547166E-03 -4.455676E-02  6.217420E-03 -1.923608E-03 -4.419369E-06
+
+           1041        0  0.0           0.0          -3.262529E-03  0.0           0.0           0.0         
+           1042        0  0.0           0.0          -5.836688E-03  0.0           0.0           0.0         
+           1043        0  0.0           0.0          -3.262529E-03  0.0           0.0           0.0         
+
+           1051        0  0.0           0.0           0.0           0.0           0.0           0.0         
+                         ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    2.824261E-04  2.713922E-03  0.0           6.217420E-03  2.138037E-03  4.419369E-06
+                MIN* :   -2.824261E-04  0.0          -2.338150E-01 -7.312902E-03 -2.138037E-03 -4.419369E-06
+
+                ABS* :    2.824261E-04  2.713922E-03  2.338150E-01  7.312902E-03  2.138037E-03  4.419369E-06
+                *for output set
+
+
+ OUTPUT FOR SUBCASE       91
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ PRESSURE LOAD ON PLATE ELEMENTS                                                                                                                                                                                                                                 
+
+                                                     A P P L I E D    F O R C E S
+                                              (in global coordinate system at each grid)
+           GRID     COORD      T1            T2            T3            R1            R2            R3
+                     SYS
+           1011        0  0.0           0.0          -4.687500E+02 -3.906250E+03  3.906250E+03  0.0         
+           1012        0  0.0           0.0          -9.375000E+02 -7.812500E+03  0.0           0.0         
+           1013        0  0.0           0.0          -4.687500E+02 -3.906250E+03 -3.906250E+03  0.0         
+
+           1021        0  0.0           0.0          -1.093750E+03 -1.953125E+03  9.765625E+03  0.0         
+           1022        0  0.0           0.0          -1.562500E+03  3.906250E+03  0.0           0.0         
+           1023        0  0.0           0.0          -1.093750E+03 -1.953125E+03 -9.765625E+03  0.0         
+
+           1031        0  0.0           0.0          -3.125000E+02  1.953125E+03  1.953125E+03  0.0         
+           1032        0  0.0           0.0          -1.250000E+03  1.171875E+04 -4.547474E-13  0.0         
+           1033        0  0.0           0.0          -3.125000E+02  1.953125E+03 -1.953125E+03  0.0         
+
+                         ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    0.0           0.0           0.0           1.171875E+04  9.765625E+03  0.0         
+                MIN* :    0.0           0.0          -1.562500E+03 -7.812500E+03 -9.765625E+03  0.0         
+
+                ABS* :    0.0           0.0           1.562500E+03  1.171875E+04  9.765625E+03  0.0         
+                *for output set
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ APPLIED FORCE TOTALS:    0.0           0.0          -7.500000E+03  2.273737E-13 -4.547474E-13  0.0         
+   (for output set)
+
+
+ OUTPUT FOR SUBCASE       91
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ PRESSURE LOAD ON PLATE ELEMENTS                                                                                                                                                                                                                                 
+
+                                                          S P C   F O R C E S
+                                              (in global coordinate system at each grid)
+           GRID     COORD      T1            T2            T3            R1            R2            R3
+                     SYS
+           1011        0 -1.940146E+02 -1.397827E+03  1.305003E+03  0.0           0.0           0.0         
+           1012        0 -3.979039E-13 -2.149044E+03  2.334694E+03  0.0           0.0           0.0         
+           1013        0  1.940146E+02 -1.397827E+03  1.305003E+03  0.0           0.0           0.0         
+
+           1041        0  0.0           1.295127E+03  0.0           0.0          -1.235596E+02  0.0         
+           1042        0  0.0           2.354445E+03  0.0           0.0          -2.273737E-13  0.0         
+           1043        0  0.0           1.295127E+03  0.0           0.0           1.235596E+02  0.0         
+
+           1051        0  0.0           0.0           2.555301E+03  0.0           0.0           0.0         
+                         ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    1.940146E+02  2.354445E+03  2.555301E+03  0.0           1.235596E+02  0.0         
+                MIN* :   -1.940146E+02 -2.149044E+03  0.0           0.0          -1.235596E+02  0.0         
+
+                ABS* :    1.940146E+02  2.354445E+03  2.555301E+03  0.0           1.235596E+02  0.0         
+                *for output set
+                         ------------- ------------- ------------- ------------- ------------- -------------
+     SPC FORCE TOTALS:   -8.526513E-14 -9.094947E-13  7.500000E+03  0.0          -4.547474E-13  0.0         
+     (for output set)
+
+
+ OUTPUT FOR SUBCASE       91
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ PRESSURE LOAD ON PLATE ELEMENTS                                                                                                                                                                                                                                 
+
+
+
+                                           G R I D   P O I N T   F O R C E   B A L A N C E
+                                             (in global coordinate system at each grid)
+
+                                FORCE BALANCE FOR GRID POINT     1011 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00 -4.687500E+02 -3.906250E+03  3.906250E+03  0.000000E+00
+ SPC FORCE               -1.940146E+02 -1.397827E+03  1.305003E+03  0.000000E+00  0.000000E+00  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ QUAD4    ELEM        11  1.938739E+02  8.820323E+02  1.648964E-01  6.452227E+00 -1.008224E+01  0.000000E+00
+ BAR      ELEM      1112  0.000000E+00  9.207696E-02  1.026258E+02  2.382934E+02 -3.420859E+03  3.069232E+00
+ BAR      ELEM      1121  1.406664E-01  5.157030E+02 -2.865373E+02  3.661504E+03 -4.753090E+02 -3.069232E+00
+ ROD      ELEM      1141  0.000000E+00  0.000000E+00 -6.525059E+02  0.000000E+00  0.000000E+00  0.000000E+00
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                : -1.193490E-14  0.000000E+00  1.136868E-13 -1.818989E-12 -5.115908E-13 -1.332268E-15
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1012 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00 -9.375000E+02 -7.812500E+03  0.000000E+00  0.000000E+00
+ SPC FORCE               -3.979039E-13 -2.149044E+03  2.334694E+03  0.000000E+00  0.000000E+00  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ QUAD4    ELEM        11 -1.155205E+02  8.105650E+02 -2.618434E-01  2.230539E+00 -4.524820E+00  0.000000E+00
+ QUAD4    ELEM        12  1.155205E+02  8.105650E+02 -2.618434E-01  2.230539E+00  4.524820E+00  0.000000E+00
+ BAR      ELEM      1112  0.000000E+00 -9.207696E-02 -1.026258E+02 -2.382934E+02 -1.710429E+03  1.534616E+00
+ BAR      ELEM      1213  0.000000E+00 -9.207696E-02 -1.026258E+02 -2.382934E+02  1.710429E+03 -1.534616E+00
+ BAR      ELEM      1222  6.923949E-17  5.280980E+02 -2.408076E+01  8.284626E+03  9.658834E-13  5.985920E-15
+ ROD      ELEM      1242  0.000000E+00  0.000000E+00 -1.167338E+03  0.000000E+00  0.000000E+00  0.000000E+00
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                : -2.835247E-14  0.000000E+00 -2.273737E-13  9.094947E-12 -6.257324E-13 -9.284736E-18
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1013 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00 -4.687500E+02 -3.906250E+03 -3.906250E+03  0.000000E+00
+ SPC FORCE                1.940146E+02 -1.397827E+03  1.305003E+03  0.000000E+00  0.000000E+00  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ QUAD4    ELEM        12 -1.938739E+02  8.820323E+02  1.648964E-01  6.452227E+00  1.008224E+01  0.000000E+00
+ BAR      ELEM      1213  0.000000E+00  9.207696E-02  1.026258E+02  2.382934E+02  3.420859E+03 -3.069232E+00
+ BAR      ELEM      1323 -1.406664E-01  5.157030E+02 -2.865373E+02  3.661504E+03  4.753090E+02  3.069232E+00
+ ROD      ELEM      1343  0.000000E+00  0.000000E+00 -6.525059E+02  0.000000E+00  0.000000E+00  0.000000E+00
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                :  1.218470E-14 -1.136868E-13  3.410605E-13 -2.000888E-11 -9.094947E-13  4.440892E-16
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1021 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00 -1.093750E+03 -1.953125E+03  9.765625E+03  0.000000E+00
+ SPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ QUAD4    ELEM        11  5.275916E+01 -8.036789E+02  4.078247E-01 -1.050455E+01 -8.558234E+00  0.000000E+00
+ TRIA3    ELEM        21  4.399546E+01  7.746870E+00  2.189741E-01  1.258546E+00 -6.473025E+00  0.000000E+00
+ TRIA3    ELEM        22  1.638595E+01  8.084034E+02  1.517357E-01  1.008301E+01 -1.612346E-01  0.000000E+00
+ BAR      ELEM      1121 -1.406664E-01 -5.157030E+02  2.865373E+02 -1.798837E+04  4.753090E+02 -3.964086E+00
+ BAR      ELEM      2122 -1.129704E+02  6.813367E-02  4.415911E+02 -3.993239E+00 -1.065816E+04  2.023223E+00
+ BAR      ELEM      2131 -2.948438E-02  5.031635E+02  3.648430E+02  1.994465E+04  4.324233E+02  1.940864E+00
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                : -1.416922E-14  3.979039E-13 -1.193712E-12 -3.637979E-12 -5.798029E-12  8.881784E-15
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1022 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00 -1.562500E+03  3.906250E+03  0.000000E+00  0.000000E+00
+ SPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ QUAD4    ELEM        11 -1.311125E+02 -8.889184E+02 -3.108776E-01 -3.025572E+00 -5.470756E+00  0.000000E+00
+ QUAD4    ELEM        12  1.311125E+02 -8.889184E+02 -3.108776E-01 -3.025572E+00  5.470756E+00  0.000000E+00
+ TRIA3    ELEM        21 -3.624859E+01  8.743001E+02 -2.855073E-01  1.849204E+00 -3.204137E+00  0.000000E+00
+ TRIA3    ELEM        23  3.624859E+01  8.743001E+02 -2.855073E-01  1.849204E+00  3.204137E+00  0.000000E+00
+ ELAS1    ELEM        58  0.000000E+00  0.000000E+00  2.555301E+03  0.000000E+00  0.000000E+00  0.000000E+00
+ BAR      ELEM      1222 -6.923949E-17 -5.280980E+02  2.408076E+01 -9.488664E+03 -9.658834E-13 -9.447894E-15
+ BAR      ELEM      2122  1.129704E+02 -6.813367E-02 -4.415911E+02  3.993239E+00 -1.142139E+04  1.383461E+00
+ BAR      ELEM      2223 -1.129704E+02 -6.813367E-02 -4.415911E+02  3.993239E+00  1.142139E+04 -1.383461E+00
+ BAR      ELEM      2232  2.562441E-16  5.574708E+02 -1.325071E+02  5.576780E+03 -8.080427E-13  1.110325E-15
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                :  1.139431E-13 -1.477929E-12  3.353762E-12 -2.728484E-12 -1.354097E-11 -4.662835E-15
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1023 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00 -1.093750E+03 -1.953125E+03 -9.765625E+03  0.000000E+00
+ SPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ QUAD4    ELEM        12 -5.275916E+01 -8.036789E+02  4.078247E-01 -1.050455E+01  8.558234E+00  0.000000E+00
+ TRIA3    ELEM        23 -4.399546E+01  7.746870E+00  2.189741E-01  1.258546E+00  6.473025E+00  0.000000E+00
+ TRIA3    ELEM        24 -1.638595E+01  8.084034E+02  1.517357E-01  1.008301E+01  1.612346E-01  0.000000E+00
+ BAR      ELEM      1323  1.406664E-01 -5.157030E+02  2.865373E+02 -1.798837E+04 -4.753090E+02  3.964086E+00
+ BAR      ELEM      2223  1.129704E+02  6.813367E-02  4.415911E+02 -3.993239E+00  1.065816E+04 -2.023223E+00
+ BAR      ELEM      2333  2.948438E-02  5.031635E+02  3.648430E+02  1.994465E+04 -4.324233E+02 -1.940864E+00
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                : -2.137318E-13  2.842171E-13  1.705303E-13  3.637979E-12  6.934897E-12  6.661338E-16
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1031 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00 -3.125000E+02  1.953125E+03  1.953125E+03  0.000000E+00
+ SPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ TRIA3    ELEM        22  7.245613E+01 -7.920175E+02 -1.219599E-01 -4.865081E+00 -3.721000E+00  0.000000E+00
+ BAR      ELEM      2131  2.948438E-02 -5.031635E+02 -3.648430E+02 -1.702502E+03 -4.324233E+02 -4.666450E-01
+ BAR      ELEM      3132 -7.248562E+01  5.402075E-02  2.990150E+01 -2.457582E+02 -1.516981E+03  4.666450E-01
+ ROD      ELEM      4131  0.000000E+00  1.295127E+03  6.475635E+02  0.000000E+00  0.000000E+00  0.000000E+00
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                :  2.273737E-13  2.273737E-13 -3.410605E-13  1.364242E-12  2.273737E-13  1.326717E-14
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1032 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00 -1.250000E+03  1.171875E+04 -4.547474E-13  0.000000E+00
+ SPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ TRIA3    ELEM        21 -7.746870E+00 -8.820470E+02  6.653318E-02 -6.434409E+00 -1.271545E+00  0.000000E+00
+ TRIA3    ELEM        22 -8.884208E+01 -1.638595E+01 -2.977579E-02  2.368856E+00  2.393446E+00  0.000000E+00
+ TRIA3    ELEM        23  7.746870E+00 -8.820470E+02  6.653318E-02 -6.434409E+00  1.271545E+00  0.000000E+00
+ TRIA3    ELEM        24  8.884208E+01 -1.638595E+01 -2.977579E-02  2.368856E+00 -2.393446E+00  0.000000E+00
+ BAR      ELEM      2232 -2.562441E-16 -5.574708E+02  1.325071E+02 -1.220214E+04  8.080427E-13 -1.392253E-14
+ BAR      ELEM      3132  7.248562E+01 -5.402075E-02 -2.990150E+01  2.457582E+02  2.190572E+01  2.234392E+00
+ BAR      ELEM      3233 -7.248562E+01 -5.402075E-02 -2.990150E+01  2.457582E+02 -2.190572E+01 -2.234392E+00
+ ROD      ELEM      4232  0.000000E+00  2.354445E+03  1.177222E+03  0.000000E+00  0.000000E+00  0.000000E+00
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                : -1.705303E-13 -9.094947E-13  0.000000E+00  5.002221E-12  4.796163E-13 -1.643130E-14
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1033 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00 -3.125000E+02  1.953125E+03 -1.953125E+03  0.000000E+00
+ SPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ TRIA3    ELEM        24 -7.245613E+01 -7.920175E+02 -1.219599E-01 -4.865081E+00  3.721000E+00  0.000000E+00
+ BAR      ELEM      2333 -2.948438E-02 -5.031635E+02 -3.648430E+02 -1.702502E+03  4.324233E+02  4.666450E-01
+ BAR      ELEM      3233  7.248562E+01  5.402075E-02  2.990150E+01 -2.457582E+02  1.516981E+03 -4.666450E-01
+ ROD      ELEM      4333  0.000000E+00  1.295127E+03  6.475635E+02  0.000000E+00  0.000000E+00  0.000000E+00
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                :  2.842171E-14  0.000000E+00  2.273737E-13  2.228262E-11 -4.547474E-13 -1.154632E-14
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1041 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ SPC FORCE                0.000000E+00  1.295127E+03  0.000000E+00  0.000000E+00 -1.235596E+02  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ ROD      ELEM      1141  0.000000E+00  0.000000E+00  6.525059E+02  0.000000E+00  0.000000E+00  0.000000E+00
+ ROD      ELEM      4131  0.000000E+00 -1.295127E+03 -6.475635E+02  0.000000E+00  0.000000E+00  0.000000E+00
+ BAR      ELEM      4142  0.000000E+00  0.000000E+00 -4.942385E+00  0.000000E+00  1.235596E+02  0.000000E+00
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                :  0.000000E+00  2.273737E-13 -9.325873E-14  0.000000E+00  0.000000E+00  0.000000E+00
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1042 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ SPC FORCE                0.000000E+00  2.354445E+03  0.000000E+00  0.000000E+00 -2.273737E-13  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ ROD      ELEM      1242  0.000000E+00  0.000000E+00  1.167338E+03  0.000000E+00  0.000000E+00  0.000000E+00
+ BAR      ELEM      4142  0.000000E+00  0.000000E+00  4.942385E+00  0.000000E+00  1.235596E+02  0.000000E+00
+ ROD      ELEM      4232  0.000000E+00 -2.354445E+03 -1.177222E+03  0.000000E+00  0.000000E+00  0.000000E+00
+ BAR      ELEM      4243  0.000000E+00  0.000000E+00  4.942385E+00  0.000000E+00 -1.235596E+02  0.000000E+00
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                :  0.000000E+00  0.000000E+00  8.348877E-14  0.000000E+00  0.000000E+00  0.000000E+00
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1043 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ SPC FORCE                0.000000E+00  1.295127E+03  0.000000E+00  0.000000E+00  1.235596E+02  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ ROD      ELEM      1343  0.000000E+00  0.000000E+00  6.525059E+02  0.000000E+00  0.000000E+00  0.000000E+00
+ BAR      ELEM      4243  0.000000E+00  0.000000E+00 -4.942385E+00  0.000000E+00 -1.235596E+02  0.000000E+00
+ ROD      ELEM      4333  0.000000E+00 -1.295127E+03 -6.475635E+02  0.000000E+00  0.000000E+00  0.000000E+00
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                :  0.000000E+00  0.000000E+00 -6.821210E-13  0.000000E+00  0.000000E+00  0.000000E+00
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1051 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ SPC FORCE                0.000000E+00  0.000000E+00  2.555301E+03  0.000000E+00  0.000000E+00  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ ELAS1    ELEM        58  0.000000E+00  0.000000E+00 -2.555301E+03  0.000000E+00  0.000000E+00  0.000000E+00
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                :  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ (should all be 0)
+
+
+                                      Max abs values of force imbalance totals from above grids
+
+                               T1            T2            T3            R1            R2            R3
+
+ Max abs imbal any grid:  2.273737E-13  1.477929E-12  3.353762E-12  2.228262E-11  1.354097E-11  1.643130E-14
+ Max abs force any grid:  1.940146E+02  2.354445E+03  2.555301E+03  1.994465E+04  9.765625E+03  1.940864E+00
+ as % of max abs force :      1.17E-13%     6.28E-14%     1.31E-13%     1.12E-13%     1.39E-13%     8.47E-13%
+ Occurs at grid*       :      1031          1022          1022          1033          1022          1032
+ (*for output set)
+
+
+ OUTPUT FOR SUBCASE       91
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ PRESSURE LOAD ON PLATE ELEMENTS                                                                                                                                                                                                                                 
+
+                                  E L E M   N O D A L   F O R C E S   I N   G L O B A L   C O O R D S
+                                               F O R   E L E M E N T   T Y P E   B A R      
+      Element     Grid         T1            T2            T3            R1            R2            R3
+         ID      Point
+           1112     1011  0.0          -9.207696E-02 -1.026258E+02 -2.382934E+02  3.420859E+03 -3.069232E+00
+                    1012  0.0           9.207696E-02  1.026258E+02  2.382934E+02  1.710429E+03 -1.534616E+00
+
+           1121     1011 -1.406664E-01 -5.157030E+02  2.865373E+02 -3.661504E+03  4.753090E+02  3.069232E+00
+                    1021  1.406664E-01  5.157030E+02 -2.865373E+02  1.798837E+04 -4.753090E+02  3.964086E+00
+
+           1213     1012  0.0           9.207696E-02  1.026258E+02  2.382934E+02 -1.710429E+03  1.534616E+00
+                    1013  0.0          -9.207696E-02 -1.026258E+02 -2.382934E+02 -3.420859E+03  3.069232E+00
+
+           1222     1012 -6.923949E-17 -5.280980E+02  2.408076E+01 -8.284626E+03 -9.658834E-13 -5.985920E-15
+                    1022  6.923949E-17  5.280980E+02 -2.408076E+01  9.488664E+03  9.658834E-13  9.447894E-15
+
+           1323     1013  1.406664E-01 -5.157030E+02  2.865373E+02 -3.661504E+03 -4.753090E+02 -3.069232E+00
+                    1023 -1.406664E-01  5.157030E+02 -2.865373E+02  1.798837E+04  4.753090E+02 -3.964086E+00
+
+           2122     1021  1.129704E+02 -6.813367E-02 -4.415911E+02  3.993239E+00  1.065816E+04 -2.023223E+00
+                    1022 -1.129704E+02  6.813367E-02  4.415911E+02 -3.993239E+00  1.142139E+04 -1.383461E+00
+
+           2131     1021  2.948438E-02 -5.031635E+02 -3.648430E+02 -1.994465E+04 -4.324233E+02 -1.940864E+00
+                    1031 -2.948438E-02  5.031635E+02  3.648430E+02  1.702502E+03  4.324233E+02  4.666450E-01
+
+           2223     1022  1.129704E+02  6.813367E-02  4.415911E+02 -3.993239E+00 -1.142139E+04  1.383461E+00
+                    1023 -1.129704E+02 -6.813367E-02 -4.415911E+02  3.993239E+00 -1.065816E+04  2.023223E+00
+
+           2232     1022 -2.562441E-16 -5.574708E+02  1.325071E+02 -5.576780E+03  8.080427E-13 -1.110325E-15
+                    1032  2.562441E-16  5.574708E+02 -1.325071E+02  1.220214E+04 -8.080427E-13  1.392253E-14
+
+           2333     1023 -2.948438E-02 -5.031635E+02 -3.648430E+02 -1.994465E+04  4.324233E+02  1.940864E+00
+                    1033  2.948438E-02  5.031635E+02  3.648430E+02  1.702502E+03 -4.324233E+02 -4.666450E-01
+
+           3132     1031  7.248562E+01 -5.402075E-02 -2.990150E+01  2.457582E+02  1.516981E+03 -4.666450E-01
+                    1032 -7.248562E+01  5.402075E-02  2.990150E+01 -2.457582E+02 -2.190572E+01 -2.234392E+00
+
+           3233     1032  7.248562E+01  5.402075E-02  2.990150E+01 -2.457582E+02  2.190572E+01  2.234392E+00
+                    1033 -7.248562E+01 -5.402075E-02 -2.990150E+01  2.457582E+02 -1.516981E+03  4.666450E-01
+
+           4142     1041  0.0           0.0           4.942385E+00  0.0          -1.235596E+02  0.0         
+                    1042  0.0           0.0          -4.942385E+00  0.0          -1.235596E+02  0.0         
+
+           4243     1042  0.0           0.0          -4.942385E+00  0.0           1.235596E+02  0.0         
+                    1043  0.0           0.0           4.942385E+00  0.0           1.235596E+02  0.0         
+
+                         ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    1.129704E+02  5.574708E+02  4.415911E+02  1.798837E+04  1.142139E+04  3.964086E+00
+                MIN* :   -1.129704E+02 -5.574708E+02 -4.415911E+02 -1.994465E+04 -1.142139E+04 -3.964086E+00
+
+                ABS* :    1.129704E+02  5.574708E+02  4.415911E+02  1.994465E+04  1.142139E+04  3.964086E+00
+                * for output set
+
+
+ OUTPUT FOR SUBCASE       91
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ PRESSURE LOAD ON PLATE ELEMENTS                                                                                                                                                                                                                                 
+
+                                  E L E M   N O D A L   F O R C E S   I N   G L O B A L   C O O R D S
+                                               F O R   E L E M E N T   T Y P E   E L A S 1  
+      Element     Grid         T1            T2            T3            R1            R2            R3
+         ID      Point
+             58     1022  0.0           0.0          -2.555301E+03  0.0           0.0           0.0         
+                    1051  0.0           0.0           2.555301E+03  0.0           0.0           0.0         
+
+                         ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    0.0           0.0           2.555301E+03  0.0           0.0           0.0         
+                MIN* :    0.0           0.0          -2.555301E+03  0.0           0.0           0.0         
+
+                ABS* :    0.0           0.0           2.555301E+03  0.0           0.0           0.0         
+                * for output set
+
+
+ OUTPUT FOR SUBCASE       91
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ PRESSURE LOAD ON PLATE ELEMENTS                                                                                                                                                                                                                                 
+
+                                  E L E M   N O D A L   F O R C E S   I N   G L O B A L   C O O R D S
+                                               F O R   E L E M E N T   T Y P E   Q U A D 4  
+      Element     Grid         T1            T2            T3            R1            R2            R3
+         ID      Point
+             11     1011 -1.938739E+02 -8.820323E+02 -1.648964E-01 -6.452227E+00  1.008224E+01  0.0         
+                    1012  1.155205E+02 -8.105650E+02  2.618434E-01 -2.230539E+00  4.524820E+00  0.0         
+                    1022  1.311125E+02  8.889184E+02  3.108776E-01  3.025572E+00  5.470756E+00  0.0         
+                    1021 -5.275916E+01  8.036789E+02 -4.078247E-01  1.050455E+01  8.558234E+00  0.0         
+
+             12     1012 -1.155205E+02 -8.105650E+02  2.618434E-01 -2.230539E+00 -4.524820E+00  0.0         
+                    1013  1.938739E+02 -8.820323E+02 -1.648964E-01 -6.452227E+00 -1.008224E+01  0.0         
+                    1023  5.275916E+01  8.036789E+02 -4.078247E-01  1.050455E+01 -8.558234E+00  0.0         
+                    1022 -1.311125E+02  8.889184E+02  3.108776E-01  3.025572E+00 -5.470756E+00  0.0         
+
+                         ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    1.938739E+02  8.889184E+02  3.108776E-01  1.050455E+01  1.008224E+01  0.0         
+                MIN* :   -1.938739E+02 -8.820323E+02 -4.078247E-01 -6.452227E+00 -1.008224E+01  0.0         
+
+                ABS* :    1.938739E+02  8.889184E+02  4.078247E-01  1.050455E+01  1.008224E+01  0.0         
+                * for output set
+
+
+ OUTPUT FOR SUBCASE       91
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ PRESSURE LOAD ON PLATE ELEMENTS                                                                                                                                                                                                                                 
+
+                                  E L E M   N O D A L   F O R C E S   I N   G L O B A L   C O O R D S
+                                               F O R   E L E M E N T   T Y P E   R O D      
+      Element     Grid         T1            T2            T3            R1            R2            R3
+         ID      Point
+           1141     1011  0.0           0.0           6.525059E+02  0.0           0.0           0.0         
+                    1041  0.0           0.0          -6.525059E+02  0.0           0.0           0.0         
+
+           1242     1012  0.0           0.0           1.167338E+03  0.0           0.0           0.0         
+                    1042  0.0           0.0          -1.167338E+03  0.0           0.0           0.0         
+
+           1343     1013  0.0           0.0           6.525059E+02  0.0           0.0           0.0         
+                    1043  0.0           0.0          -6.525059E+02  0.0           0.0           0.0         
+
+           4131     1041  0.0           1.295127E+03  6.475635E+02  0.0           0.0           0.0         
+                    1031  0.0          -1.295127E+03 -6.475635E+02  0.0           0.0           0.0         
+
+           4232     1042  0.0           2.354445E+03  1.177222E+03  0.0           0.0           0.0         
+                    1032  0.0          -2.354445E+03 -1.177222E+03  0.0           0.0           0.0         
+
+           4333     1043  0.0           1.295127E+03  6.475635E+02  0.0           0.0           0.0         
+                    1033  0.0          -1.295127E+03 -6.475635E+02  0.0           0.0           0.0         
+
+                         ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    0.0           2.354445E+03  1.177222E+03  0.0           0.0           0.0         
+                MIN* :    0.0          -2.354445E+03 -1.177222E+03  0.0           0.0           0.0         
+
+                ABS* :    0.0           2.354445E+03  1.177222E+03  0.0           0.0           0.0         
+                * for output set
+
+
+ OUTPUT FOR SUBCASE       91
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ PRESSURE LOAD ON PLATE ELEMENTS                                                                                                                                                                                                                                 
+
+                                  E L E M   N O D A L   F O R C E S   I N   G L O B A L   C O O R D S
+                                               F O R   E L E M E N T   T Y P E   T R I A 3  
+      Element     Grid         T1            T2            T3            R1            R2            R3
+         ID      Point
+             21     1021 -4.399546E+01 -7.746870E+00 -2.189741E-01 -1.258546E+00  6.473025E+00  0.0         
+                    1022  3.624859E+01 -8.743001E+02  2.855073E-01 -1.849204E+00  3.204137E+00  0.0         
+                    1032  7.746870E+00  8.820470E+02 -6.653318E-02  6.434409E+00  1.271545E+00  0.0         
+
+             22     1031 -7.245613E+01  7.920175E+02  1.219599E-01  4.865081E+00  3.721000E+00  0.0         
+                    1021 -1.638595E+01 -8.084034E+02 -1.517357E-01 -1.008301E+01  1.612346E-01  0.0         
+                    1032  8.884208E+01  1.638595E+01  2.977579E-02 -2.368856E+00 -2.393446E+00  0.0         
+
+             23     1022 -3.624859E+01 -8.743001E+02  2.855073E-01 -1.849204E+00 -3.204137E+00  0.0         
+                    1023  4.399546E+01 -7.746870E+00 -2.189741E-01 -1.258546E+00 -6.473025E+00  0.0         
+                    1032 -7.746870E+00  8.820470E+02 -6.653318E-02  6.434409E+00 -1.271545E+00  0.0         
+
+             24     1033  7.245613E+01  7.920175E+02  1.219599E-01  4.865081E+00 -3.721000E+00  0.0         
+                    1032 -8.884208E+01  1.638595E+01  2.977579E-02 -2.368856E+00  2.393446E+00  0.0         
+                    1023  1.638595E+01 -8.084034E+02 -1.517357E-01 -1.008301E+01 -1.612346E-01  0.0         
+
+                         ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    8.884208E+01  8.820470E+02  2.855073E-01  6.434409E+00  6.473025E+00  0.0         
+                MIN* :   -8.884208E+01 -8.743001E+02 -2.189741E-01 -1.008301E+01 -6.473025E+00  0.0         
+
+                ABS* :    8.884208E+01  8.820470E+02  2.855073E-01  1.008301E+01  6.473025E+00  0.0         
+                * for output set
+
+
+ OUTPUT FOR SUBCASE       91
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ PRESSURE LOAD ON PLATE ELEMENTS                                                                                                                                                                                                                                 
+
+                                                       E L E M E N T   E N G I N E E R I N G   F O R C E S
+                                                             F O R   E L E M E N T   T Y P E   B A R      
+                 Element       Bend-Moment End A           Bend-Moment End B              - Shear -              Axial         Torque
+                    ID       Plane 1       Plane 2       Plane 1       Plane 2      Plane 1       Plane 2        Force
+                    1112  3.420859E+03 -3.069232E+00 -1.710429E+03  1.534616E+00  1.026258E+02 -9.207696E-02  0.000000E+00  2.382934E+02
+                    1121  3.661504E+03  3.069232E+00  1.798837E+04 -3.964086E+00 -2.865373E+02  1.406664E-01  5.157030E+02 -4.753090E+02
+                    1213 -1.710429E+03  1.534616E+00  3.420859E+03 -3.069232E+00 -1.026258E+02  9.207696E-02  0.000000E+00 -2.382934E+02
+                    1222  8.284626E+03 -5.985920E-15  9.488664E+03 -9.447894E-15 -2.408076E+01  6.923949E-17  5.280980E+02  9.658834E-13
+                    1323  3.661504E+03 -3.069232E+00  1.798837E+04  3.964086E+00 -2.865373E+02 -1.406664E-01  5.157030E+02  4.753090E+02
+                    2122  1.065816E+04 -2.023223E+00 -1.142139E+04  1.383461E+00  4.415911E+02 -6.813367E-02 -1.129704E+02 -3.993239E+00
+                    2131  1.994465E+04 -1.940864E+00  1.702502E+03 -4.666450E-01  3.648430E+02 -2.948438E-02  5.031635E+02  4.324233E+02
+                    2223 -1.142139E+04  1.383461E+00  1.065816E+04 -2.023223E+00 -4.415911E+02  6.813367E-02 -1.129704E+02  3.993239E+00
+                    2232  5.576780E+03 -1.110325E-15  1.220214E+04 -1.392253E-14 -1.325071E+02  2.562441E-16  5.574708E+02 -8.080427E-13
+                    2333  1.994465E+04  1.940864E+00  1.702502E+03  4.666450E-01  3.648430E+02  2.948438E-02  5.031635E+02 -4.324233E+02
+                    3132  1.516981E+03 -4.666450E-01  2.190572E+01  2.234392E+00  2.990150E+01 -5.402075E-02 -7.248562E+01 -2.457582E+02
+                    3233  2.190572E+01  2.234392E+00  1.516981E+03 -4.666450E-01 -2.990150E+01  5.402075E-02 -7.248562E+01  2.457582E+02
+                    4142 -1.235596E+02  0.000000E+00  1.235596E+02  0.000000E+00 -4.942385E+00  0.000000E+00  0.000000E+00  0.000000E+00
+                    4243  1.235596E+02  0.000000E+00 -1.235596E+02  0.000000E+00  4.942385E+00  0.000000E+00  0.000000E+00  0.000000E+00
+          ------------- ------------- ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    1.994465E+04  3.069232E+00  1.798837E+04  3.964086E+00  4.415911E+02  1.406664E-01  5.574708E+02  4.753090E+02
+                MIN* :   -1.142139E+04 -3.069232E+00 -1.142139E+04 -3.964086E+00 -4.415911E+02 -1.406664E-01 -1.129704E+02 -4.753090E+02
+
+                ABS* :    1.994465E+04  3.069232E+00  1.798837E+04  3.964086E+00  4.415911E+02  1.406664E-01  5.574708E+02  4.753090E+02
+                *for output set
+
+
+ OUTPUT FOR SUBCASE       91
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ PRESSURE LOAD ON PLATE ELEMENTS                                                                                                                                                                                                                                 
+
+                                                 E L E M E N T   E N G I N E E R I N G   F O R C E S
+                                                     F O R   E L E M E N T   T Y P E   E L A S 1  
+                 Element     Force      Element     Force      Element     Force      Element     Force      Element     Force
+                    ID                     ID                     ID                     ID                     ID
+                      58  2.555301E+03
+                         -------------
+                MAX* :    2.555301E+03
+                MIN* :    2.555301E+03
+
+                ABS* :    2.555301E+03
+                *for output set
+
+
+ OUTPUT FOR SUBCASE       91
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ PRESSURE LOAD ON PLATE ELEMENTS                                                                                                                                                                                                                                 
+
+                                                 E L E M E N T   E N G I N E E R I N G   F O R C E S
+                                                     F O R   E L E M E N T   T Y P E   R O D      
+                 Element     Axial        Torque      Element     Axial        Torque      Element     Axial        Torque
+                    ID       Force                       ID       Force                       ID       Force
+                    1141  6.525059E+02  0.000000E+00    1242  1.167338E+03  0.000000E+00    1343  6.525059E+02  0.000000E+00
+                    4131 -1.447996E+03  0.000000E+00    4232 -2.632349E+03  0.000000E+00    4333 -1.447996E+03  0.000000E+00
+                         ------------- -------------
+                MAX* :    1.167338E+03  0.000000E+00
+                MIN* :   -2.632349E+03  0.000000E+00
+
+                ABS* :    2.632349E+03  0.000000E+00
+                *for output set
+
+
+ OUTPUT FOR SUBCASE       91
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ PRESSURE LOAD ON PLATE ELEMENTS                                                                                                                                                                                                                                 
+
+                                                       E L E M E N T   E N G I N E E R I N G   F O R C E S
+                                                           F O R   E L E M E N T   T Y P E   Q U A D 4  
+                 Element         N o r m a l   F o r c e s                       M o m e n t s                   T r a n s v e r s e
+                    ID                                                                                         S h e a r   F o r c e s
+                              Nxx           Nyy           Nxy           Mxx           Myy           Mxy            Qx           Qy
+                      11  4.932661E+00  3.385195E+01  1.567068E+00  8.644901E-02  2.221288E-01  2.309926E-02  1.145442E-02 -1.938941E-03
+                      12  4.932661E+00  3.385195E+01 -1.567068E+00  8.644901E-02  2.221288E-01 -2.309926E-02 -1.145442E-02 -1.938941E-03
+                          ------------- ------------- ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    4.932661E+00  3.385195E+01  1.567068E+00  8.644901E-02  2.221288E-01  2.309926E-02  1.145442E-02 -1.938941E-03
+                MIN* :    4.932661E+00  3.385195E+01 -1.567068E+00  8.644901E-02  2.221288E-01 -2.309926E-02 -1.145442E-02 -1.938941E-03
+
+                ABS* :    4.932661E+00  3.385195E+01  1.567068E+00  8.644901E-02  2.221288E-01  2.309926E-02  1.145442E-02  1.938941E-03
+                *for output set
+
+
+ OUTPUT FOR SUBCASE       91
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ PRESSURE LOAD ON PLATE ELEMENTS                                                                                                                                                                                                                                 
+
+                                                       E L E M E N T   E N G I N E E R I N G   F O R C E S
+                                                           F O R   E L E M E N T   T Y P E   T R I A 3  
+                 Element         N o r m a l   F o r c e s                       M o m e n t s                   T r a n s v e r s e
+                    ID                                                                                         S h e a r   F o r c e s
+                              Nxx           Nyy           Nxy           Mxx           Myy           Mxy            Qx           Qy
+                      21  1.759819E+00  3.528188E+01  3.098748E-01  3.994686E-02  1.908432E-01 -2.599765E-04  8.758965E-03 -2.661327E-03
+                      22  3.233614E+01  3.553683E+00 -6.554381E-01  2.515846E-01  1.255136E-01  4.415244E-02 -6.069427E-03  1.191031E-03
+                      23  1.759819E+00  3.528188E+01 -3.098748E-01  3.994686E-02  1.908432E-01  2.599765E-04 -8.758965E-03 -2.661327E-03
+                      24  3.553683E+00  3.233614E+01 -6.554381E-01  1.255136E-01  2.515846E-01  4.415244E-02  1.191031E-03 -6.069427E-03
+                          ------------- ------------- ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    3.233614E+01  3.528188E+01  3.098748E-01  2.515846E-01  2.515846E-01  4.415244E-02  8.758965E-03  1.191031E-03
+                MIN* :    1.759819E+00  3.553683E+00 -6.554381E-01  3.994686E-02  1.255136E-01 -2.599765E-04 -8.758965E-03 -6.069427E-03
+
+                ABS* :    3.233614E+01  3.528188E+01  6.554381E-01  2.515846E-01  2.515846E-01  4.415244E-02  8.758965E-03  6.069427E-03
+                *for output set
+
+
+ OUTPUT FOR SUBCASE       91
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ PRESSURE LOAD ON PLATE ELEMENTS                                                                                                                                                                                                                                 
+
+             E L E M E N T   S T R E S S E S   I N   L O C A L   E L E M E N T   C O O R D I N A T E   S Y S T E M
+                                          F O R   E L E M E N T   T Y P E   B A R      
+  Element      SA1           SA2           SA3           SA4          Axial         SA-Max        SA-Min      M.S.-T
+     ID        SB1           SB2           SB3           SB4          Stress        SB-Max        SB-Min      M.S.-C
+
+     1112 -1.707360E+03 -1.713499E+03  1.707360E+03  1.713499E+03  0.0           1.713499E+03 -1.713499E+03  1.07E+01                
+           8.536801E+02  8.567493E+02 -8.536801E+02 -8.567493E+02                8.567493E+02 -8.567493E+02  1.07E+01                
+
+     1121 -4.607573E+02 -4.546188E+02  4.607573E+02  4.546188E+02  2.578515E+02  7.186088E+02 -2.029058E+02  6.97E+00                
+          -2.244582E+03 -2.252510E+03  2.244582E+03  2.252510E+03                2.510362E+03 -1.994659E+03  9.03E+00                
+
+     1213  8.536801E+02  8.567493E+02 -8.536801E+02 -8.567493E+02  0.0           8.567493E+02 -8.567493E+02  1.07E+01                
+          -1.707360E+03 -1.713499E+03  1.707360E+03  1.713499E+03                1.713499E+03 -1.713499E+03  1.07E+01                
+
+     1222 -1.035578E+03 -1.035578E+03  1.035578E+03  1.035578E+03  2.640490E+02  1.299627E+03 -7.715292E+02  1.28E+01                
+          -1.186083E+03 -1.186083E+03  1.186083E+03  1.186083E+03                1.450132E+03 -9.220340E+02  2.07E+01                
+
+     1323 -4.546188E+02 -4.607573E+02  4.546188E+02  4.607573E+02  2.578515E+02  7.186088E+02 -2.029058E+02  6.97E+00                
+          -2.252510E+03 -2.244582E+03  2.252510E+03  2.244582E+03                2.510362E+03 -1.994659E+03  9.03E+00                
+
+     2122 -1.330247E+03 -1.334294E+03  1.330247E+03  1.334294E+03 -5.648521E+01  1.277809E+03 -1.390779E+03  1.36E+01                
+           1.426290E+03  1.429057E+03 -1.426290E+03 -1.429057E+03                1.372572E+03 -1.485543E+03  1.25E+01                
+
+     2131 -2.491141E+03 -2.495022E+03  2.491141E+03  2.495022E+03  2.515817E+02  2.746604E+03 -2.243441E+03  6.28E+00                
+          -2.123461E+02 -2.132794E+02  2.123461E+02  2.132794E+02                4.648611E+02  3.830237E+01  7.91E+00                
+
+     2223  1.426290E+03  1.429057E+03 -1.426290E+03 -1.429057E+03 -5.648521E+01  1.372572E+03 -1.485543E+03  1.36E+01                
+          -1.330247E+03 -1.334294E+03  1.330247E+03  1.334294E+03                1.277809E+03 -1.390779E+03  1.25E+01                
+
+     2232 -6.970975E+02 -6.970975E+02  6.970975E+02  6.970975E+02  2.787354E+02  9.758329E+02 -4.183621E+02  1.01E+01                
+          -1.525267E+03 -1.525267E+03  1.525267E+03  1.525267E+03                1.804002E+03 -1.246531E+03  1.50E+01                
+
+     2333 -2.495022E+03 -2.491141E+03  2.495022E+03  2.491141E+03  2.515817E+02  2.746604E+03 -2.243441E+03  6.28E+00                
+          -2.132794E+02 -2.123461E+02  2.132794E+02  2.123461E+02                4.648611E+02  3.830237E+01  7.91E+00                
+
+     3132 -7.580237E+02 -7.589570E+02  7.580237E+02  7.589570E+02 -3.624281E+01  7.227142E+02 -7.951998E+02  2.67E+01                
+          -1.318725E+01 -8.718469E+00  1.318725E+01  8.718469E+00               -2.305555E+01 -4.943006E+01  2.42E+01                
+
+     3233 -1.318725E+01 -8.718469E+00  1.318725E+01  8.718469E+00 -3.624281E+01 -2.305555E+01 -4.943006E+01  2.67E+01                
+          -7.580237E+02 -7.589570E+02  7.580237E+02  7.589570E+02                7.227142E+02 -7.951998E+02  2.42E+01                
+
+     4142  6.177981E+01  6.177981E+01 -6.177981E+01 -6.177981E+01  0.0           6.177981E+01 -6.177981E+01  3.23E+02                
+          -6.177981E+01 -6.177981E+01  6.177981E+01  6.177981E+01                6.177981E+01 -6.177981E+01  3.23E+02                
+
+     4243 -6.177981E+01 -6.177981E+01  6.177981E+01  6.177981E+01  0.0           6.177981E+01 -6.177981E+01  3.23E+02                
+           6.177981E+01  6.177981E+01 -6.177981E+01 -6.177981E+01                6.177981E+01 -6.177981E+01  3.23E+02                
+          ------------- ------------- ------------- ------------- ------------- ------------- ------------- ---------
+ MAX* :    1.426290E+03  1.429057E+03  2.495022E+03  2.495022E+03  2.787354E+02  2.746604E+03 -4.943006E+01  3.23E+02
+ MAX* :    1.426290E+03  1.429057E+03  2.252510E+03  2.252510E+03  2.787354E+02  2.510362E+03  3.830237E+01  3.23E+02
+
+ MIN* :   -2.495022E+03 -2.495022E+03 -1.426290E+03 -1.429057E+03 -5.648521E+01 -2.305555E+01 -2.243441E+03  6.28E+00
+ MIN* :   -2.252510E+03 -2.252510E+03 -1.426290E+03 -1.429057E+03 -5.648521E+01 -2.305555E+01 -1.994659E+03  7.91E+00
+
+ ABS* :    2.495022E+03  2.495022E+03  2.495022E+03  2.495022E+03  2.787354E+02  2.746604E+03  2.243441E+03  3.23E+02
+ ABS* :    2.252510E+03  2.252510E+03  2.252510E+03  2.252510E+03  2.787354E+02  2.510362E+03  1.994659E+03  3.23E+02
+ *for output set
+
+
+ OUTPUT FOR SUBCASE       91
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ PRESSURE LOAD ON PLATE ELEMENTS                                                                                                                                                                                                                                 
+
+           E L E M E N T   S T R E S S E S   I N   L O C A L   E L E M E N T   C O O R D I N A T E   S Y S T E M
+                                        F O R   E L E M E N T   T Y P E   E L A S 1  
+  Element     Stress     Element     Stress     Element     Stress     Element     Stress     Element     Stress
+     ID                     ID                     ID                     ID                     ID
+       58  1.916476E+03
+
+
+ OUTPUT FOR SUBCASE       91
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ PRESSURE LOAD ON PLATE ELEMENTS                                                                                                                                                                                                                                 
+
+                                          E L E M E N T   S T R E S S E S   I N   L O C A L   E L E M E N T   C O O R D I N A T E   S Y S T E M
+                                                                       F O R   E L E M E N T   T Y P E   Q U A D 4  
+    Elem  Location       Fibre       Stresses In Element Coord System     Principal Stresses (Zero Shear)               Transverse   Transverse   % Poly
+     ID                 Distance    Normal-X     Normal-Y     Shear-XY     Angle     Major        Minor      von Mises    Shear-XZ     Shear-YZ    Fit Err
+                                                                                                                         (max through thickness)
+
+       11  CENTER      -6.250E-02  7.26577E+01  3.56113E+02  2.14067E+01   85.71  3.57721E+02  7.10502E+01  3.28018E+02  1.09962E-01 -1.86138E-02
+                        6.250E-02  6.26487E+00  1.85518E+02  3.66643E+00   88.83  1.85593E+02  6.18990E+00  1.82577E+02
+
+       12  CENTER      -6.250E-02  7.26577E+01  3.56113E+02 -2.14067E+01  -85.71  3.57721E+02  7.10502E+01  3.28018E+02 -1.09962E-01 -1.86138E-02
+                        6.250E-02  6.26487E+00  1.85518E+02 -3.66643E+00  -88.83  1.85593E+02  6.18990E+00  1.82577E+02
+                                  ------------ ------------ ------------         ------------ ------------ ------------ ------------ ------------ --------
+ MAX* :                            7.26577E+01  3.56113E+02  2.14067E+01          3.57721E+02  7.10502E+01  3.28018E+02  1.09962E-01 -1.86138E-02  0.0E+00
+ MIN* :                            6.26487E+00  1.85518E+02 -2.14067E+01          1.85593E+02  6.18990E+00  1.82577E+02 -1.09962E-01 -1.86138E-02  0.0E+00
+
+ ABS* :                            7.26577E+01  3.56113E+02  2.14067E+01          3.57721E+02  7.10502E+01  3.28018E+02  1.09962E-01  1.86138E-02  0.0E+00
+ *for output set
+
+
+ OUTPUT FOR SUBCASE       91
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ PRESSURE LOAD ON PLATE ELEMENTS                                                                                                                                                                                                                                 
+
+             E L E M E N T   S T R E S S E S   I N   L O C A L   E L E M E N T   C O O R D I N A T E   S Y S T E M
+                                          F O R   E L E M E N T   T Y P E   R O D      
+  Element     Axial       Safety     Torsional     Safety    Element    Axial       Safety     Torsional     Safety
+     ID       Stress      Margin       Stress      Margin       ID      Stress      Margin       Stress      Margin
+     1141  6.525059E+02  2.97E+01   0.000000E+00               1242  1.167338E+03  1.61E+01   0.000000E+00             
+     1343  6.525059E+02  2.97E+01   0.000000E+00               4131 -1.447996E+03  1.28E+01   0.000000E+00             
+     4232 -2.632349E+03  6.60E+00   0.000000E+00               4333 -1.447996E+03  1.28E+01   0.000000E+00             
+          ------------- ---------  ------------- ---------
+ MAX* :    1.167338E+03  2.97E+01   0.000000E+00  1.00E+10
+ MIN* :   -2.632349E+03  6.60E+00   0.000000E+00  1.00E+10
+
+ ABS* :    2.632349E+03  2.97E+01   0.000000E+00  1.00E+10
+ *for output set
+
+
+ OUTPUT FOR SUBCASE       91
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ PRESSURE LOAD ON PLATE ELEMENTS                                                                                                                                                                                                                                 
+
+                                    E L E M E N T   S T R E S S E S   I N   L O C A L   E L E M E N T   C O O R D I N A T E   S Y S T E M
+                                                                 F O R   E L E M E N T   T Y P E   T R I A 3  
+  Element    Location      Fibre        Stresses In Element Coord System       Principal Stresses (Zero Shear)               Transverse   Transverse
+     ID                   Distance     Normal-X     Normal-Y      Shear-XY     Angle     Major        Minor      von Mises     Shear-XZ     Shear-YZ
+                                                                                                                             (max through thickness)
+
+       21    Anywhere   -6.25000E-02  2.94181E+01  3.55539E+02  2.37917E+00   89.582  3.55556E+02  2.94008E+01  3.41805E+02  8.40861E-02 -2.55487E-02
+             in elem     6.25000E-02 -1.26104E+00  2.08971E+02  2.57883E+00   89.297  2.09003E+02 -1.29267E+00  2.09652E+02
+
+       22    Anywhere   -6.25000E-02  3.55298E+02  7.66267E+01  1.17110E+01    2.402  3.55789E+02  7.61354E+01  3.24491E+02 -5.82665E-02  1.14339E-02
+             in elem     6.25000E-02  1.62081E+02 -1.97678E+01 -2.21980E+01   -6.860  1.64751E+02 -2.24382E+01  1.77040E+02
+
+       23    Anywhere   -6.25000E-02  2.94181E+01  3.55539E+02 -2.37917E+00  -89.582  3.55556E+02  2.94008E+01  3.41805E+02 -8.40861E-02 -2.55487E-02
+             in elem     6.25000E-02 -1.26104E+00  2.08971E+02 -2.57883E+00  -89.297  2.09003E+02 -1.29267E+00  2.09652E+02
+
+       24    Anywhere   -6.25000E-02  7.66267E+01  3.55298E+02  1.17110E+01   87.598  3.55789E+02  7.61354E+01  3.24491E+02  1.14339E-02 -5.82665E-02
+             in elem     6.25000E-02 -1.97678E+01  1.62081E+02 -2.21980E+01  -83.140  1.64751E+02 -2.24382E+01  1.77040E+02
+                                     ------------ ------------ ------------          ------------ ------------ ------------ ------------ ------------
+ MAX* :                               3.55298E+02  3.55539E+02  1.17110E+01           3.55789E+02  7.61354E+01  3.41805E+02  8.40861E-02  1.14339E-02
+ MIN* :                              -1.97678E+01 -1.97678E+01 -2.21980E+01           1.64751E+02 -2.24382E+01  1.77040E+02 -8.40861E-02 -5.82665E-02
+
+ ABS* :                               3.55298E+02  3.55539E+02  2.21980E+01           3.55789E+02  7.61354E+01  3.41805E+02  8.40861E-02  5.82665E-02
+ *for output set
+
+
+ OUTPUT FOR SUBCASE       91
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ PRESSURE LOAD ON PLATE ELEMENTS                                                                                                                                                                                                                                 
+
+                                           E L E M E N T   S T R A I N S   I N   L O C A L   E L E M E N T   C O O R D I N A T E   S Y S T E M
+                                                                       F O R   E L E M E N T   T Y P E   Q U A D 4  
+  Elem  Location         Fibre      Strains In Element Coord System       Principal Strains (Zero Shear)                 Transverse   Transverse   % Poly
+   ID                   Distance   Normal-X     Normal-Y     Shear-XY     Angle      Major        Minor      von Mises    Shear-XZ     Shear-YZ    Fit Err 
+
+       11  CENTER      -6.250E-02 -1.63706E-06  3.37949E-05  5.35166E-06   81.60  3.45855E-05 -2.42773E-06  3.58611E-05  7.49771E-04 -1.26917E-04
+                        6.250E-02 -4.01147E-06  1.83952E-05  9.16607E-07   87.66  1.84326E-05 -4.04890E-06  2.07554E-05
+
+       12  CENTER      -6.250E-02 -1.63706E-06  3.37949E-05 -5.35166E-06  -81.60  3.45855E-05 -2.42773E-06  3.58611E-05 -7.49771E-04 -1.26917E-04
+                        6.250E-02 -4.01147E-06  1.83952E-05 -9.16607E-07  -87.66  1.84326E-05 -4.04890E-06  2.07554E-05
+                                  ------------ ------------ ------------         ------------ ------------ ------------ ------------ ------------ --------
+ MAX* :                           -1.63706E-06  3.37949E-05  5.35166E-06          3.45855E-05 -2.42773E-06  3.58611E-05  7.49771E-04 -1.26917E-04  0.0E+00
+ MIN* :                           -4.01147E-06  1.83952E-05 -5.35166E-06          1.84326E-05 -4.04890E-06  2.07554E-05 -7.49771E-04 -1.26917E-04  0.0E+00
+
+ ABS* :                            4.01147E-06  3.37949E-05  5.35166E-06          3.45855E-05  4.04890E-06  3.58611E-05  7.49771E-04  1.26917E-04  0.0E+00
+ *for output set
+
+
+ OUTPUT FOR SUBCASE       91
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ PRESSURE LOAD ON PLATE ELEMENTS                                                                                                                                                                                                                                 
+
+                                     E L E M E N T   S T R A I N S   I N   L O C A L   E L E M E N T   C O O R D I N A T E   S Y S T E M
+                                                                 F O R   E L E M E N T   T Y P E   T R I A 3  
+  Element    Location      Fibre        Strains In Element Coord System       Principal Strains (Zero Shear)                 Transverse   Transverse
+     ID                   Distance     Normal-X     Normal-Y      Shear-XY     Angle     Major        Minor      von Mises    Shear-XZ     Shear-YZ 
+
+       21    Anywhere   -6.25000E-02 -5.94666E-06  3.48184E-05  5.94792E-07   89.164  3.48271E-05 -5.95533E-06  3.81550E-05  1.14665E-03 -3.48398E-04
+             in elem     6.25000E-02 -5.35039E-06  2.09287E-05  6.44707E-07   88.595  2.09445E-05 -5.36619E-06  2.40802E-05
+
+       22    Anywhere   -6.25000E-02  3.36141E-05 -1.21977E-06  2.92776E-06    4.771  3.38585E-05 -1.46413E-06  3.46138E-05 -7.94558E-04  1.55920E-04
+             in elem     6.25000E-02  1.67023E-05 -6.02879E-06 -5.54951E-06  -13.013  1.79847E-05 -7.31128E-06  2.25477E-05
+
+       23    Anywhere   -6.25000E-02 -5.94666E-06  3.48184E-05 -5.94792E-07  -89.164  3.48271E-05 -5.95533E-06  3.81550E-05 -1.14665E-03 -3.48398E-04
+             in elem     6.25000E-02 -5.35039E-06  2.09287E-05 -6.44707E-07  -88.595  2.09445E-05 -5.36619E-06  2.40802E-05
+
+       24    Anywhere   -6.25000E-02 -1.21977E-06  3.36141E-05  2.92776E-06   85.229  3.38585E-05 -1.46413E-06  3.46138E-05  1.55920E-04 -7.94558E-04
+             in elem     6.25000E-02 -6.02879E-06  1.67023E-05 -5.54951E-06  -76.987  1.79847E-05 -7.31128E-06  2.25477E-05
+                                     ------------ ------------ ------------          ------------ ------------ ------------ ------------ ------------
+ MAX* :                               3.36141E-05  3.48184E-05  2.92776E-06           3.48271E-05 -1.46413E-06  3.81550E-05  1.14665E-03  1.55920E-04
+ MIN* :                              -6.02879E-06 -6.02879E-06 -5.54951E-06           1.79847E-05 -7.31128E-06  2.25477E-05 -1.14665E-03 -7.94558E-04
+
+ ABS* :                               3.36141E-05  3.48184E-05  5.54951E-06           3.48271E-05  7.31128E-06  3.81550E-05  1.14665E-03  7.94558E-04
+ *for output set
+
+
+ OUTPUT FOR SUBCASE       92
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ END LOADS ON TRUSS                                                                                                                                                                                                                                              
+
+                                                       D I S P L A C E M E N T S
+                                              (in global coordinate system at each grid)
+           GRID     COORD      T1            T2            T3            R1            R2            R3
+                     SYS
+           1011        0  0.0           0.0           0.0          -1.170415E-03 -1.377658E-04 -7.250623E-06
+           1012        0  0.0           0.0           0.0          -3.654351E-05  1.150162E-19  1.000862E-21
+           1013        0  0.0           0.0           0.0          -1.170415E-03  1.377658E-04  7.250623E-06
+
+           1021        0  7.850157E-04  5.943438E-03 -7.420563E-02 -2.040270E-03 -1.235242E-03 -1.809845E-05
+           1022        0 -6.689074E-20  4.682727E-03 -3.104080E-02 -1.931055E-03  3.031119E-18  3.708807E-21
+           1023        0 -7.850157E-04  5.943438E-03 -7.420563E-02 -2.040270E-03  1.235242E-03  1.809845E-05
+
+           1031        0  1.468863E-03  1.214436E-02 -2.040491E-01 -2.904335E-03 -4.299206E-04 -4.793316E-05
+           1032        0 -2.508264E-18  9.331023E-03 -1.930784E-01 -3.837061E-03  4.887086E-19  8.121818E-20
+           1033        0 -1.468863E-03  1.214436E-02 -2.040491E-01 -2.904335E-03  4.299206E-04  4.793316E-05
+
+           1041        0  0.0           0.0          -1.475447E-02  0.0           0.0           0.0         
+           1042        0  0.0           0.0          -1.432703E-02  0.0           0.0           0.0         
+           1043        0  0.0           0.0          -1.475447E-02  0.0           0.0           0.0         
+
+           1051        0  0.0           0.0           0.0           0.0           0.0           0.0         
+                         ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    1.468863E-03  1.214436E-02  0.0           0.0           1.235242E-03  4.793316E-05
+                MIN* :   -1.468863E-03  0.0          -2.040491E-01 -3.837061E-03 -1.235242E-03 -4.793316E-05
+
+                ABS* :    1.468863E-03  1.214436E-02  2.040491E-01  3.837061E-03  1.235242E-03  4.793316E-05
+                *for output set
+
+
+ OUTPUT FOR SUBCASE       92
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ END LOADS ON TRUSS                                                                                                                                                                                                                                              
+
+                                                     A P P L I E D    F O R C E S
+                                              (in global coordinate system at each grid)
+           GRID     COORD      T1            T2            T3            R1            R2            R3
+                     SYS
+           1031        0  0.0           1.000000E+03 -3.000000E+03  0.0           0.0           0.0         
+           1032        0  0.0           1.000000E+03 -3.000000E+03  0.0           0.0           0.0         
+           1033        0  0.0           1.000000E+03 -3.000000E+03  0.0           0.0           0.0         
+
+                         ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    0.0           1.000000E+03  0.0           0.0           0.0           0.0         
+                MIN* :    0.0           0.0          -3.000000E+03  0.0           0.0           0.0         
+
+                ABS* :    0.0           1.000000E+03  3.000000E+03  0.0           0.0           0.0         
+                *for output set
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ APPLIED FORCE TOTALS:    0.0           3.000000E+03 -9.000000E+03  0.0           0.0           0.0         
+   (for output set)
+
+
+ OUTPUT FOR SUBCASE       92
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ END LOADS ON TRUSS                                                                                                                                                                                                                                              
+
+                                                          S P C   F O R C E S
+                                              (in global coordinate system at each grid)
+           GRID     COORD      T1            T2            T3            R1            R2            R3
+                     SYS
+           1011        0 -6.517491E+02 -5.934803E+03  2.910887E+03  0.0           0.0           0.0         
+           1012        0  2.273737E-13 -8.664782E+03  2.712613E+03  0.0           0.0           0.0         
+           1013        0  6.517491E+02 -5.934803E+03  2.910887E+03  0.0           0.0           0.0         
+
+           1041        0  0.0           5.903429E+03  0.0           0.0           2.051705E+01  0.0         
+           1042        0  0.0           5.727530E+03  0.0           0.0           1.136868E-13  0.0         
+           1043        0  0.0           5.903429E+03  0.0           0.0          -2.051705E+01  0.0         
+
+           1051        0  0.0           0.0           4.656120E+02  0.0           0.0           0.0         
+                         ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    6.517491E+02  5.903429E+03  2.910887E+03  0.0           2.051705E+01  0.0         
+                MIN* :   -6.517491E+02 -8.664782E+03  0.0           0.0          -2.051705E+01  0.0         
+
+                ABS* :    6.517491E+02  8.664782E+03  2.910887E+03  0.0           2.051705E+01  0.0         
+                *for output set
+                         ------------- ------------- ------------- ------------- ------------- -------------
+     SPC FORCE TOTALS:    3.410605E-13 -3.000000E+03  9.000000E+03  0.0           2.273737E-13  0.0         
+     (for output set)
+
+
+ OUTPUT FOR SUBCASE       92
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ END LOADS ON TRUSS                                                                                                                                                                                                                                              
+
+
+
+                                           G R I D   P O I N T   F O R C E   B A L A N C E
+                                             (in global coordinate system at each grid)
+
+                                FORCE BALANCE FOR GRID POINT     1011 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ SPC FORCE               -6.517491E+02 -5.934803E+03  2.910887E+03  0.000000E+00  0.000000E+00  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ QUAD4    ELEM        11  6.516039E+02  3.557254E+03  6.712958E-02  1.189155E+00 -9.300130E-01  0.000000E+00
+ BAR      ELEM      1112  0.000000E+00  1.740150E-01 -6.612756E+00  2.267742E+02  2.204252E+02  5.800498E+00
+ BAR      ELEM      1121  1.452373E-01  2.377375E+03  4.655220E+01 -2.279634E+02 -2.194952E+02 -5.800498E+00
+ ROD      ELEM      1141  0.000000E+00  0.000000E+00 -2.950894E+03  0.000000E+00  0.000000E+00  0.000000E+00
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                :  5.001555E-14  0.000000E+00  0.000000E+00  6.536993E-13  0.000000E+00 -2.664535E-15
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1012 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ SPC FORCE                2.273737E-13 -8.664782E+03  2.712613E+03  0.000000E+00  0.000000E+00  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ QUAD4    ELEM        11 -7.705277E+02  3.396020E+03  9.090543E-02  6.413463E-02 -4.495855E-01  0.000000E+00
+ QUAD4    ELEM        12  7.705277E+02  3.396020E+03  9.090543E-02  6.413463E-02  4.495855E-01  0.000000E+00
+ BAR      ELEM      1112  0.000000E+00 -1.740150E-01  6.612756E+00 -2.267742E+02  1.102126E+02  2.900249E+00
+ BAR      ELEM      1213  0.000000E+00 -1.740150E-01  6.612756E+00 -2.267742E+02 -1.102126E+02 -2.900249E+00
+ BAR      ELEM      1222  4.881695E-17  1.873091E+03  1.393855E+02  4.534202E+02  5.832205E-13 -6.788349E-16
+ ROD      ELEM      1242  0.000000E+00  0.000000E+00 -2.865406E+03  0.000000E+00  0.000000E+00  0.000000E+00
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                :  1.137357E-13  1.136868E-12 -4.547474E-13  3.410605E-13 -2.784622E-14  2.093435E-16
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1013 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ SPC FORCE                6.517491E+02 -5.934803E+03  2.910887E+03  0.000000E+00  0.000000E+00  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ QUAD4    ELEM        12 -6.516039E+02  3.557254E+03  6.712958E-02  1.189155E+00  9.300130E-01  0.000000E+00
+ BAR      ELEM      1213  0.000000E+00  1.740150E-01 -6.612756E+00  2.267742E+02 -2.204252E+02 -5.800498E+00
+ BAR      ELEM      1323 -1.452373E-01  2.377375E+03  4.655220E+01 -2.279634E+02  2.194952E+02  5.800498E+00
+ ROD      ELEM      1343  0.000000E+00  0.000000E+00 -2.950894E+03  0.000000E+00  0.000000E+00  0.000000E+00
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                :  6.411538E-14  0.000000E+00  0.000000E+00 -3.666401E-12  5.684342E-14  0.000000E+00
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1021 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ SPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ QUAD4    ELEM        11  5.960798E+02 -3.676178E+03  1.533085E-02  2.311529E+00  6.602549E-01  0.000000E+00
+ TRIA3    ELEM        21  2.513723E+02 -3.151778E+02  5.039252E-02 -5.422069E-02  2.260753E-01  0.000000E+00
+ TRIA3    ELEM        22 -5.323723E+02  3.889138E+03 -1.973314E-02 -1.336684E+00  6.555430E-01  0.000000E+00
+ BAR      ELEM      1121 -1.452373E-01 -2.377375E+03 -4.655220E+01  2.555573E+03  2.194952E+02 -1.461369E+00
+ BAR      ELEM      2122 -3.140063E+02 -7.759198E-01  9.433952E+01  2.184305E+01 -3.821013E+02 -1.577831E+01
+ BAR      ELEM      2131 -9.282647E-01  2.480369E+03 -4.783332E+01 -2.578337E+03  1.610642E+02  1.723968E+01
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                :  7.602807E-13 -4.547474E-13 -6.821210E-13 -9.094947E-12  1.449507E-12  2.842171E-14
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1022 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ SPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ QUAD4    ELEM        11 -4.771559E+02 -3.277096E+03 -1.733659E-01  4.336932E+00 -3.403678E+00  0.000000E+00
+ QUAD4    ELEM        12  4.771559E+02 -3.277096E+03 -1.733659E-01  4.336932E+00  3.403678E+00  0.000000E+00
+ TRIA3    ELEM        21 -5.665500E+02  3.283206E+03 -1.150339E-01 -3.484396E+00 -2.871026E+00  0.000000E+00
+ TRIA3    ELEM        23  5.665500E+02  3.283206E+03 -1.150339E-01 -3.484396E+00  2.871026E+00  0.000000E+00
+ ELAS1    ELEM        58  0.000000E+00  0.000000E+00  4.656120E+02  0.000000E+00  0.000000E+00  0.000000E+00
+ BAR      ELEM      1222 -4.881695E-17 -1.873091E+03 -1.393855E+02  6.515856E+03 -5.832205E-13 -1.762013E-15
+ BAR      ELEM      2122  3.140063E+02  7.759198E-01 -9.433952E+01 -2.184305E+01 -4.334875E+03 -2.301769E+01
+ BAR      ELEM      2223 -3.140063E+02  7.759198E-01 -9.433952E+01 -2.184305E+01  4.334875E+03  2.301769E+01
+ BAR      ELEM      2232 -3.054707E-16  1.859319E+03 -1.369706E+02 -6.473875E+03 -5.084821E-13  2.313864E-14
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                : -7.392699E-13 -1.364242E-12  3.126388E-13  9.094947E-13 -5.965450E-12  1.958593E-14
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1023 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ SPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ QUAD4    ELEM        12 -5.960798E+02 -3.676178E+03  1.533085E-02  2.311529E+00 -6.602549E-01  0.000000E+00
+ TRIA3    ELEM        23 -2.513723E+02 -3.151778E+02  5.039252E-02 -5.422069E-02 -2.260753E-01  0.000000E+00
+ TRIA3    ELEM        24  5.323723E+02  3.889138E+03 -1.973314E-02 -1.336684E+00 -6.555430E-01  0.000000E+00
+ BAR      ELEM      1323  1.452373E-01 -2.377375E+03 -4.655220E+01  2.555573E+03 -2.194952E+02  1.461369E+00
+ BAR      ELEM      2223  3.140063E+02 -7.759198E-01  9.433952E+01  2.184305E+01  3.821013E+02  1.577831E+01
+ BAR      ELEM      2333  9.282647E-01  2.480369E+03 -4.783332E+01 -2.578337E+03 -1.610642E+02 -1.723968E+01
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                : -7.036594E-13  6.366463E-12  4.689582E-13  1.818989E-12  5.684342E-13 -3.552714E-15
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1031 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  1.000000E+03 -3.000000E+03  0.000000E+00  0.000000E+00  0.000000E+00
+ SPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ TRIA3    ELEM        22  5.866171E+02 -4.421510E+03  2.463853E-02 -1.259713E-01 -2.174686E-01  0.000000E+00
+ BAR      ELEM      2131  9.282647E-01 -2.480369E+03  4.783332E+01  1.866711E+02 -1.610642E+02  2.917356E+01
+ BAR      ELEM      3132 -5.875453E+02 -1.550408E+00  4.274623E-01 -1.865452E+02  1.612817E+02 -2.917356E+01
+ ROD      ELEM      4131  0.000000E+00  5.903429E+03  2.951715E+03  0.000000E+00  0.000000E+00  0.000000E+00
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                : -1.023182E-12  2.728484E-12  1.364242E-12  1.335820E-12  2.671641E-12  7.105427E-15
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1032 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  1.000000E+03 -3.000000E+03  0.000000E+00  0.000000E+00  0.000000E+00
+ SPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ TRIA3    ELEM        21  3.151778E+02 -2.968028E+03  6.464134E-02  3.065504E-01  1.253244E-01  0.000000E+00
+ TRIA3    ELEM        22 -5.424479E+01  5.323723E+02 -4.905386E-03  4.759980E-01 -6.833437E-01  0.000000E+00
+ TRIA3    ELEM        23 -3.151778E+02 -2.968028E+03  6.464134E-02  3.065504E-01 -1.253244E-01  0.000000E+00
+ TRIA3    ELEM        24  5.424479E+01  5.323723E+02 -4.905386E-03  4.759980E-01  6.833437E-01  0.000000E+00
+ BAR      ELEM      2232  3.054707E-16 -1.859319E+03  1.369706E+02 -3.746554E+02  5.084821E-13 -7.865106E-15
+ BAR      ELEM      3132  5.875453E+02  1.550408E+00 -4.274623E-01  1.865452E+02 -1.826548E+02 -4.834682E+01
+ BAR      ELEM      3233 -5.875453E+02  1.550408E+00 -4.274623E-01  1.865452E+02  1.826548E+02  4.834682E+01
+ ROD      ELEM      4232  0.000000E+00  5.727530E+03  2.863765E+03  0.000000E+00  0.000000E+00  0.000000E+00
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                :  2.387424E-12 -6.366463E-12 -4.547474E-13 -2.046363E-12 -2.273737E-13 -3.552714E-14
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1033 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  1.000000E+03 -3.000000E+03  0.000000E+00  0.000000E+00  0.000000E+00
+ SPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ TRIA3    ELEM        24 -5.866171E+02 -4.421510E+03  2.463853E-02 -1.259713E-01  2.174686E-01  0.000000E+00
+ BAR      ELEM      2333 -9.282647E-01 -2.480369E+03  4.783332E+01  1.866711E+02  1.610642E+02 -2.917356E+01
+ BAR      ELEM      3233  5.875453E+02 -1.550408E+00  4.274623E-01 -1.865452E+02 -1.612817E+02  2.917356E+01
+ ROD      ELEM      4333  0.000000E+00  5.903429E+03  2.951715E+03  0.000000E+00  0.000000E+00  0.000000E+00
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                : -1.136868E-13 -9.094947E-13  1.364242E-12  3.609557E-12 -4.462208E-12 -8.171241E-14
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1041 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ SPC FORCE                0.000000E+00  5.903429E+03  0.000000E+00  0.000000E+00  2.051705E+01  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ ROD      ELEM      1141  0.000000E+00  0.000000E+00  2.950894E+03  0.000000E+00  0.000000E+00  0.000000E+00
+ ROD      ELEM      4131  0.000000E+00 -5.903429E+03 -2.951715E+03  0.000000E+00  0.000000E+00  0.000000E+00
+ BAR      ELEM      4142  0.000000E+00  0.000000E+00  8.206818E-01  0.000000E+00 -2.051705E+01  0.000000E+00
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                :  0.000000E+00 -9.094947E-13  1.278977E-13  0.000000E+00  0.000000E+00  0.000000E+00
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1042 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ SPC FORCE                0.000000E+00  5.727530E+03  0.000000E+00  0.000000E+00  1.136868E-13  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ ROD      ELEM      1242  0.000000E+00  0.000000E+00  2.865406E+03  0.000000E+00  0.000000E+00  0.000000E+00
+ BAR      ELEM      4142  0.000000E+00  0.000000E+00 -8.206818E-01  0.000000E+00 -2.051705E+01  0.000000E+00
+ ROD      ELEM      4232  0.000000E+00 -5.727530E+03 -2.863765E+03  0.000000E+00  0.000000E+00  0.000000E+00
+ BAR      ELEM      4243  0.000000E+00  0.000000E+00 -8.206818E-01  0.000000E+00  2.051705E+01  0.000000E+00
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                :  0.000000E+00  0.000000E+00 -5.790923E-13  0.000000E+00  0.000000E+00  0.000000E+00
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1043 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ SPC FORCE                0.000000E+00  5.903429E+03  0.000000E+00  0.000000E+00 -2.051705E+01  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ ROD      ELEM      1343  0.000000E+00  0.000000E+00  2.950894E+03  0.000000E+00  0.000000E+00  0.000000E+00
+ BAR      ELEM      4243  0.000000E+00  0.000000E+00  8.206818E-01  0.000000E+00  2.051705E+01  0.000000E+00
+ ROD      ELEM      4333  0.000000E+00 -5.903429E+03 -2.951715E+03  0.000000E+00  0.000000E+00  0.000000E+00
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                :  0.000000E+00  0.000000E+00 -1.364242E-12  0.000000E+00  0.000000E+00  0.000000E+00
+ (should all be 0)
+
+
+                                FORCE BALANCE FOR GRID POINT     1051 IN GLOBAL COORD SYSTEM        0
+
+                               T1            T2            T3            R1            R2            R3
+
+ APPLIED FORCE            0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ SPC FORCE                0.000000E+00  0.000000E+00  4.656120E+02  0.000000E+00  0.000000E+00  0.000000E+00
+ MPC FORCE                0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ ELAS1    ELEM        58  0.000000E+00  0.000000E+00 -4.656120E+02  0.000000E+00  0.000000E+00  0.000000E+00
+                         ------------- ------------- ------------- ------------- ------------- -------------
+ TOTALS                :  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00
+ (should all be 0)
+
+
+                                      Max abs values of force imbalance totals from above grids
+
+                               T1            T2            T3            R1            R2            R3
+
+ Max abs imbal any grid:  2.387424E-12  6.366463E-12  1.364242E-12  9.094947E-12  5.965450E-12  8.171241E-14
+ Max abs force any grid:  6.517491E+02  8.664782E+03  3.000000E+03  6.473875E+03  1.610642E+02  1.723968E+01
+ as % of max abs force :      3.66E-13%     7.35E-14%     4.55E-14%     1.40E-13%     3.70E-12%     4.74E-13%
+ Occurs at grid*       :      1032          1023          1031          1021          1022          1033
+ (*for output set)
+
+
+ OUTPUT FOR SUBCASE       92
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ END LOADS ON TRUSS                                                                                                                                                                                                                                              
+
+                                  E L E M   N O D A L   F O R C E S   I N   G L O B A L   C O O R D S
+                                               F O R   E L E M E N T   T Y P E   B A R      
+      Element     Grid         T1            T2            T3            R1            R2            R3
+         ID      Point
+           1112     1011  0.0          -1.740150E-01  6.612756E+00 -2.267742E+02 -2.204252E+02 -5.800498E+00
+                    1012  0.0           1.740150E-01 -6.612756E+00  2.267742E+02 -1.102126E+02 -2.900249E+00
+
+           1121     1011 -1.452373E-01 -2.377375E+03 -4.655220E+01  2.279634E+02  2.194952E+02  5.800498E+00
+                    1021  1.452373E-01  2.377375E+03  4.655220E+01 -2.555573E+03 -2.194952E+02  1.461369E+00
+
+           1213     1012  0.0           1.740150E-01 -6.612756E+00  2.267742E+02  1.102126E+02  2.900249E+00
+                    1013  0.0          -1.740150E-01  6.612756E+00 -2.267742E+02  2.204252E+02  5.800498E+00
+
+           1222     1012 -4.881695E-17 -1.873091E+03 -1.393855E+02 -4.534202E+02 -5.832205E-13  6.788349E-16
+                    1022  4.881695E-17  1.873091E+03  1.393855E+02 -6.515856E+03  5.832205E-13  1.762013E-15
+
+           1323     1013  1.452373E-01 -2.377375E+03 -4.655220E+01  2.279634E+02 -2.194952E+02 -5.800498E+00
+                    1023 -1.452373E-01  2.377375E+03  4.655220E+01 -2.555573E+03  2.194952E+02 -1.461369E+00
+
+           2122     1021  3.140063E+02  7.759198E-01 -9.433952E+01 -2.184305E+01  3.821013E+02  1.577831E+01
+                    1022 -3.140063E+02 -7.759198E-01  9.433952E+01  2.184305E+01  4.334875E+03  2.301769E+01
+
+           2131     1021  9.282647E-01 -2.480369E+03  4.783332E+01  2.578337E+03 -1.610642E+02 -1.723968E+01
+                    1031 -9.282647E-01  2.480369E+03 -4.783332E+01 -1.866711E+02  1.610642E+02 -2.917356E+01
+
+           2223     1022  3.140063E+02 -7.759198E-01  9.433952E+01  2.184305E+01 -4.334875E+03 -2.301769E+01
+                    1023 -3.140063E+02  7.759198E-01 -9.433952E+01 -2.184305E+01 -3.821013E+02 -1.577831E+01
+
+           2232     1022  3.054707E-16 -1.859319E+03  1.369706E+02  6.473875E+03  5.084821E-13 -2.313864E-14
+                    1032 -3.054707E-16  1.859319E+03 -1.369706E+02  3.746554E+02 -5.084821E-13  7.865106E-15
+
+           2333     1023 -9.282647E-01 -2.480369E+03  4.783332E+01  2.578337E+03  1.610642E+02  1.723968E+01
+                    1033  9.282647E-01  2.480369E+03 -4.783332E+01 -1.866711E+02 -1.610642E+02  2.917356E+01
+
+           3132     1031  5.875453E+02  1.550408E+00 -4.274623E-01  1.865452E+02 -1.612817E+02  2.917356E+01
+                    1032 -5.875453E+02 -1.550408E+00  4.274623E-01 -1.865452E+02  1.826548E+02  4.834682E+01
+
+           3233     1032  5.875453E+02 -1.550408E+00  4.274623E-01 -1.865452E+02 -1.826548E+02 -4.834682E+01
+                    1033 -5.875453E+02  1.550408E+00 -4.274623E-01  1.865452E+02  1.612817E+02 -2.917356E+01
+
+           4142     1041  0.0           0.0          -8.206818E-01  0.0           2.051705E+01  0.0         
+                    1042  0.0           0.0           8.206818E-01  0.0           2.051705E+01  0.0         
+
+           4243     1042  0.0           0.0           8.206818E-01  0.0          -2.051705E+01  0.0         
+                    1043  0.0           0.0          -8.206818E-01  0.0          -2.051705E+01  0.0         
+
+                         ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    5.875453E+02  2.480369E+03  1.393855E+02  6.473875E+03  4.334875E+03  4.834682E+01
+                MIN* :   -5.875453E+02 -2.480369E+03 -1.393855E+02 -6.515856E+03 -4.334875E+03 -4.834682E+01
+
+                ABS* :    5.875453E+02  2.480369E+03  1.393855E+02  6.515856E+03  4.334875E+03  4.834682E+01
+                * for output set
+
+
+ OUTPUT FOR SUBCASE       92
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ END LOADS ON TRUSS                                                                                                                                                                                                                                              
+
+                                  E L E M   N O D A L   F O R C E S   I N   G L O B A L   C O O R D S
+                                               F O R   E L E M E N T   T Y P E   E L A S 1  
+      Element     Grid         T1            T2            T3            R1            R2            R3
+         ID      Point
+             58     1022  0.0           0.0          -4.656120E+02  0.0           0.0           0.0         
+                    1051  0.0           0.0           4.656120E+02  0.0           0.0           0.0         
+
+                         ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    0.0           0.0           4.656120E+02  0.0           0.0           0.0         
+                MIN* :    0.0           0.0          -4.656120E+02  0.0           0.0           0.0         
+
+                ABS* :    0.0           0.0           4.656120E+02  0.0           0.0           0.0         
+                * for output set
+
+
+ OUTPUT FOR SUBCASE       92
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ END LOADS ON TRUSS                                                                                                                                                                                                                                              
+
+                                  E L E M   N O D A L   F O R C E S   I N   G L O B A L   C O O R D S
+                                               F O R   E L E M E N T   T Y P E   Q U A D 4  
+      Element     Grid         T1            T2            T3            R1            R2            R3
+         ID      Point
+             11     1011 -6.516039E+02 -3.557254E+03 -6.712958E-02 -1.189155E+00  9.300130E-01  0.0         
+                    1012  7.705277E+02 -3.396020E+03 -9.090543E-02 -6.413463E-02  4.495855E-01  0.0         
+                    1022  4.771559E+02  3.277096E+03  1.733659E-01 -4.336932E+00  3.403678E+00  0.0         
+                    1021 -5.960798E+02  3.676178E+03 -1.533085E-02 -2.311529E+00 -6.602549E-01  0.0         
+
+             12     1012 -7.705277E+02 -3.396020E+03 -9.090543E-02 -6.413463E-02 -4.495855E-01  0.0         
+                    1013  6.516039E+02 -3.557254E+03 -6.712958E-02 -1.189155E+00 -9.300130E-01  0.0         
+                    1023  5.960798E+02  3.676178E+03 -1.533085E-02 -2.311529E+00  6.602549E-01  0.0         
+                    1022 -4.771559E+02  3.277096E+03  1.733659E-01 -4.336932E+00 -3.403678E+00  0.0         
+
+                         ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    7.705277E+02  3.676178E+03  1.733659E-01 -6.413463E-02  3.403678E+00  0.0         
+                MIN* :   -7.705277E+02 -3.557254E+03 -9.090543E-02 -4.336932E+00 -3.403678E+00  0.0         
+
+                ABS* :    7.705277E+02  3.676178E+03  1.733659E-01  4.336932E+00  3.403678E+00  0.0         
+                * for output set
+
+
+ OUTPUT FOR SUBCASE       92
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ END LOADS ON TRUSS                                                                                                                                                                                                                                              
+
+                                  E L E M   N O D A L   F O R C E S   I N   G L O B A L   C O O R D S
+                                               F O R   E L E M E N T   T Y P E   R O D      
+      Element     Grid         T1            T2            T3            R1            R2            R3
+         ID      Point
+           1141     1011  0.0           0.0           2.950894E+03  0.0           0.0           0.0         
+                    1041  0.0           0.0          -2.950894E+03  0.0           0.0           0.0         
+
+           1242     1012  0.0           0.0           2.865406E+03  0.0           0.0           0.0         
+                    1042  0.0           0.0          -2.865406E+03  0.0           0.0           0.0         
+
+           1343     1013  0.0           0.0           2.950894E+03  0.0           0.0           0.0         
+                    1043  0.0           0.0          -2.950894E+03  0.0           0.0           0.0         
+
+           4131     1041  0.0           5.903429E+03  2.951715E+03  0.0           0.0           0.0         
+                    1031  0.0          -5.903429E+03 -2.951715E+03  0.0           0.0           0.0         
+
+           4232     1042  0.0           5.727530E+03  2.863765E+03  0.0           0.0           0.0         
+                    1032  0.0          -5.727530E+03 -2.863765E+03  0.0           0.0           0.0         
+
+           4333     1043  0.0           5.903429E+03  2.951715E+03  0.0           0.0           0.0         
+                    1033  0.0          -5.903429E+03 -2.951715E+03  0.0           0.0           0.0         
+
+                         ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    0.0           5.903429E+03  2.951715E+03  0.0           0.0           0.0         
+                MIN* :    0.0          -5.903429E+03 -2.951715E+03  0.0           0.0           0.0         
+
+                ABS* :    0.0           5.903429E+03  2.951715E+03  0.0           0.0           0.0         
+                * for output set
+
+
+ OUTPUT FOR SUBCASE       92
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ END LOADS ON TRUSS                                                                                                                                                                                                                                              
+
+                                  E L E M   N O D A L   F O R C E S   I N   G L O B A L   C O O R D S
+                                               F O R   E L E M E N T   T Y P E   T R I A 3  
+      Element     Grid         T1            T2            T3            R1            R2            R3
+         ID      Point
+             21     1021 -2.513723E+02  3.151778E+02 -5.039252E-02  5.422069E-02 -2.260753E-01  0.0         
+                    1022  5.665500E+02 -3.283206E+03  1.150339E-01  3.484396E+00  2.871026E+00  0.0         
+                    1032 -3.151778E+02  2.968028E+03 -6.464134E-02 -3.065504E-01 -1.253244E-01  0.0         
+
+             22     1031 -5.866171E+02  4.421510E+03 -2.463853E-02  1.259713E-01  2.174686E-01  0.0         
+                    1021  5.323723E+02 -3.889138E+03  1.973314E-02  1.336684E+00 -6.555430E-01  0.0         
+                    1032  5.424479E+01 -5.323723E+02  4.905386E-03 -4.759980E-01  6.833437E-01  0.0         
+
+             23     1022 -5.665500E+02 -3.283206E+03  1.150339E-01  3.484396E+00 -2.871026E+00  0.0         
+                    1023  2.513723E+02  3.151778E+02 -5.039252E-02  5.422069E-02  2.260753E-01  0.0         
+                    1032  3.151778E+02  2.968028E+03 -6.464134E-02 -3.065504E-01  1.253244E-01  0.0         
+
+             24     1033  5.866171E+02  4.421510E+03 -2.463853E-02  1.259713E-01 -2.174686E-01  0.0         
+                    1032 -5.424479E+01 -5.323723E+02  4.905386E-03 -4.759980E-01 -6.833437E-01  0.0         
+                    1023 -5.323723E+02 -3.889138E+03  1.973314E-02  1.336684E+00  6.555430E-01  0.0         
+
+                         ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    5.866171E+02  4.421510E+03  1.150339E-01  3.484396E+00  2.871026E+00  0.0         
+                MIN* :   -5.866171E+02 -3.889138E+03 -6.464134E-02 -4.759980E-01 -2.871026E+00  0.0         
+
+                ABS* :    5.866171E+02  4.421510E+03  1.150339E-01  3.484396E+00  2.871026E+00  0.0         
+                * for output set
+
+
+ OUTPUT FOR SUBCASE       92
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ END LOADS ON TRUSS                                                                                                                                                                                                                                              
+
+                                                       E L E M E N T   E N G I N E E R I N G   F O R C E S
+                                                             F O R   E L E M E N T   T Y P E   B A R      
+                 Element       Bend-Moment End A           Bend-Moment End B              - Shear -              Axial         Torque
+                    ID       Plane 1       Plane 2       Plane 1       Plane 2      Plane 1       Plane 2        Force
+                    1112 -2.204252E+02 -5.800498E+00  1.102126E+02  2.900249E+00 -6.612756E+00 -1.740150E-01  0.000000E+00  2.267742E+02
+                    1121 -2.279634E+02  5.800498E+00 -2.555573E+03 -1.461369E+00  4.655220E+01  1.452373E-01  2.377375E+03 -2.194952E+02
+                    1213  1.102126E+02  2.900249E+00 -2.204252E+02 -5.800498E+00  6.612756E+00  1.740150E-01  0.000000E+00 -2.267742E+02
+                    1222  4.534202E+02  6.788349E-16 -6.515856E+03 -1.762013E-15  1.393855E+02  4.881695E-17  1.873091E+03  5.832205E-13
+                    1323 -2.279634E+02 -5.800498E+00 -2.555573E+03  1.461369E+00  4.655220E+01 -1.452373E-01  2.377375E+03  2.194952E+02
+                    2122  3.821013E+02  1.577831E+01 -4.334875E+03 -2.301769E+01  9.433952E+01  7.759198E-01 -3.140063E+02  2.184305E+01
+                    2131 -2.578337E+03 -1.723968E+01 -1.866711E+02  2.917356E+01 -4.783332E+01 -9.282647E-01  2.480369E+03  1.610642E+02
+                    2223 -4.334875E+03 -2.301769E+01  3.821013E+02  1.577831E+01 -9.433952E+01 -7.759198E-01 -3.140063E+02 -2.184305E+01
+                    2232 -6.473875E+03 -2.313864E-14  3.746554E+02 -7.865106E-15 -1.369706E+02 -3.054707E-16  1.859319E+03 -5.084821E-13
+                    2333 -2.578337E+03  1.723968E+01 -1.866711E+02 -2.917356E+01 -4.783332E+01  9.282647E-01  2.480369E+03 -1.610642E+02
+                    3132 -1.612817E+02  2.917356E+01 -1.826548E+02 -4.834682E+01  4.274623E-01  1.550408E+00 -5.875453E+02 -1.865452E+02
+                    3233 -1.826548E+02 -4.834682E+01 -1.612817E+02  2.917356E+01 -4.274623E-01 -1.550408E+00 -5.875453E+02  1.865452E+02
+                    4142  2.051705E+01  0.000000E+00 -2.051705E+01  0.000000E+00  8.206818E-01  0.000000E+00  0.000000E+00  0.000000E+00
+                    4243 -2.051705E+01  0.000000E+00  2.051705E+01  0.000000E+00 -8.206818E-01  0.000000E+00  0.000000E+00  0.000000E+00
+          ------------- ------------- ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    4.534202E+02  2.917356E+01  3.821013E+02  2.917356E+01  1.393855E+02  1.550408E+00  2.480369E+03  2.267742E+02
+                MIN* :   -6.473875E+03 -4.834682E+01 -6.515856E+03 -4.834682E+01 -1.369706E+02 -1.550408E+00 -5.875453E+02 -2.267742E+02
+
+                ABS* :    6.473875E+03  4.834682E+01  6.515856E+03  4.834682E+01  1.393855E+02  1.550408E+00  2.480369E+03  2.267742E+02
+                *for output set
+
+
+ OUTPUT FOR SUBCASE       92
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ END LOADS ON TRUSS                                                                                                                                                                                                                                              
+
+                                                 E L E M E N T   E N G I N E E R I N G   F O R C E S
+                                                     F O R   E L E M E N T   T Y P E   E L A S 1  
+                 Element     Force      Element     Force      Element     Force      Element     Force      Element     Force
+                    ID                     ID                     ID                     ID                     ID
+                      58  4.656120E+02
+                         -------------
+                MAX* :    4.656120E+02
+                MIN* :    4.656120E+02
+
+                ABS* :    4.656120E+02
+                *for output set
+
+
+ OUTPUT FOR SUBCASE       92
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ END LOADS ON TRUSS                                                                                                                                                                                                                                              
+
+                                                 E L E M E N T   E N G I N E E R I N G   F O R C E S
+                                                     F O R   E L E M E N T   T Y P E   R O D      
+                 Element     Axial        Torque      Element     Axial        Torque      Element     Axial        Torque
+                    ID       Force                       ID       Force                       ID       Force
+                    1141  2.950894E+03  0.000000E+00    1242  2.865406E+03  0.000000E+00    1343  2.950894E+03  0.000000E+00
+                    4131 -6.600234E+03  0.000000E+00    4232 -6.403573E+03  0.000000E+00    4333 -6.600234E+03  0.000000E+00
+                         ------------- -------------
+                MAX* :    2.950894E+03  0.000000E+00
+                MIN* :   -6.600234E+03  0.000000E+00
+
+                ABS* :    6.600234E+03  0.000000E+00
+                *for output set
+
+
+ OUTPUT FOR SUBCASE       92
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ END LOADS ON TRUSS                                                                                                                                                                                                                                              
+
+                                                       E L E M E N T   E N G I N E E R I N G   F O R C E S
+                                                           F O R   E L E M E N T   T Y P E   Q U A D 4  
+                 Element         N o r m a l   F o r c e s                       M o m e n t s                   T r a n s v e r s e
+                    ID                                                                                         S h e a r   F o r c e s
+                              Nxx           Nyy           Nxy           Mxx           Myy           Mxy            Qx           Qy
+                      11  2.495367E+01  1.390655E+02 -2.378477E+00 -3.583505E-02 -5.395171E-02  1.523804E-02  1.649209E-03  3.160700E-03
+                      12  2.495367E+01  1.390655E+02  2.378477E+00 -3.583505E-02 -5.395171E-02 -1.523804E-02 -1.649209E-03  3.160700E-03
+                          ------------- ------------- ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    2.495367E+01  1.390655E+02  2.378477E+00 -3.583505E-02 -5.395171E-02  1.523804E-02  1.649209E-03  3.160700E-03
+                MIN* :    2.495367E+01  1.390655E+02 -2.378477E+00 -3.583505E-02 -5.395171E-02 -1.523804E-02 -1.649209E-03  3.160700E-03
+
+                ABS* :    2.495367E+01  1.390655E+02  2.378477E+00  3.583505E-02  5.395171E-02  1.523804E-02  1.649209E-03  3.160700E-03
+                *for output set
+
+
+ OUTPUT FOR SUBCASE       92
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ END LOADS ON TRUSS                                                                                                                                                                                                                                              
+
+                                                       E L E M E N T   E N G I N E E R I N G   F O R C E S
+                                                           F O R   E L E M E N T   T Y P E   T R I A 3  
+                 Element         N o r m a l   F o r c e s                       M o m e n t s                   T r a n s v e r s e
+                    ID                                                                                         S h e a r   F o r c e s
+                              Nxx           Nyy           Nxy           Mxx           Myy           Mxy            Qx           Qy
+                      21  1.005489E+01  1.187211E+02 -1.260711E+01 -5.943553E-02 -7.690335E-02  1.422074E-03  2.015701E-03 -2.585653E-03
+                      22  1.555655E+02  2.169792E+00  2.129489E+01 -3.373421E-02 -2.242836E-02  2.263082E-02  7.893257E-04  1.962154E-04
+                      23  1.005489E+01  1.187211E+02  1.260711E+01 -5.943553E-02 -7.690335E-02 -1.422074E-03 -2.015701E-03 -2.585653E-03
+                      24  2.169792E+00  1.555655E+02  2.129489E+01 -2.242836E-02 -3.373421E-02  2.263082E-02  1.962154E-04  7.893257E-04
+                          ------------- ------------- ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    1.555655E+02  1.555655E+02  2.129489E+01 -2.242836E-02 -2.242836E-02  2.263082E-02  2.015701E-03  7.893257E-04
+                MIN* :    2.169792E+00  2.169792E+00 -1.260711E+01 -5.943553E-02 -7.690335E-02 -1.422074E-03 -2.015701E-03 -2.585653E-03
+
+                ABS* :    1.555655E+02  1.555655E+02  2.129489E+01  5.943553E-02  7.690335E-02  2.263082E-02  2.015701E-03  2.585653E-03
+                *for output set
+
+
+ OUTPUT FOR SUBCASE       92
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ END LOADS ON TRUSS                                                                                                                                                                                                                                              
+
+             E L E M E N T   S T R E S S E S   I N   L O C A L   E L E M E N T   C O O R D I N A T E   S Y S T E M
+                                          F O R   E L E M E N T   T Y P E   B A R      
+  Element      SA1           SA2           SA3           SA4          Axial         SA-Max        SA-Min      M.S.-T
+     ID        SB1           SB2           SB3           SB4          Stress        SB-Max        SB-Min      M.S.-C
+
+     1112  1.160131E+02  1.044121E+02 -1.160131E+02 -1.044121E+02  0.0           1.160131E+02 -1.160131E+02  1.71E+02                
+          -5.800655E+01 -5.220605E+01  5.800655E+01  5.220605E+01                5.800655E+01 -5.800655E+01  1.71E+02                
+
+     1121  2.269493E+01  3.429592E+01 -2.269493E+01 -3.429592E+01  1.188688E+03  1.222983E+03  1.154392E+03  1.22E+01                
+           3.209080E+02  3.179853E+02 -3.209080E+02 -3.179853E+02                1.509596E+03  8.677795E+02                          
+
+     1213 -5.800655E+01 -5.220605E+01  5.800655E+01  5.220605E+01  0.0           5.800655E+01 -5.800655E+01  1.71E+02                
+           1.160131E+02  1.044121E+02 -1.160131E+02 -1.044121E+02                1.160131E+02 -1.160131E+02  1.71E+02                
+
+     1222 -5.667753E+01 -5.667753E+01  5.667753E+01  5.667753E+01  9.365453E+02  9.932229E+02  8.798678E+02  1.04E+01                
+           8.144820E+02  8.144820E+02 -8.144820E+02 -8.144820E+02                1.751027E+03  1.220633E+02                          
+
+     1323  3.429592E+01  2.269493E+01 -3.429592E+01 -2.269493E+01  1.188688E+03  1.222983E+03  1.154392E+03  1.22E+01                
+           3.179853E+02  3.209080E+02 -3.179853E+02 -3.209080E+02                1.509596E+03  8.677795E+02                          
+
+     2122 -6.354097E+01 -3.198435E+01  6.354097E+01  3.198435E+01 -1.570031E+02 -9.346216E+01 -2.205441E+02  4.80E+01                
+           5.648770E+02  5.188417E+02 -5.648770E+02 -5.188417E+02                4.078739E+02 -7.218802E+02  2.67E+01                
+
+     2131  3.395318E+02  3.050524E+02 -3.395318E+02 -3.050524E+02  1.240184E+03  1.579716E+03  9.006527E+02  1.17E+01                
+          -5.839667E+00  5.250745E+01  5.839667E+00 -5.250745E+01                1.292692E+03  1.187677E+03                          
+
+     2223  5.648770E+02  5.188417E+02 -5.648770E+02 -5.188417E+02 -1.570031E+02  4.078739E+02 -7.218802E+02  4.80E+01                
+          -6.354097E+01 -3.198435E+01  6.354097E+01  3.198435E+01               -9.346216E+01 -2.205441E+02  2.67E+01                
+
+     2232  8.092344E+02  8.092344E+02 -8.092344E+02 -8.092344E+02  9.296593E+02  1.738894E+03  1.204249E+02  1.05E+01                
+          -4.683193E+01 -4.683193E+01  4.683193E+01  4.683193E+01                9.764912E+02  8.828273E+02                          
+
+     2333  3.050524E+02  3.395318E+02 -3.050524E+02 -3.395318E+02  1.240184E+03  1.579716E+03  9.006527E+02  1.17E+01                
+           5.250745E+01 -5.839667E+00 -5.250745E+01  5.839667E+00                1.292692E+03  1.187677E+03                          
+
+     3132  5.146728E+01  1.098144E+02 -5.146728E+01 -1.098144E+02 -2.937727E+02 -1.839583E+02 -4.035871E+02                          
+           1.396742E+02  4.298058E+01 -1.396742E+02 -4.298058E+01               -1.540984E+02 -4.334469E+02  4.51E+01                
+
+     3233  1.396742E+02  4.298058E+01 -1.396742E+02 -4.298058E+01 -2.937727E+02 -1.540984E+02 -4.334469E+02                          
+           5.146728E+01  1.098144E+02 -5.146728E+01 -1.098144E+02               -1.839583E+02 -4.035871E+02  4.51E+01                
+
+     4142 -1.025852E+01 -1.025852E+01  1.025852E+01  1.025852E+01  0.0           1.025852E+01 -1.025852E+01  1.95E+03                
+           1.025852E+01  1.025852E+01 -1.025852E+01 -1.025852E+01                1.025852E+01 -1.025852E+01  1.95E+03                
+
+     4243  1.025852E+01  1.025852E+01 -1.025852E+01 -1.025852E+01  0.0           1.025852E+01 -1.025852E+01  1.95E+03                
+          -1.025852E+01 -1.025852E+01  1.025852E+01  1.025852E+01                1.025852E+01 -1.025852E+01  1.95E+03                
+          ------------- ------------- ------------- ------------- ------------- ------------- ------------- ---------
+ MAX* :    8.092344E+02  8.092344E+02  6.354097E+01  5.667753E+01  1.240184E+03  1.738894E+03  1.154392E+03  1.95E+03
+ MAX* :    8.144820E+02  8.144820E+02  6.354097E+01  5.220605E+01  1.240184E+03  1.751027E+03  1.187677E+03  1.95E+03
+
+ MIN* :   -6.354097E+01 -5.667753E+01 -8.092344E+02 -8.092344E+02 -2.937727E+02 -1.839583E+02 -7.218802E+02 -1.31E+02
+ MIN* :   -6.354097E+01 -5.220605E+01 -8.144820E+02 -8.144820E+02 -2.937727E+02 -1.839583E+02 -7.218802E+02 -1.67E+02
+
+ ABS* :    8.092344E+02  8.092344E+02  8.092344E+02  8.092344E+02  1.240184E+03  1.738894E+03  1.154392E+03  1.95E+03
+ ABS* :    8.144820E+02  8.144820E+02  8.144820E+02  8.144820E+02  1.240184E+03  1.751027E+03  1.187677E+03  1.95E+03
+ *for output set
+
+
+ OUTPUT FOR SUBCASE       92
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ END LOADS ON TRUSS                                                                                                                                                                                                                                              
+
+           E L E M E N T   S T R E S S E S   I N   L O C A L   E L E M E N T   C O O R D I N A T E   S Y S T E M
+                                        F O R   E L E M E N T   T Y P E   E L A S 1  
+  Element     Stress     Element     Stress     Element     Stress     Element     Stress     Element     Stress
+     ID                     ID                     ID                     ID                     ID
+       58  3.492090E+02
+
+
+ OUTPUT FOR SUBCASE       92
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ END LOADS ON TRUSS                                                                                                                                                                                                                                              
+
+                                          E L E M E N T   S T R E S S E S   I N   L O C A L   E L E M E N T   C O O R D I N A T E   S Y S T E M
+                                                                       F O R   E L E M E N T   T Y P E   Q U A D 4  
+    Elem  Location       Fibre       Stresses In Element Coord System     Principal Stresses (Zero Shear)               Transverse   Transverse   % Poly
+     ID                 Distance    Normal-X     Normal-Y     Shear-XY     Angle     Major        Minor      von Mises    Shear-XZ     Shear-YZ    Fit Err
+                                                                                                                         (max through thickness)
+
+       11  CENTER      -6.250E-02  1.85869E+02  1.09181E+03 -1.31764E+01  -89.17  1.09200E+03  1.85677E+02  1.01202E+03  1.58324E-02  3.03427E-02
+                        6.250E-02  2.13390E+02  1.13324E+03 -2.48792E+01  -88.45  1.13391E+03  2.12718E+02  1.04394E+03
+
+       12  CENTER      -6.250E-02  1.85869E+02  1.09181E+03  1.31764E+01   89.17  1.09200E+03  1.85677E+02  1.01202E+03 -1.58324E-02  3.03427E-02
+                        6.250E-02  2.13390E+02  1.13324E+03  2.48792E+01   88.45  1.13391E+03  2.12718E+02  1.04394E+03
+                                  ------------ ------------ ------------         ------------ ------------ ------------ ------------ ------------ --------
+ MAX* :                            2.13390E+02  1.13324E+03  2.48792E+01          1.13391E+03  2.12718E+02  1.04394E+03  1.58324E-02  3.03427E-02  0.0E+00
+ MIN* :                            1.85869E+02  1.09181E+03 -2.48792E+01          1.09200E+03  1.85677E+02  1.01202E+03 -1.58324E-02  3.03427E-02  0.0E+00
+
+ ABS* :                            2.13390E+02  1.13324E+03  2.48792E+01          1.13391E+03  2.12718E+02  1.04394E+03  1.58324E-02  3.03427E-02  0.0E+00
+ *for output set
+
+
+ OUTPUT FOR SUBCASE       92
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ END LOADS ON TRUSS                                                                                                                                                                                                                                              
+
+             E L E M E N T   S T R E S S E S   I N   L O C A L   E L E M E N T   C O O R D I N A T E   S Y S T E M
+                                          F O R   E L E M E N T   T Y P E   R O D      
+  Element     Axial       Safety     Torsional     Safety    Element    Axial       Safety     Torsional     Safety
+     ID       Stress      Margin       Stress      Margin       ID      Stress      Margin       Stress      Margin
+     1141  2.950894E+03  5.78E+00   0.000000E+00               1242  2.865406E+03  5.98E+00   0.000000E+00             
+     1343  2.950894E+03  5.78E+00   0.000000E+00               4131 -6.600234E+03  2.03E+00   0.000000E+00             
+     4232 -6.403573E+03  2.12E+00   0.000000E+00               4333 -6.600234E+03  2.03E+00   0.000000E+00             
+          ------------- ---------  ------------- ---------
+ MAX* :    2.950894E+03  5.98E+00   0.000000E+00  1.00E+10
+ MIN* :   -6.600234E+03  2.03E+00   0.000000E+00  1.00E+10
+
+ ABS* :    6.600234E+03  5.98E+00   0.000000E+00  1.00E+10
+ *for output set
+
+
+ OUTPUT FOR SUBCASE       92
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ END LOADS ON TRUSS                                                                                                                                                                                                                                              
+
+                                    E L E M E N T   S T R E S S E S   I N   L O C A L   E L E M E N T   C O O R D I N A T E   S Y S T E M
+                                                                 F O R   E L E M E N T   T Y P E   T R I A 3  
+  Element    Location      Fibre        Stresses In Element Coord System       Principal Stresses (Zero Shear)               Transverse   Transverse
+     ID                   Distance     Normal-X     Normal-Y      Shear-XY     Angle     Major        Minor      von Mises     Shear-XZ     Shear-YZ
+                                                                                                                             (max through thickness)
+
+       21    Anywhere   -6.25000E-02  5.76159E+01  9.20238E+02 -1.00311E+02  -83.454  9.31749E+02  4.61048E+01  9.09574E+02  1.93507E-02 -2.48223E-02
+             in elem     6.25000E-02  1.03262E+02  9.79300E+02 -1.01403E+02  -83.483  9.90884E+02  9.16780E+01  9.48375E+02
+
+       22    Anywhere   -6.25000E-02  1.23157E+03  8.74584E+00  1.79049E+02    8.161  1.25725E+03 -1.69319E+01  1.26580E+03  7.57753E-03  1.88367E-03
+             in elem     6.25000E-02  1.25748E+03  2.59708E+01  1.61669E+02    7.356  1.27835E+03  5.10104E+00  1.27580E+03
+
+       23    Anywhere   -6.25000E-02  5.76159E+01  9.20238E+02  1.00311E+02   83.454  9.31749E+02  4.61048E+01  9.09574E+02 -1.93507E-02 -2.48223E-02
+             in elem     6.25000E-02  1.03262E+02  9.79300E+02  1.01403E+02   83.483  9.90884E+02  9.16780E+01  9.48375E+02
+
+       24    Anywhere   -6.25000E-02  8.74584E+00  1.23157E+03  1.79049E+02   81.839  1.25725E+03 -1.69319E+01  1.26580E+03  1.88367E-03  7.57753E-03
+             in elem     6.25000E-02  2.59708E+01  1.25748E+03  1.61669E+02   82.644  1.27835E+03  5.10104E+00  1.27580E+03
+                                     ------------ ------------ ------------          ------------ ------------ ------------ ------------ ------------
+ MAX* :                               1.25748E+03  1.25748E+03  1.79049E+02           1.27835E+03  9.16780E+01  1.27580E+03  1.93507E-02  7.57753E-03
+ MIN* :                               8.74584E+00  8.74584E+00 -1.01403E+02           9.31749E+02 -1.69319E+01  9.09574E+02 -1.93507E-02 -2.48223E-02
+
+ ABS* :                               1.25748E+03  1.25748E+03  1.79049E+02           1.27835E+03  9.16780E+01  1.27580E+03  1.93507E-02  2.48223E-02
+ *for output set
+
+
+ OUTPUT FOR SUBCASE       92
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ END LOADS ON TRUSS                                                                                                                                                                                                                                              
+
+                                           E L E M E N T   S T R A I N S   I N   L O C A L   E L E M E N T   C O O R D I N A T E   S Y S T E M
+                                                                       F O R   E L E M E N T   T Y P E   Q U A D 4  
+  Elem  Location         Fibre      Strains In Element Coord System       Principal Strains (Zero Shear)                 Transverse   Transverse   % Poly
+   ID                   Distance   Normal-X     Normal-Y     Shear-XY     Angle      Major        Minor      von Mises    Shear-XZ     Shear-YZ    Fit Err 
+
+       11  CENTER      -6.250E-02 -8.70829E-06  1.04534E-04 -3.29410E-06  -88.34  1.04630E-04 -8.80403E-06  1.09298E-04  1.07952E-04  2.06890E-04
+                        6.250E-02 -6.99203E-06  1.07989E-04 -6.21981E-06  -86.91  1.08325E-04 -7.32750E-06  1.12168E-04
+
+       12  CENTER      -6.250E-02 -8.70829E-06  1.04534E-04  3.29410E-06   88.34  1.04630E-04 -8.80403E-06  1.09298E-04 -1.07952E-04  2.06890E-04
+                        6.250E-02 -6.99203E-06  1.07989E-04  6.21981E-06   86.91  1.08325E-04 -7.32750E-06  1.12168E-04
+                                  ------------ ------------ ------------         ------------ ------------ ------------ ------------ ------------ --------
+ MAX* :                           -6.99203E-06  1.07989E-04  6.21981E-06          1.08325E-04 -7.32750E-06  1.12168E-04  1.07952E-04  2.06890E-04  0.0E+00
+ MIN* :                           -8.70829E-06  1.04534E-04 -6.21981E-06          1.04630E-04 -8.80403E-06  1.09298E-04 -1.07952E-04  2.06890E-04  0.0E+00
+
+ ABS* :                            8.70829E-06  1.07989E-04  6.21981E-06          1.08325E-04  8.80403E-06  1.12168E-04  1.07952E-04  2.06890E-04  0.0E+00
+ *for output set
+
+
+ OUTPUT FOR SUBCASE       92
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ END LOADS ON TRUSS                                                                                                                                                                                                                                              
+
+                                     E L E M E N T   S T R A I N S   I N   L O C A L   E L E M E N T   C O O R D I N A T E   S Y S T E M
+                                                                 F O R   E L E M E N T   T Y P E   T R I A 3  
+  Element    Location      Fibre        Strains In Element Coord System       Principal Strains (Zero Shear)                 Transverse   Transverse
+     ID                   Distance     Normal-X     Normal-Y      Shear-XY     Angle     Major        Minor      von Mises    Shear-XZ     Shear-YZ 
+
+       21    Anywhere   -6.25000E-02 -1.72444E-05  9.05834E-05 -2.50777E-05  -77.527  9.61304E-05 -2.27914E-05  1.09323E-04  2.63878E-04 -3.38492E-04
+             in elem     6.25000E-02 -1.41563E-05  9.53484E-05 -2.53507E-05  -77.578  1.00932E-04 -1.97403E-05  1.12114E-04
+
+       22    Anywhere   -6.25000E-02  1.22938E-04 -2.99147E-05  4.47623E-05   15.179  1.35082E-04 -4.20583E-05  1.60304E-04  1.03332E-04  2.56869E-05
+             in elem     6.25000E-02  1.25099E-04 -2.88399E-05  4.04172E-05   13.852  1.35065E-04 -3.88063E-05  1.58082E-04
+
+       23    Anywhere   -6.25000E-02 -1.72444E-05  9.05834E-05  2.50777E-05   77.527  9.61304E-05 -2.27914E-05  1.09323E-04 -2.63878E-04 -3.38492E-04
+             in elem     6.25000E-02 -1.41563E-05  9.53484E-05  2.53507E-05   77.578  1.00932E-04 -1.97403E-05  1.12114E-04
+
+       24    Anywhere   -6.25000E-02 -2.99147E-05  1.22938E-04  4.47623E-05   74.821  1.35082E-04 -4.20583E-05  1.60304E-04  2.56869E-05  1.03332E-04
+             in elem     6.25000E-02 -2.88399E-05  1.25099E-04  4.04172E-05   76.148  1.35065E-04 -3.88063E-05  1.58082E-04
+                                     ------------ ------------ ------------          ------------ ------------ ------------ ------------ ------------
+ MAX* :                               1.25099E-04  1.25099E-04  4.47623E-05           1.35082E-04 -1.97403E-05  1.60304E-04  2.63878E-04  1.03332E-04
+ MIN* :                              -2.99147E-05 -2.99147E-05 -2.53507E-05           9.61304E-05 -4.20583E-05  1.09323E-04 -2.63878E-04 -3.38492E-04
+
+ ABS* :                               1.25099E-04  1.25099E-04  4.47623E-05           1.35082E-04  4.20583E-05  1.60304E-04  2.63878E-04  3.38492E-04
+ *for output set
+
+ >> LINK  9 END
+
+    Total CPU time =  7.81E-02 seconds
+
+ >> MYSTRAN END    :  1/12/2024 at 10:38:24.739
