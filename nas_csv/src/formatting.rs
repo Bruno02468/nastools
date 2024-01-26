@@ -49,7 +49,7 @@ impl FloatFormat {
         (Some(d), false) => write!(f, "{:+.prec$}", x, prec=d)
       };
     } else if let Some(d) = self.dec_places {
-      return fmt_f64(f, x, 0, d, 3, !self.small_e, self.no_superfluous_plus);
+      return fmt_f64(f, x, 0, d, 2, !self.small_e, self.no_superfluous_plus);
     } else {
       return match (self.no_superfluous_plus, self.small_e) {
         (true, true) => write!(f, "{:e}", x),
