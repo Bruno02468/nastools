@@ -212,7 +212,7 @@ dependencies = [
 
 [[package]]
 name = "f06"
-version = "0.3.1"
+version = "0.3.2"
 dependencies = [
  "clap",
  "convert_case 0.6.0",
@@ -227,7 +227,7 @@ dependencies = [
 
 [[package]]
 name = "f06csv"
-version = "0.3.1"
+version = "0.3.2"
 dependencies = [
  "clap",
  "csv",
@@ -241,7 +241,7 @@ dependencies = [
 
 [[package]]
 name = "f06diff"
-version = "0.3.1"
+version = "0.3.2"
 dependencies = [
  "clap",
  "env_logger",
@@ -252,7 +252,7 @@ dependencies = [
 
 [[package]]
 name = "f06info"
-version = "0.3.1"
+version = "0.3.2"
 dependencies = [
  "clap",
  "env_logger",
@@ -369,7 +369,7 @@ dependencies = [
 
 [[package]]
 name = "nas_csv"
-version = "0.3.1"
+version = "0.3.2"
 dependencies = [
  "clap",
  "convert_case 0.6.0",
