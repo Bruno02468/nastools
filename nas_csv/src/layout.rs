@@ -62,7 +62,9 @@ impl CsvBlockId {
       Self::Stresses,
       Self::Strains,
       Self::EngForces,
-      Self::GridPointForces
+      Self::GridPointForces,
+      Self::AppliedForces,
+      Self::SpcForces
     ];
   }
 
