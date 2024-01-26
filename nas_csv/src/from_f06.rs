@@ -256,7 +256,11 @@ impl BlockConverter {
 }
 
 /// Generates the 0-block for a file.
-pub fn zeroth_block(file: &F06File) -> impl Iterator<Item = CsvRecord> + '_ {
+pub fn zeroth_block(
+  file: &F06File,
+) -> impl Iterator<Item = CsvRecord> + '_ {
+  /// Name for unknown solver
+  const U: &str = "Unknown";
   return file.subcases().map(|s| CsvRecord {
     block_id: CsvBlockId::SolInfo,
     block_type: None,
@@ -268,16 +272,16 @@ pub fn zeroth_block(file: &F06File) -> impl Iterator<Item = CsvRecord> + '_ {
       0usize.into(),
       s.into(),
       file.flavour.soltype.map(usize::from).unwrap_or(0).into(),
-      0usize.into(),
-      0usize.into(),
-      0usize.into(),
-      0usize.into(),
-      0usize.into(),
-      0usize.into(),
-      0usize.into()
+      file.flavour.solver.map(|s| s.name()).unwrap_or(U).to_owned().into(),
+      CsvField::Blank,
+      CsvField::Blank,
+      CsvField::Blank,
+      CsvField::Blank,
+      CsvField::Blank,
+      CsvField::Blank
     ],
     headers: &[
-      "ID", "Subcase", "Type", HBLANK, HBLANK,
+      "Deck ID", "Subcase", "SolType", "Solver", HBLANK,
       HBLANK, HBLANK, HBLANK, HBLANK, HBLANK
     ]
   })
