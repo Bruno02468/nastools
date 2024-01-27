@@ -98,10 +98,11 @@ const ZERO: ColumnGenerator = ColumnGenerator::ConstantNumber(
   F06Number::Natural(0)
 );
 
-/// Generator that always produces a one.
-const ONE: ColumnGenerator = ColumnGenerator::ConstantNumber(
-  F06Number::Natural(1)
-);
+/// Generator for End A columns.
+const END_A: ColumnGenerator = ColumnGenerator::ConstantString("End A");
+
+/// Generator for End A columns.
+const END_B: ColumnGenerator = ColumnGenerator::ConstantString("End B");
 
 /// Generator that always produces a blank.
 const BLANK: ColumnGenerator = ColumnGenerator::Blank;
@@ -219,7 +220,7 @@ pub const CT_STRESSES_QUAD: BlockConverter = BlockConverter {
   ],
   headers: &[
     [
-      "EID", "Subcase", "GID", "FibreDistance",
+      "EID (QUAD4)", "Subcase", "GID", "FibreDistance",
       "NormalX", "NormalY", HBLANK, "ShearXY", HBLANK, HBLANK
     ]
   ]
@@ -230,7 +231,12 @@ pub const CT_STRESSES_TRIA: BlockConverter = BlockConverter {
   input_block_type: BlockType::TriaStresses,
   output_block_id: CsvBlockId::Stresses,
   generators: CT_STRESSES_QUAD.generators,
-  headers: CT_STRESSES_QUAD.headers
+  headers: &[
+    [
+      "EID (TRIA3)", "Subcase", "GID", "FibreDistance",
+      "NormalX", "NormalY", HBLANK, "ShearXY", HBLANK, HBLANK
+    ]
+  ]
 };
 
 /// Conversion template for rod stresses.
@@ -258,7 +264,7 @@ pub const CT_STRESSES_ROD: BlockConverter = BlockConverter {
   ],
   headers: &[
     [
-      "EID", "Subcase", HBLANK, HBLANK, "Axial",
+      "EID (ROD)", "Subcase", HBLANK, HBLANK, "Axial",
       HBLANK, HBLANK, "Torsional", HBLANK, HBLANK
     ]
   ]
@@ -266,7 +272,7 @@ pub const CT_STRESSES_ROD: BlockConverter = BlockConverter {
 
 /// Header for bar stresses.
 const BAR_STRESSES_HEADER: [&str; 10] = [
-  "EID", "Subcase", "GID", "End", "Axial", "S1", "S2", "S3", "S4", HBLANK
+  "EID (BAR)", "Subcase", "GID", "End", "Axial", "S1", "S2", "S3", "S4", HBLANK
 ];
 
 /// Conversion template for bar stresses.
@@ -280,7 +286,7 @@ pub const CT_STRESSES_BAR: BlockConverter = BlockConverter {
         ColumnGenerator::ElementId,
         ColumnGenerator::Subcase,
         ZERO,
-        ZERO,
+        END_A,
       ],
       [
         BarStressField::Axial,
@@ -298,7 +304,7 @@ pub const CT_STRESSES_BAR: BlockConverter = BlockConverter {
         ColumnGenerator::ElementId,
         ColumnGenerator::Subcase,
         ZERO,
-        ONE,
+        END_B,
       ],
       [
         BarStressField::Axial,
@@ -334,7 +340,7 @@ pub const CT_STRESSES_ELAS1: BlockConverter = BlockConverter {
   ],
   headers: &[
     [
-      "EID", "Subcase", HBLANK, HBLANK, "Stress",
+      "EID (ELAS1)", "Subcase", HBLANK, HBLANK, "Stress",
       HBLANK, HBLANK, HBLANK, HBLANK, HBLANK
     ]
   ]
@@ -342,7 +348,7 @@ pub const CT_STRESSES_ELAS1: BlockConverter = BlockConverter {
 
 /// Header for bush stresses.
 pub const BUSH_STRESSES_HEADER: [&str; 10] = [
-  "EID", "Subcase", HBLANK, HBLANK, "Sx", "Sy", "Sx", "Mx", "My", "Mz"
+  "EID (BUSH)", "Subcase", HBLANK, HBLANK, "Sx", "Sy", "Sx", "Mx", "My", "Mz"
 ];
 
 /// Conversion template for BUSH stresses;
@@ -443,7 +449,7 @@ pub const CT_STRAINS_BAR: BlockConverter = BlockConverter {
         ColumnGenerator::ElementId,
         ColumnGenerator::Subcase,
         ZERO,
-        ZERO,
+        END_A,
       ],
       [
         BarStressField::Axial,
@@ -462,7 +468,7 @@ pub const CT_STRAINS_BAR: BlockConverter = BlockConverter {
         ColumnGenerator::ElementId,
         ColumnGenerator::Subcase,
         ZERO,
-        ONE,
+        END_B,
       ],
       [
         BarStressField::Axial,
@@ -498,7 +504,7 @@ pub const CT_STRAINS_ELAS1: BlockConverter = BlockConverter {
   ],
   headers: &[
     [
-      "EID", "Subcase", HBLANK, HBLANK, "Strain",
+      "EID (ELAS1)", "Subcase", HBLANK, HBLANK, "Strain",
       HBLANK, HBLANK, HBLANK, HBLANK, HBLANK
     ]
   ]
@@ -532,7 +538,7 @@ pub const CT_FORCES_QUAD: BlockConverter = BlockConverter {
   ],
   headers: &[
     [
-      "EID", "Subcase", HBLANK, HBLANK, "NormalX",
+      "EID (BUSH)", "Subcase", HBLANK, HBLANK, "NormalX",
       "NormalY", "NormalXY", "MomentX", "MomentY", "MomentXY"
     ]
   ]
@@ -571,7 +577,7 @@ pub const CT_FORCES_ROD: BlockConverter = BlockConverter {
   ],
   headers: &[
     [
-      "EID", "Subcase", HBLANK, HBLANK, "Axial",
+      "EID (ROD)", "Subcase", HBLANK, HBLANK, "Axial",
       HBLANK, HBLANK, HBLANK, HBLANK, "Torque"
     ]
   ]
@@ -579,7 +585,7 @@ pub const CT_FORCES_ROD: BlockConverter = BlockConverter {
 
 /// Header for bar forces. It appears twice.
 const BAR_FORCES_HEADER: [&str; 10] = [
-  "EID", "Subcase", "GID", "End", "Axial", "S1", "S2", "M1", "M2", "Torque"
+  "EID (BAR)", "Subcase", "GID", "End", "Axial", "S1", "S2", "M1", "M2", "Torque"
 ];
 
 /// Conversion template for bar forces.
@@ -593,7 +599,7 @@ pub const CT_FORCES_BAR: BlockConverter = BlockConverter {
         ColumnGenerator::ElementId,
         ColumnGenerator::Subcase,
         ZERO,
-        ZERO,
+        END_A,
       ],
       [
         BarForceField::AxialForce,
@@ -611,7 +617,7 @@ pub const CT_FORCES_BAR: BlockConverter = BlockConverter {
         ColumnGenerator::ElementId,
         ColumnGenerator::Subcase,
         ZERO,
-        ONE,
+        END_B,
       ],
       [
         BarForceField::AxialForce,
@@ -647,7 +653,7 @@ pub const CT_FORCES_ELAS1: BlockConverter = BlockConverter {
   ],
   headers: &[
     [
-      "EID", "Subcase", HBLANK, HBLANK, "Force",
+      "EID (ELAS1)", "Subcase", HBLANK, HBLANK, "Force",
       HBLANK, HBLANK, HBLANK, HBLANK, HBLANK
     ]
   ]
@@ -659,7 +665,7 @@ pub const CT_FORCES_BUSH: BlockConverter = BlockConverter {
   output_block_id: CsvBlockId::EngForces,
   generators: CT_STRESSES_BUSH.generators,
   headers: &[
-    ["EID", "Subcase", HBLANK, HBLANK, "Fx", "Fy", "Fz", "Mx", "My", "Mz"]
+    ["EID (BUSH)", "Subcase", HBLANK, HBLANK, "Fx", "Fy", "Fz", "Mx", "My", "Mz"]
   ]
 };
 
