@@ -79,7 +79,7 @@ pub enum BlankDisplay {
 
 impl Default for BlankDisplay {
   fn default() -> Self {
-    return Self::Zero;
+    return Self::Dashes;
   }
 }
 
