@@ -14,16 +14,16 @@ pub struct FloatFormat {
   /// Specifies a fixed number of decimal places to display numbers with.
   ///
   /// If absent, free-form formatting will be used.
-  #[arg(short = 'D', long = "decimals", default_value = "6")]
+  #[arg(long = "decimals", default_value = "6")]
   pub dec_places: Option<usize>,
   /// Use decimals instead of scientific notation.
-  #[arg(short = 'S', long = "no-sci", verbatim_doc_comment)]
+  #[arg(long = "no-sci", verbatim_doc_comment)]
   pub no_scientific: bool,
   /// Omit the redundant plus sign for non-negatives.
-  #[arg(short = 'P', long = "omit-plus", verbatim_doc_comment)]
+  #[arg(long = "omit-plus", verbatim_doc_comment)]
   pub no_superfluous_plus: bool,
   /// Use a small 'e' for exponents instead of a capital 'E'.
-  #[arg(short = 'E', long = "small-e", verbatim_doc_comment)]
+  #[arg(long = "small-e", verbatim_doc_comment)]
   pub small_e: bool,
 }
 
@@ -96,21 +96,38 @@ impl BlankDisplay {
   }
 }
 
+/// Padding option so columns (commas) can be made to line up.
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, ValueEnum, PartialEq, Eq)]
+#[clap(rename_all = "snake_case")]
+pub enum Alignment {
+  /// No padding: make each field take up its own length.
+  None,
+  /// Pad fields with spaces to the left so columns line up to the right.
+  Right,
+  /// Pad fields with spaces to the right so columns line up to the left.
+  Left,
+  /// Pad fields with spaces in both sides so they look centralised.
+  Center
+}
+
+impl Default for Alignment {
+  fn default() -> Self {
+    return Self::None;
+  }
+}
+
 /// Display/formatting options for CSV fields.
-#[derive(Copy, Clone, Debug, Serialize, Deserialize, Args)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, Default, Args)]
 pub struct CsvFormatting {
   /// Options for printing out real numbers.
   #[command(flatten)]
   pub reals: FloatFormat,
   /// What to print for blank fields?
-  #[arg(short = 'B', long = "blanks", default_value = "zero")]
-  pub blanks: BlankDisplay
-}
-
-impl Default for CsvFormatting {
-  fn default() -> Self {
-    return Self { reals: Default::default(), blanks: Default::default() };
-  }
+  #[arg(short = 'B', long = "blanks", default_value = "dashes")]
+  pub blanks: BlankDisplay,
+  /// Alignment setting for values such that commas line up.
+  #[arg(long = "align", default_value = "none")]
+  pub align: Alignment
 }
 
 impl CsvFormatting {

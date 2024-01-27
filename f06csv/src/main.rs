@@ -159,6 +159,50 @@ fn main() -> Result<(), Box<dyn Error>> {
     let f_subcases = lax_filter(&a.subcases, &r.subcase);
     return f_gids && f_eids && f_etypes && f_subcases && f_blocks;
   };
+  // determine padding
+  let largest: Option<usize> = if args.fmtr.align != Alignment::None {
+    to_records(&f06, &all_converters())
+      .filter_map(|rec| {
+        if should_write(&rec, &args) && rec.block_id != CsvBlockId::SolInfo {
+          let h = if args.headers {
+            rec.header_as_iter().map(|f| f.len()).max()
+          } else {
+            None
+          };
+          let n = rec.to_fields().map(|f| f.to_string().len()).max();
+          return n.max(h);
+        } else {
+          return None;
+        }
+      }).max()
+  } else {
+    None
+  };
+  // padding fn
+  let pad = |s: &str| -> String {
+    if let Some(w) = largest {
+      if s.len() > w {
+        return s.to_owned();
+      }
+      let p1 = w - s.len();
+      let ps = p1/2;
+      let pb = p1 - ps;
+      let (lpad, rpad) = match args.fmtr.align {
+        Alignment::None => return s.to_owned(),
+        Alignment::Right => (p1, 0),
+        Alignment::Left => (0, p1),
+        Alignment::Center => (pb, ps),
+      };
+      return format!(
+        "{}{}{}",
+        " ".repeat(lpad),
+        s,
+        " ".repeat(rpad),
+      );
+    } else {
+      return s.to_owned();
+    }
+  };
   // write blocks
   info!("Writing CSV records...");
   let mut last_header: Option<(&RowHeader, CsvBlockId)> = None;
@@ -172,10 +216,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         if last_header != Some((cur_header, cur_bid)) || was_none {
           // header change
           last_header = Some((cur_header, cur_bid));
-          wtr.write_record(rec.header_as_iter())?;
+          wtr.write_record(rec.header_as_iter().map(pad))?;
         }
       }
-      wtr.write_record(rec.to_fields().map(|f| args.fmtr.to_string(f)))?;
+      wtr.write_record(rec.to_fields().map(|f| pad(&f.to_string())))?;
     }
   }
   info!("All done.");
