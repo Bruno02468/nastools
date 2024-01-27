@@ -273,7 +273,7 @@ pub fn zeroth_block(
       s.into(),
       file.flavour.soltype.map(usize::from).unwrap_or(0).into(),
       file.flavour.solver.map(|s| s.name()).unwrap_or(U).to_owned().into(),
-      CsvField::Blank,
+      file.filename.as_deref().unwrap_or("<unknown>").to_owned().into(),
       CsvField::Blank,
       CsvField::Blank,
       CsvField::Blank,
@@ -281,7 +281,7 @@ pub fn zeroth_block(
       CsvField::Blank
     ],
     headers: &[
-      "Deck ID", "Subcase", "SolType", "Solver", HBLANK,
+      "Deck ID", "Subcase", "SolType", "Solver", "Filename",
       HBLANK, HBLANK, HBLANK, HBLANK, HBLANK
     ]
   })
