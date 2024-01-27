@@ -21,7 +21,7 @@ pub type IndexFn = fn(NasIndex) -> Result<CsvField, ConversionError>;
 pub type RowGenerator = [ColumnGenerator; 10];
 
 /// Blank value for row headers.
-pub(crate) const HBLANK: &str = "<BLANK>";
+pub(crate) const HBLANK: &str = "<UNUSED>";
 
 /// A conversion error.
 #[derive(Copy, Clone, Debug, Serialize, Deserialize)]
@@ -257,23 +257,40 @@ impl BlockConverter {
 
 /// Generates the 0-block for a file.
 pub fn zeroth_block(
-  file: &F06File,
+  file: &F06File
 ) -> impl Iterator<Item = CsvRecord> + '_ {
-  /// Name for unknown solver
+  /// Name for unknown values
   const U: &str = "Unknown";
-  return file.subcases().map(|s| CsvRecord {
-    block_id: CsvBlockId::SolInfo,
+  /// Shorthand for ToString::to_string.
+  fn ts<T: ToString>(t: T) -> String {
+    return t.to_string();
+  }
+  // produce the key-value pairs
+  let vvk: Vec<(&'static str, Option<String>)> = vec![
+    ("Solver", file.flavour.solver.map(ts)),
+    ("Solution", file.flavour.soltype.map(ts)),
+    ("Filename", file.filename.clone()),
+    ("#Subcases", Some(file.subcases().count().to_string())),
+    ("#Warnings", Some(file.warnings.len().to_string())),
+    ("#Fatals", Some(file.fatal_errors.len().to_string())),
+    ("f06csv version", option_env!("CARGO_PKG_VERSION").map(ts)),
+    ("f06csv authors", option_env!("CARGO_PKG_AUTHORS").map(ts)),
+    ("Part of", Some("the MYSTRAN project".to_owned()))
+  ];
+  // make it into fields
+  return vvk.into_iter().map(|(k, v)| CsvRecord {
+    block_id: CsvBlockId::Metadata,
     block_type: None,
     gid: None,
     eid: None,
     etype: None,
-    subcase: Some(s),
+    subcase: None,
     fields: [
-      0usize.into(),
-      s.into(),
-      file.flavour.soltype.map(usize::from).unwrap_or(0).into(),
-      file.flavour.solver.map(|s| s.name()).unwrap_or(U).to_owned().into(),
-      file.filename.as_deref().unwrap_or("<unknown>").to_owned().into(),
+      CsvField::String(k.to_owned()),
+      CsvField::String(v.unwrap_or(U.to_owned())),
+      CsvField::Blank,
+      CsvField::Blank,
+      CsvField::Blank,
       CsvField::Blank,
       CsvField::Blank,
       CsvField::Blank,
@@ -281,7 +298,7 @@ pub fn zeroth_block(
       CsvField::Blank
     ],
     headers: &[
-      "Deck ID", "Subcase", "SolType", "Solver", "Filename",
+      "Key", "Value", HBLANK, HBLANK, HBLANK,
       HBLANK, HBLANK, HBLANK, HBLANK, HBLANK
     ]
   })

@@ -163,7 +163,7 @@ fn main() -> Result<(), Box<dyn Error>> {
   let largest: Option<usize> = if args.fmtr.align != Alignment::None {
     to_records(&f06, &all_converters())
       .filter_map(|rec| {
-        if should_write(&rec, &args) && rec.block_id != CsvBlockId::SolInfo {
+        if should_write(&rec, &args) && rec.block_id != CsvBlockId::Metadata {
           let h = if args.headers {
             rec.header_as_iter().map(|f| f.len()).max()
           } else {

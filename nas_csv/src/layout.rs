@@ -23,7 +23,7 @@ pub type RowHeader = [&'static str; NAS_CSV_COLS-1];
 #[non_exhaustive]
 pub enum CsvBlockId {
   /// The 0-block: general solution info; subcase IDs, solution types, etc.
-  SolInfo,
+  Metadata,
   /// The 1-block: displacements.
   Displacements,
   /// The 2-block: stresses.
@@ -57,7 +57,7 @@ impl CsvBlockId {
   /// Returns all known block IDs.
   pub const fn all() -> &'static [Self] {
     return &[
-      Self::SolInfo,
+      Self::Metadata,
       Self::Displacements,
       Self::Stresses,
       Self::Strains,
@@ -71,7 +71,7 @@ impl CsvBlockId {
   /// Returns a constant name for this block ID.
   pub const fn name(&self) -> &'static str {
     return match self {
-      Self::SolInfo => "SolutionInfo",
+      Self::Metadata => "Metadata",
       Self::Displacements => "Displacements",
       Self::Stresses => "Stresses",
       Self::Strains => "Strains",
@@ -82,25 +82,10 @@ impl CsvBlockId {
     };
   }
 
-  /// Returns the name with "block ID" appended. Needed because headers gotta
-  /// be &'static str.
-  pub const fn name_with_id(&self) -> &'static str {
-    return match self {
-      Self::SolInfo => "SolutionInfo block ID",
-      Self::Displacements => "Displacements block ID",
-      Self::Stresses => "Stresses block ID",
-      Self::Strains => "Strains block ID",
-      Self::EngForces => "EngForces block ID",
-      Self::GridPointForces => "GridPointForces block ID",
-      Self::AppliedForces => "AppliedForces block ID",
-      Self::SpcForces => "SpcForces block ID"
-    };
-  }
-
   /// Returns the shorthand for the block ID.
   pub const fn shorthand(&self) -> &'static str {
     return match self {
-      Self::SolInfo => "sol",
+      Self::Metadata => "meta",
       Self::Displacements => "disp",
       Self::Stresses => "stress",
       Self::Strains => "strain",
@@ -114,13 +99,13 @@ impl CsvBlockId {
   /// Returns the hidden aliases for each block ID.
   pub const fn aliases(&self) -> &'static [&'static str] {
     return match self {
-      Self::SolInfo => &["0", "solinfo", "sol_info", "info"],
+      Self::Metadata => &["0", "sol", "sol_info", "info"],
       Self::Displacements => &["1", "disp", "displs", "displacements"],
       Self::Stresses => &["2", "stresses"],
       Self::Strains => &["3", "strains"],
       Self::EngForces => &["4", "engforces", "eng_forces"],
       Self::GridPointForces => &[
-        "5", "gpfb", "gpforces", "grid_point_forces",
+        "5", "gpfb", "gpfor", "gpforces", "grid_point_forces",
         "grid_point_force_balance"
       ],
       Self::AppliedForces => &["6", "applied"],
@@ -138,7 +123,7 @@ impl Display for CsvBlockId {
 impl From<CsvBlockId> for usize {
   fn from(value: CsvBlockId) -> Self {
     return match value {
-      CsvBlockId::SolInfo => 0,
+      CsvBlockId::Metadata => 0,
       CsvBlockId::Displacements => 1,
       CsvBlockId::Stresses => 2,
       CsvBlockId::Strains => 3,
@@ -161,7 +146,7 @@ impl TryFrom<usize> for CsvBlockId {
 
   fn try_from(value: usize) -> Result<Self, Self::Error> {
     return Ok(match value {
-      0 => CsvBlockId::SolInfo,
+      0 => CsvBlockId::Metadata,
       1 => CsvBlockId::Displacements,
       2 => CsvBlockId::Stresses,
       3 => CsvBlockId::Strains,
@@ -246,7 +231,7 @@ impl CsvRecord {
 
   /// Returns this block's headers as eleven strings.
   pub fn header_as_iter(&self) -> impl Iterator<Item = &str> {
-    return [self.block_id.name_with_id()].into_iter().chain(
+    return [self.block_id.name()].into_iter().chain(
       self.headers.iter().copied()
     );
   }
