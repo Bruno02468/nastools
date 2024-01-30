@@ -1,6 +1,6 @@
 //! This module implements facilities to customise the display of CsvFields.
 
-use std::fmt::Write;
+use std::fmt::{Display, Write};
 
 use clap::{Args, ValueEnum};
 use f06::util::fmt_f64;
@@ -83,6 +83,12 @@ impl Default for BlankDisplay {
   }
 }
 
+impl Display for BlankDisplay {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    return write!(f, "{}", self.fmt_str());
+  }
+}
+
 impl BlankDisplay {
   /// Returns the string that should be written.
   pub const fn fmt_str(&self) -> &'static str {
@@ -117,7 +123,7 @@ impl Default for Alignment {
 }
 
 /// Display/formatting options for CSV fields.
-#[derive(Copy, Clone, Debug, Serialize, Deserialize, Default, Args)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, Args)]
 pub struct CsvFormatting {
   /// Options for printing out real numbers.
   #[command(flatten)]
@@ -132,11 +138,11 @@ pub struct CsvFormatting {
 
 impl CsvFormatting {
   /// Writes out a CSV field according to this format.
-  pub fn fmt<W: Write>(&self, field: &CsvField, f: &mut W) -> std::fmt::Result {
-    return match field {
+  pub fn fmt<W: Write>(&self, fld: &CsvField, f: &mut W) -> std::fmt::Result {
+    return match fld {
       CsvField::Blank => write!(f, "{}", self.blanks.fmt_str()),
       CsvField::Real(x) => self.reals.fmt_f64(f, *x),
-      _ => write!(f, "{}", field)
+      _ => write!(f, "{}", fld)
     }
   }
 

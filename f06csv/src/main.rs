@@ -169,7 +169,7 @@ fn main() -> Result<(), Box<dyn Error>> {
           } else {
             None
           };
-          let n = rec.to_fields().map(|f| f.to_string().len()).max();
+          let n = rec.to_fields().map(|f| args.fmtr.to_string(f).len()).max();
           return n.max(h);
         } else {
           return None;
@@ -219,7 +219,7 @@ fn main() -> Result<(), Box<dyn Error>> {
           wtr.write_record(rec.header_as_iter().map(pad))?;
         }
       }
-      wtr.write_record(rec.to_fields().map(|f| pad(&f.to_string())))?;
+      wtr.write_record(rec.to_fields().map(|f| pad(&args.fmtr.to_string(f))))?;
     }
   }
   info!("All done.");
