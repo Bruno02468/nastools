@@ -538,7 +538,7 @@ pub const CT_FORCES_QUAD: BlockConverter = BlockConverter {
   ],
   headers: &[
     [
-      "EID (BUSH)", "Subcase", HBLANK, HBLANK, "NormalX",
+      "EID (QUAD4)", "Subcase", HBLANK, HBLANK, "NormalX",
       "NormalY", "NormalXY", "MomentX", "MomentY", "MomentXY"
     ]
   ]
