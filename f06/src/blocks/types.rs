@@ -286,7 +286,7 @@ gen_block_types!(
     QuadForcesDecoder,
     Some(ElementType::Quad4),
     [
-      "FORCES IN QUADRILATERAL ELEMENTS (CQUAD4)",
+      "FORCES IN QUADRILATERAL ELEMENTS (QUAD4)",
       "ELEMENT ENGINEERING FORCES FOR ELEMENT TYPE QUAD4"
     ]
   },
@@ -297,7 +297,7 @@ gen_block_types!(
     QuadStressesDecoder,
     Some(ElementType::Quad4),
     [
-      "STRESSES IN QUADRILATERAL ELEMENTS (CQUAD4)",
+      "STRESSES IN QUADRILATERAL ELEMENTS (QUAD4)",
       concat!(
         "ELEMENT STRESSES IN LOCAL ELEMENT COORDINATE SYSTEM ",
         "FOR ELEMENT TYPE QUAD4"
