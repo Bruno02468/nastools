@@ -1,4 +1,4 @@
-# f06tools
+# nastools
 
 A library (and some associated tools) to parse the data within Nastran printout
 output files, commonly referred to by their extension F06.
