@@ -145,7 +145,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     .terminator(term)
     .from_writer(output);
   /// Filter only if there is at least one in the filter.
-  fn lax_filter<T: PartialEq>(v: &Vec<T>, x: &Option<T>) -> bool {
+  fn lax_filter<T: PartialEq>(v: &[T], x: &Option<T>) -> bool {
     return v.is_empty()
       || x.is_none()
       || x.as_ref().is_some_and(|k| v.contains(k));

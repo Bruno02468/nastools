@@ -380,6 +380,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "nastester"
+version = "0.1.0"
+dependencies = [
+ "f06",
+]
+
+[[package]]
 name = "num"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"

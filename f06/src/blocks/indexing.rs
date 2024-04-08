@@ -120,7 +120,28 @@ macro_rules! gen_nasindex {
         };
       }
     }
+
+    impl NasIndex {
+      /// Returns the name of the type of this index.
+      pub fn type_name(&self) -> &'static str {
+        return match self {
+          $(Self::$tn(_) => <$tn as IndexType>::INDEX_NAME,)*
+        };
+      }
+    }
   };
+}
+
+impl NasIndex {
+  /// Returns the grid point associated with this index, if it has one.
+  pub fn grid_point_id(&self) -> Option<GridPointRef> {
+    todo!()
+  }
+
+  /// Returns the element associated with this index, if it has one.
+  pub fn element_id(&self) -> Option<ElementRef> {
+    todo!()
+  }
 }
 
 gen_nasindex!(

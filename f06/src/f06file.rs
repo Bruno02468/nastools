@@ -2,6 +2,7 @@
 //! it, and its submodules are responsible for specific parsing subroutines.
 
 pub mod diff;
+pub mod extraction;
 
 use std::collections::{BTreeSet, BTreeMap};
 

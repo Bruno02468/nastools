@@ -1,0 +1,12 @@
+[package]
+name = "nastester"
+authors = ["Bruno Borges Paschoalinoto <bruno@paschoalinoto.com>"]
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+
+[dependencies.f06]
+version = "0.3"
+path = "../f06"
