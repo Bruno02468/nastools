@@ -31,7 +31,7 @@ pub(crate) struct NamedCriteria {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub(crate) struct Suite {
   /// The test decks to run.
-  pub(crate) decks: Vec<Deck>,
+  pub(crate) decks: BTreeMap<Uuid, Deck>,
   /// The named criteria sets.
-  pub(crate) criteria: BTreeMap<Uuid, NamedCriteria>
+  pub(crate) criteria_sets: BTreeMap<Uuid, NamedCriteria>
 }

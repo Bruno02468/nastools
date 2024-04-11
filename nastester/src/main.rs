@@ -4,7 +4,9 @@
 #![warn(missing_docs)] // almost sure this is default but whatever
 #![warn(clippy::missing_docs_in_private_items)] // sue me
 #![allow(clippy::needless_return)] // i'll never forgive rust for this
+#![allow(dead_code)]
 
+pub(crate) mod results;
 pub(crate) mod running;
 pub(crate) mod suite;
 
