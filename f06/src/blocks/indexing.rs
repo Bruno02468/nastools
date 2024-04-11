@@ -135,12 +135,41 @@ macro_rules! gen_nasindex {
 impl NasIndex {
   /// Returns the grid point associated with this index, if it has one.
   pub fn grid_point_id(&self) -> Option<GridPointRef> {
-    todo!()
+    return Some(match self {
+      NasIndex::GridPointRef(g) => *g,
+      NasIndex::PointInElement(pie) => {
+        match pie.point {
+          ElementPoint::Corner(g) => g,
+          ElementPoint::Midpoint(g) => g,
+          _ => return None
+        }
+      },
+      NasIndex::GridPointForceOrigin(gpfo) => gpfo.grid_point,
+      NasIndex::ElementSidedPoint(esp) => {
+        match esp.point {
+          ElementPoint::Corner(g) => g,
+          ElementPoint::Midpoint(g) => g,
+          _ => return None
+        }
+      },
+      _ => return None
+    });
   }
 
   /// Returns the element associated with this index, if it has one.
   pub fn element_id(&self) -> Option<ElementRef> {
-    todo!()
+    return Some(match self {
+      NasIndex::ElementRef(e) => *e,
+      NasIndex::PointInElement(pie) => pie.element,
+      NasIndex::GridPointForceOrigin(gpfo) => {
+        match gpfo.force_origin {
+          ForceOrigin::Element { elem } => elem,
+          _ => return None
+        }
+      },
+      NasIndex::ElementSidedPoint(esp) => esp.element,
+      _ => return None
+    });
   }
 }
 

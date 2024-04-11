@@ -5,6 +5,7 @@ use std::error::Error;
 use std::fmt::Display;
 use std::mem::discriminant;
 
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
 use crate::prelude::*;
@@ -24,11 +25,30 @@ pub enum Specifier<A> {
 
 impl<A: PartialEq> Specifier<A> {
   /// Use this as a filter for an iterator.
-  fn filter_fn(&self, item: &A) -> bool {
+  pub fn filter_fn(&self, item: &A) -> bool {
     return match self {
       Self::All => true,
       Self::List(l) => l.contains(item),
       Self::AllExcept(l) => !l.contains(item),
+    };
+  }
+
+  /// Use this as a lax filter (None means fail but All means All).
+  pub fn lax_filter(&self, item: &Option<A>) -> bool {
+    if matches!(self, Self::All) {
+      return true;
+    }
+    return match item {
+      Some(v) => self.filter_fn(v),
+      None => false,
+    };
+  }
+
+  /// Use this as a strict filter (None means fail).
+  pub fn strict_filter(&self, item: &Option<A>) -> bool {
+    return match item {
+      Some(v) => self.filter_fn(v),
+      None => false,
     };
   }
 }
@@ -151,7 +171,7 @@ pub struct Extraction {
   /// Subcases to get data from.
   subcases: Specifier<usize>,
   /// Block types to get data from.
-  blocks: Specifier<BlockType>,
+  block_types: Specifier<BlockType>,
   /// Grid point filter (filters out grid points if present).
   grid_points: Specifier<GridPointRef>,
   /// Element filter (filters out element IDs if present).
@@ -166,10 +186,30 @@ impl Extraction {
   /// Produces an iterator over the indices resulting from applying an
   /// extraction to a file. This assumes the file has already had its blocks
   /// sorted and merged.
-  pub fn lookup(
-    &self,
-    file: &F06File
-  ) -> impl Iterator<Item = F06Number> + '_ {
-    todo!()
+  pub fn lookup<'f>(
+    &'f self,
+    file: &'f F06File
+  ) -> impl Iterator<Item = DatumIndex> + 'f {
+    return file.all_blocks(true)
+      .filter(|b| self.subcases.filter_fn(&b.subcase))
+      .filter(|b| self.block_types.filter_fn(&b.block_type))
+      .flat_map(|b| {
+        let rows = b.row_indexes.keys()
+          .filter(|ri| self.rows.filter_fn(ri))
+          .filter(|ri| self.grid_points.lax_filter(&ri.grid_point_id()))
+          .filter(|ri| self.elements.lax_filter(&ri.element_id()));
+        let cols = b.col_indexes.keys()
+          .filter(|ci| self.cols.filter_fn(ci))
+          .filter(|ci| self.grid_points.lax_filter(&ci.grid_point_id()))
+          .filter(|ci| self.elements.lax_filter(&ci.element_id()));
+        return rows.cartesian_product(cols).map(|(ri, ci)| DatumIndex {
+          block_ref: BlockRef {
+            subcase: b.subcase,
+            block_type: b.block_type
+          },
+          row: *ri,
+          col: *ci
+        })
+      })
   }
 }

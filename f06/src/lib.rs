@@ -30,6 +30,7 @@ pub mod prelude {
   pub use crate::blocks::types::*;
   pub use crate::elements::*;
   pub use crate::f06file::*;
+  pub use crate::f06file::extraction::*;
   pub use crate::f06file::diff::*;
   pub use crate::flavour::*;
   pub use crate::geometry::*;
