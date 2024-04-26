@@ -433,9 +433,12 @@ impl Gui {
           info!("User-requested dump of app state:\n{:#?}", self);
         }
         // toggle gui debug
-        let guidebug = if ctx.debug_on_hover() { "ON" } else { "OFF" };
-        if ui.button(&format!("GUI debug {}", guidebug)).clicked() {
-          ctx.set_debug_on_hover(!ctx.debug_on_hover());
+        #[cfg(debug_assertions)]
+        {
+          let guidebug = if ctx.debug_on_hover() { "ON" } else { "OFF" };
+          if ui.button(&format!("GUI debug {}", guidebug)).clicked() {
+            ctx.set_debug_on_hover(!ctx.debug_on_hover());
+          }
         }
       });
     });
