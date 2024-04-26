@@ -12,15 +12,99 @@ use crate::prelude::*;
 
 /// This specifies a value or sets thereof.
 #[derive(
-  Debug, Clone, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq
+  Debug, Clone, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq, Default
 )]
 pub enum Specifier<A> {
   /// Use all in the file.
+  #[default]
   All,
   /// Use a list.
   List(Vec<A>),
   /// Use an exclusion list.
   AllExcept(Vec<A>)
+}
+
+/// This is a specifier type.
+#[derive(
+  Debug, Copy, Clone, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq
+)]
+pub enum SpecifierType {
+  /// Use all in the file.
+  All,
+  /// Use a list.
+  List,
+  /// Use an exclusion list.
+  AllExcept
+}
+
+impl SpecifierType {
+  /// Returns a short name for this type of specifier.
+  pub fn name(&self) -> &'static str {
+    return match self {
+      Self::All => "all",
+      Self::List => "only",
+      Self::AllExcept => "except",
+    };
+  }
+}
+
+impl Display for SpecifierType {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    return write!(f, "{}", self.name());
+  }
+}
+
+impl<A> Specifier<A> {
+  /// Returns the type of this specifier.
+  pub fn get_type(&self) -> SpecifierType {
+    return match self {
+      Specifier::All => SpecifierType::All,
+      Specifier::List(_) => SpecifierType::List,
+      Specifier::AllExcept(_) => SpecifierType::AllExcept,
+    };
+  }
+
+  /// Tries to convert this to another type, preserving as much information
+  /// as possible.
+  pub fn set_type(&mut self, to: SpecifierType) {
+    let vec = match self {
+      Specifier::All => Vec::new(),
+      Specifier::List(v) => std::mem::take(v),
+      Specifier::AllExcept(v) => std::mem::take(v),
+    };
+    match to {
+      SpecifierType::All => *self = Specifier::All,
+      SpecifierType::List => *self = Specifier::List(vec),
+      SpecifierType::AllExcept => *self = Specifier::AllExcept(vec),
+    };
+  }
+
+  /// Returns a reference into the inner vector if there is one.
+  pub fn inner_vec(& self) -> Option<&Vec<A>> {
+    return match self {
+      Specifier::All => None,
+      Specifier::List(ref v) => Some(v),
+      Specifier::AllExcept(ref v) => Some(v),
+    }
+  }
+
+  /// Returns a mutable reference into the inner vector if there is one.
+  pub fn inner_vec_mut(&mut self) -> Option<&mut Vec<A>> {
+    return match self {
+      Specifier::All => None,
+      Specifier::List(ref mut v) => Some(v),
+      Specifier::AllExcept(ref mut v) => Some(v),
+    }
+  }
+}
+
+impl<A: Clone> Specifier<A> {
+  /// Returns a clone with another type.
+  pub fn with_type(&self, to: SpecifierType) -> Self {
+    let mut clone = self.clone();
+    clone.set_type(to);
+    return clone;
+  }
 }
 
 impl<A: PartialEq> Specifier<A> {
@@ -165,21 +249,21 @@ impl Error for ExtractionError {}
 /// This structure represents a way to extract a subset of the data from an F06
 /// so one can apply comparison criteria to it.
 #[derive(
-  Debug, Clone, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq
+  Debug, Clone, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq, Default
 )]
 pub struct Extraction {
   /// Subcases to get data from.
-  subcases: Specifier<usize>,
+  pub subcases: Specifier<usize>,
   /// Block types to get data from.
-  block_types: Specifier<BlockType>,
+  pub block_types: Specifier<BlockType>,
   /// Grid point filter (filters out grid points if present).
-  grid_points: Specifier<GridPointRef>,
+  pub grid_points: Specifier<GridPointRef>,
   /// Element filter (filters out element IDs if present).
-  elements: Specifier<ElementRef>,
+  pub elements: Specifier<ElementRef>,
   /// Row filter (for when you want very specific data).
-  rows: Specifier<NasIndex>,
+  pub rows: Specifier<NasIndex>,
   /// Column filter (for when you want very specific data).
-  cols: Specifier<NasIndex>
+  pub cols: Specifier<NasIndex>
 }
 
 impl Extraction {

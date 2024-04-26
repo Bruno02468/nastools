@@ -9,7 +9,17 @@ use f06::prelude::*;
 use serde::{Deserialize, Serialize};
 use subprocess::{ExitStatus, Popen, PopenConfig, PopenError};
 
-use crate::suite::{Deck, Suite};
+use crate::suite::*;
+
+#[cfg(target_os = "macos")]
+/// Extensions for binary files.
+pub(crate) const BINARY_EXTENSIONS: &[&str] = &[];
+#[cfg(target_os = "linux")]
+/// Extensions for binary files.
+pub(crate) const BINARY_EXTENSIONS: &[&str] = &[];
+#[cfg(target_os = "windows")]
+/// Extensions for binary files.
+pub(crate) const BINARY_EXTENSIONS: &[&str] = &["exe"];
 
 /// Lower-case F06 extension.
 const F06_LOWER: &str = "f06";
@@ -93,6 +103,24 @@ impl Display for RunError {
   }
 }
 
+impl RunError {
+  /// Returns a shorter error message.
+  pub(crate) fn short_msg(&self) -> &'static str {
+    return match self {
+      RunError::MissingF06(_) => "missing F06 file",
+      RunError::UnreadableF06(_, _) => "couldn't read F06 file",
+      RunError::MissingSolver(_) => "missing solver binary",
+      RunError::SolverFailed(_, Some(_)) => "solver failed to run",
+      RunError::SolverFailed(_, None) => "solver crashed",
+      RunError::PathError => "path processing error",
+      RunError::ExtensionMixup => "both .f06 and .F06 exist",
+      RunError::IoError(_) => "I/O error",
+      RunError::TempdirCreationFailed => "tempdir creation failed",
+      RunError::SubprocessFailed(_) => "subprocess error",
+    };
+  }
+}
+
 /// This is a named "F06 acquisition method". A solver, for short.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub(crate) struct RunnableSolver {
@@ -161,16 +189,4 @@ pub(crate) struct TestSettings {
   pub(crate) keep_f06_mem: bool,
   /// Max flagged indices per deck.
   pub(crate) max_flags: usize
-}
-
-/// This is a full testing context: a reference solver, a testing solver, and
-/// a test suite.
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub(crate) struct TestContext {
-  /// The reference solver.
-  pub(crate) ref_solver: RunnableSolver,
-  /// The solver under testing.
-  pub(crate) test_solver: RunnableSolver,
-  /// A testing suite.
-  pub(crate) suite: Suite
 }

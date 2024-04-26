@@ -5,14 +5,27 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-log = "0.4"
-rayon = "1.10"
-tempdir = "0.3"
 derive_more = "0.99"
-subprocess = "0.2"
+egui_extras = "0.27"
+env_logger = "0.10"
+log = "0.4"
+native-dialog = "0.7"
+rayon = "1.10"
+rfd = "0.14"
 serde = { version = "1.0", features = ["derive"] }
-uuid = { version = "1.8", features = ["serde"] }
+serde_json = "1.0"
+subprocess = "0.2"
+tempdir = "0.3"
+uuid = { version = "1.8", features = ["serde", "v4"] }
 
 [dependencies.f06]
 version = "0.3"
 path = "../f06"
+
+[dependencies.egui]
+version = "0.27"
+features = ["log", "mint", "persistence", "rayon", "serde"]
+
+[dependencies.eframe]
+version = "0.27"
+features = ["persistence"]

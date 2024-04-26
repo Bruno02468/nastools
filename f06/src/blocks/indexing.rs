@@ -3,6 +3,7 @@
 
 use std::fmt::{Display, Debug as DebugTrait};
 use std::collections::BTreeMap;
+use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 
@@ -237,7 +238,7 @@ impl Display for ForceOrigin {
 /// A grid point, referenced by its ID.
 #[derive(
   Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
-  derive_more::From
+  derive_more::From, derive_more::FromStr
 )]
 pub struct GridPointRef {
   /// The ID of the grid point.
@@ -264,6 +265,14 @@ pub struct ElementRef {
   pub eid: usize,
   /// The type of element, if known.
   pub etype: Option<ElementType>
+}
+
+impl FromStr for ElementRef {
+  type Err = <usize as FromStr>::Err;
+
+  fn from_str(s: &str) -> Result<Self, Self::Err> {
+    return usize::from_str(s).map(|eid| Self { eid, etype: None });
+  }
 }
 
 impl Display for ElementRef {
