@@ -8,9 +8,12 @@ use std::io::{BufReader, BufWriter, Write};
 use std::path::PathBuf;
 use std::str::FromStr;
 
-use egui::{Align, Color32, ComboBox, Id, Layout, Rect, TextStyle, Ui, Visuals, WidgetText};
+use egui::{
+  Align, Color32, ComboBox, Id, Layout, TextStyle, Ui, Visuals, WidgetText
+};
 use egui_extras::{Column, TableBuilder};
-use f06::f06file::extraction::{Extraction, Specifier, SpecifierType};
+use f06::blocks::types::BlockType;
+use f06::prelude::*;
 use log::info;
 use native_dialog::{MessageDialog, MessageType};
 use serde::{Deserialize, Serialize};
@@ -247,37 +250,101 @@ impl Gui {
     self.clear_buffers();
   }
 
-  /// Editable list of things.
+  /// Editable list of text-convertible things.
   fn editable_vec<F, T: Clone + PartialEq + ToString + FromStr>(
     &mut self,
     ui: &mut Ui,
     finder: F
-  ) -> Rect
+  )
   where
     <T as FromStr>::Err: Debug,
     F: Fn(&mut Self) -> &mut Vec<T>
   {
-    let clone = finder(self).clone();
-    egui::Grid::new(ui.id()).show(ui, |ui| {
-      for (i, x) in clone.iter().enumerate() {
-        ui.label(&x.to_string());
-        if ui.button("✕").clicked() {
-          finder(self).remove(i);
-        }
-        ui.end_row();
-      }
-      let field_id = ui.next_auto_id();
-      let buf = self.text_buffer(field_id);
-      ui.text_edit_singleline(buf);
-      if ui.button("add").clicked() {
-        if let Ok(k) = buf.parse::<T>() {
-          finder(self).push(k);
-        }
-        self.text_buffer(field_id).clear();
-      }
-      ui.end_row();
-    });
-    return ui.min_rect();
+    let body_height = ui.text_style_height(&TextStyle::Body);
+    let field_id = ui.next_auto_id();
+    TableBuilder::new(ui)
+      .vscroll(false)
+      .auto_shrink(true)
+      .striped(false)
+      .column(Column::auto())
+      .column(Column::remainder().resizable(true))
+      .body(|body| {
+        body.rows(body_height, finder(self).len() + 1, |mut row| {
+          let i = row.index();
+          if i < finder(self).len() {
+            let x = finder(self).get(i).unwrap();
+            row.col(|ui| { ui.label(x.to_string()); });
+            row.col(|ui| {
+              if ui.button("x").clicked() {
+                finder(self).remove(i);
+              }
+            });
+          } else {
+            row.col(|ui| { ui.text_edit_singleline(self.text_buffer(field_id)); });
+            row.col(|ui| {
+              if ui.button("add").clicked() {
+                if let Ok(k) = self.text_buffer(field_id).parse::<T>() {
+                  finder(self).push(k);
+                }
+                self.text_buffer(field_id).clear();
+              }
+            });
+          }
+        });
+      });
+  }
+
+  /// Editable list of values in a set.
+  fn comboable_vec<F, T: Clone + PartialEq + ToString>(
+    &mut self,
+    ui: &mut Ui,
+    set: &'static [T],
+    vec_finder: F,
+  ) where
+    F: Fn(&mut Self) -> &mut Vec<T>,
+  {
+    let body_height = ui.text_style_height(&TextStyle::Body);
+    TableBuilder::new(ui)
+      .vscroll(false)
+      .auto_shrink(true)
+      .striped(false)
+      .column(Column::auto())
+      .column(Column::remainder().resizable(true))
+      .body(|body| {
+        body.rows(body_height, vec_finder(self).len() + 1, |mut row| {
+          let i = row.index();
+          if i < vec_finder(self).len() {
+            let x = vec_finder(self).get_mut(i).unwrap();
+            row.col(|ui| {
+              ComboBox::from_id_source(ui.next_auto_id())
+                .selected_text(x.to_string())
+                .show_ui(ui, |ui| {
+                  for val in set {
+                    ui.selectable_value(
+                      x,
+                      val.clone(),
+                      val.to_string().as_str()
+                    );
+                  }
+                });
+            });
+            row.col(|ui| {
+              if ui.button("x").clicked() {
+                vec_finder(self).remove(i);
+                self.suite_clean = false;
+              }
+            });
+          } else {
+            row.col(|_ui| { });
+            row.col(|ui| {
+              if ui.button("add").clicked() {
+                vec_finder(self).push(set[0].clone());
+                self.suite_clean = false;
+              }
+            });
+          }
+        });
+      });
   }
 
   /// Render function for the menu bar.
@@ -298,7 +365,7 @@ impl Gui {
       // decks menu
       ui.menu_button("Decks", |ui| {
         if ui.button("View/edit decks").clicked() {
-          self.view = View::Decks;
+          self.switch_to(View::Decks);
         }
         if ui.button("Add...").clicked() {
           self.try_run(ui, Gui::add_decks);
@@ -323,7 +390,7 @@ impl Gui {
       // solvers menu
       ui.menu_button("Solvers", |ui| {
         if ui.button("View/edit solvers").clicked() {
-          self.view = View::Solvers;
+          self.switch_to(View::Solvers);
         }
         if ui.button("Add solver binary...").clicked() {
           self.try_run(ui, Gui::add_solver_bin);
@@ -347,7 +414,7 @@ impl Gui {
       // criteria sets menu
       ui.menu_button("Criteria sets", |ui| {
         if ui.button("Edit criteria sets").clicked() {
-          self.view = View::CriteriaSets;
+          self.switch_to(View::CriteriaSets);
         }
       });
       // advanced stuff
@@ -481,29 +548,29 @@ impl Gui {
     });
   }
 
-  /// Aux function to render specifier inputs.
-  fn show_specifier<F, T: Clone + PartialEq + ToString + FromStr>(
+  /// Aux function to render text-inserted specifier inputs.
+  fn text_specifier<F, T: Clone + PartialEq + ToString + FromStr>(
     &mut self,
     ui: &mut Ui,
     finder: F
-  ) where
+  )
+  where
     <T as FromStr>::Err: Debug,
     F: Fn(&mut Self) -> &mut Specifier<T>
   {
     ui.horizontal(|ui| {
-      let tgt = finder(self);
-      let clone = tgt.clone();
       ComboBox::from_id_source(ui.next_auto_id())
-        .selected_text(format!("{}", clone.get_type()))
+        .selected_text(format!("{}", finder(self).get_type()))
         .show_ui(ui, |ui| {
+          let tgt = finder(self);
           let types = [
             SpecifierType::All, SpecifierType::List, SpecifierType::AllExcept
           ];
           for new_type in types {
-            ui.selectable_value(tgt, clone.with_type(new_type), new_type.name());
+            ui.selectable_value(tgt, tgt.with_type(new_type), new_type.name());
           }
         });
-      match clone {
+      match finder(self) {
         Specifier::All => {},
         Specifier::List(_) | Specifier::AllExcept(_) => {
           self.editable_vec(ui, |s| finder(s).inner_vec_mut().unwrap());
@@ -512,67 +579,123 @@ impl Gui {
     });
   }
 
+  /// Aux function to render combo-inserted specifier inputs.
+  fn combo_specifier<F, T: Clone + PartialEq + ToString>(
+    &mut self,
+    ui: &mut Ui,
+    set: &'static [T],
+    spec_finder: F
+  )
+  where
+    F: Fn(&mut Self) -> &mut Specifier<T>,
+  {
+    ui.horizontal(|ui| {
+      ComboBox::from_id_source(ui.next_auto_id())
+        .selected_text(format!("{}", spec_finder(self).get_type()))
+        .show_ui(ui, |ui| {
+          let tgt = spec_finder(self);
+          let types = [
+            SpecifierType::All, SpecifierType::List, SpecifierType::AllExcept
+          ];
+          for new_type in types {
+            ui.selectable_value(tgt, tgt.with_type(new_type), new_type.name());
+          }
+        });
+      match spec_finder(self) {
+        Specifier::All => {},
+        Specifier::List(_) | Specifier::AllExcept(_) => {
+          self.comboable_vec(
+            ui,
+            set,
+            |s| spec_finder(s).inner_vec_mut().unwrap()
+          );
+        },
+      };
+    });
+  }
+
   /// Render function for a single deck, its extractions, etcetera.
   fn show_deck(&mut self, ctx: &egui::Context, uuid: Uuid) {
-    if let Some((deck_ref, results_ref)) = self.state.get_deck(uuid) {
-      let deck = deck_ref.clone();
-      let _results = results_ref.cloned();
+    if self.state.suite.decks.contains_key(&uuid) {
       let exns_ui = |ui: &mut Ui| {
         ui.vertical_centered(|ui| {
           ui.strong("Deck extractions:");
           if ui.button("Add new").clicked() {
-            if let Some(dref) = self.state.suite.decks.get_mut(&uuid) {
-              dref.extractions.push((Extraction::default(), None));
-            }
+            self.state.get_deck_mut(uuid)
+              .expect("deck UUID missing for extraction addition")
+              .0.extractions.push((Extraction::default(), None));
           }
           let heading_height = ui.text_style_height(&TextStyle::Heading);
           let body_height = ui.text_style_height(&TextStyle::Body);
+          let item_height = body_height + ui.spacing().item_spacing.y;
           TableBuilder::new(ui)
             .vscroll(true)
             .auto_shrink(true)
             .striped(true)
             .column(Column::auto())
-            .column(Column::auto().resizable(true))
-            .column(Column::auto().resizable(true))
-            .column(Column::auto().resizable(true))
-            .column(Column::auto().resizable(true))
+            .column(Column::remainder().resizable(true))
+            .column(Column::remainder().resizable(true))
+            .column(Column::remainder().resizable(true))
+            .column(Column::remainder().resizable(true))
+            .column(Column::remainder().resizable(true))
             .header(heading_height, |mut header| {
               header.col(|ui| { ui.label("nº"); });
+              header.col(|ui| { ui.label("blocks"); });
               header.col(|ui| { ui.label("subcases"); });
               header.col(|ui| { ui.label("nodes"); });
               header.col(|ui| { ui.label("elements"); });
               header.col(|ui| { ui.label("criteria"); });
             })
             .body(|mut body| {
-              for (i, (exn, crit)) in deck.extractions.iter().enumerate() {
+              let (deck_ref, _results_ref) = self.state.get_deck_mut(uuid)
+                .expect("deck UUID missing for extraction addition");
+              let exns = deck_ref.extractions.clone();
+              for (i, (exn, crit)) in exns.iter().enumerate() {
+                // estimate height of the row based on the extraction with the
+                // longest inner vector
                 let max_exn_lens = [
+                  exn.block_types.inner_vec().map_or(0, |v| v.len()),
                   exn.subcases.inner_vec().map_or(0, |v| v.len()),
                   exn.grid_points.inner_vec().map_or(0, |v| v.len()),
                   exn.elements.inner_vec().map_or(0, |v| v.len())
-                ].into_iter().max().unwrap();
-                let row_height = max_exn_lens.max(1) as f32 * body_height * 2.;
-                body.row(row_height, |mut row| {
+                ].into_iter().max().unwrap() + 1;
+                let est_height = max_exn_lens as f32 * item_height;
+                body.row(est_height, |mut row| {
+                  let mut new_height = body_height;
                   row.col(|ui| { ui.label(&i.to_string()); });
                   row.col(|ui| {
-                    self.show_specifier(ui, |s| &mut s.state
+                    self.combo_specifier(
+                      ui,
+                      BlockType::all(),
+                      |s| &mut s.state
+                        .suite.decks.get_mut(&uuid).expect("deck UUID missing!")
+                        .extractions.get_mut(i).expect("bad extraction index!")
+                        .0.block_types
+                    );
+                  });
+                  row.col(|ui| {
+                    self.text_specifier(ui, |s| &mut s.state
                       .suite.decks.get_mut(&uuid).expect("deck UUID missing!")
                       .extractions.get_mut(i).expect("bad extraction index!")
                       .0.subcases
                     );
+                    new_height = new_height.max(ui.min_rect().height());
                   });
                   row.col(|ui| {
-                    self.show_specifier(ui, |s| &mut s.state
+                    self.text_specifier(ui, |s| &mut s.state
                       .suite.decks.get_mut(&uuid).expect("deck UUID missing!")
                       .extractions.get_mut(i).expect("bad extraction index!")
                       .0.grid_points
                     );
+                    new_height = new_height.max(ui.min_rect().height());
                   });
                   row.col(|ui| {
-                    self.show_specifier(ui, |s| &mut s.state
+                    self.text_specifier(ui, |s| &mut s.state
                       .suite.decks.get_mut(&uuid).expect("deck UUID missing!")
                       .extractions.get_mut(i).expect("bad extraction index!")
                       .0.elements
                     );
+                    new_height = new_height.max(ui.min_rect().height());
                   });
                   row.col(|ui| {
                     ComboBox::from_id_source(ui.next_auto_id())

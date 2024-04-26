@@ -92,11 +92,29 @@ impl AppState {
   }
 
   /// Returns a deck and its results.
-  pub(crate) fn get_deck(&self, uuid: Uuid) -> Option<(&Deck, Option<&DeckResults>)> {
+  pub(crate) fn get_deck(
+    &self,
+    uuid: Uuid
+  ) -> Option<(&Deck, Option<&DeckResults>)> {
     if let Some(deck) = self.suite.decks.get(&uuid) {
       return Some((
         deck,
         self.results.get(&uuid)
+      ));
+    } else {
+      return None;
+    }
+  }
+
+  /// Returns a mutable reference into a deck and its results.
+  pub(crate) fn get_deck_mut(
+    &mut self,
+    uuid: Uuid
+  ) -> Option<(&mut Deck, Option<&mut DeckResults>)> {
+    if let Some(deck) = self.suite.decks.get_mut(&uuid) {
+      return Some((
+        deck,
+        self.results.get_mut(&uuid)
       ));
     } else {
       return None;
