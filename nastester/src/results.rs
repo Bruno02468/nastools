@@ -1,5 +1,7 @@
 //! This submodule defines structures for testing results.
 
+use std::collections::BTreeSet;
+
 use f06::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -36,7 +38,9 @@ pub(crate) struct DeckResults {
   /// The F06 file from the reference solver.
   pub(crate) ref_f06: RunState,
   /// The F06 file from the solver under test.
-  pub(crate) test_f06: RunState
+  pub(crate) test_f06: RunState,
+  /// Contains the flagged values.
+  pub(crate) flagged: Vec<Option<BTreeSet<DatumIndex>>>
 }
 
 impl DeckResults {

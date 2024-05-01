@@ -249,7 +249,7 @@ impl Error for ExtractionError {}
 /// This structure represents a way to extract a subset of the data from an F06
 /// so one can apply comparison criteria to it.
 #[derive(
-  Debug, Clone, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq, Default
+  Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default
 )]
 pub struct Extraction {
   /// Subcases to get data from.
@@ -265,7 +265,9 @@ pub struct Extraction {
   /// Column filter (for when you want very specific data).
   pub cols: Specifier<NasIndex>,
   /// Raw column filter (for ease of separation).
-  pub raw_cols: Specifier<usize>
+  pub raw_cols: Specifier<usize>,
+  /// What to do in case of disjunctions.
+  pub dxn: DisjunctionBehaviour
 }
 
 impl Extraction {

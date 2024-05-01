@@ -3,6 +3,7 @@
 //! fully-interactive (like the GUI).
 
 use std::collections::BTreeMap;
+use std::collections::BTreeSet;
 use std::collections::VecDeque;
 use std::path::PathBuf;
 use std::sync::atomic::AtomicUsize;
@@ -11,6 +12,8 @@ use std::sync::Mutex;
 use std::thread;
 
 use f06::prelude::*;
+use rayon::iter::IntoParallelRefIterator;
+use rayon::iter::ParallelIterator;
 use serde::Deserialize;
 use serde::Serialize;
 use uuid::Uuid;
@@ -238,15 +241,71 @@ impl AppState {
     } else {
       self.runner.max_jobs
     };
-    for jn in 0..4 {
+    for jn in 0..nt {
       if self.runner.current_jobs.load(relaxed) < nt {
         let queue = self.runner.job_queue.clone();
         let job_count = self.runner.current_jobs.clone();
         thread::Builder::new()
           .name(format!("job_runner_{}", jn+1))
           .spawn(move || runner(queue, job_count))
-          .expect("failed to spawn thread");
+          .expect("failed to spawn runner thread");
       }
     }
+  }
+
+  /// Re-computes the flagged values for a deck.
+  pub(crate) fn recompute_flagged(&mut self, deck: Uuid) {
+    let critsets = self.suite.criteria_sets.clone();
+    if let Some((deck, results_mtx)) = self.get_deck(deck) {
+      let mut results = results_mtx.lock().expect("mutex poisoned");
+      results.flagged.clear();
+      let pair = (&results.ref_f06, &results.test_f06);
+      if let (RunState::Finished(r), RunState::Finished(t)) = pair {
+        for (exn, crit_uuid) in deck.extractions.iter() {
+          if let Some(critset) = crit_uuid.and_then(|u| critsets.get(&u)) {
+            let in_ref = exn.lookup(r).collect::<BTreeSet<_>>();
+            let in_test = exn.lookup(t).collect::<BTreeSet<_>>();
+            let in_either = in_ref.union(&in_test).collect::<BTreeSet<_>>();
+            let dxn = in_ref.symmetric_difference(&in_test)
+              .collect::<BTreeSet<_>>();
+            let mut flagged: BTreeSet<DatumIndex> = BTreeSet::new();
+            if exn.dxn == DisjunctionBehaviour::Flag {
+              flagged.extend(dxn);
+            }
+            let get = |f: &F06File, ix: &DatumIndex| -> Option<F06Number> {
+              let v = ix.get_from(f);
+              if v.is_err() && exn.dxn == DisjunctionBehaviour::AssumeZeroes {
+                return Some(0.0.into());
+              } else {
+                return Some(v.unwrap());
+              }
+            };
+            for ix in in_either {
+              let val_ref = get(r, ix);
+              let val_test = get(t, ix);
+              if let (Some(rv), Some(tv)) = (val_ref, val_test) {
+                if critset.criteria.check(rv.into(), tv.into()).is_some() {
+                  flagged.insert(*ix);
+                }
+              }
+            }
+            results_mtx.lock().expect("poisoned").flagged.push(Some(flagged));
+          } else {
+            results_mtx.lock().expect("mutex poisoned").flagged.push(None);
+          }
+        }
+      }
+    }
+  }
+
+  /// Re-computes all flagged values in a background thread.
+  pub(crate) fn recompute_all_flagged(&mut self) {
+    let decks = self.suite.decks.keys().cloned().collect::<Vec<_>>();
+    let mref = Arc::new(Mutex::new(self));
+    decks.par_iter()
+      .map(|u| (u, mref.clone()))
+      .for_each(|(u, s)| {
+        if let Ok(mut s) = s.lock() { s.recompute_flagged(*u); }
+      })
   }
 }

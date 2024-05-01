@@ -9,7 +9,7 @@ use std::path::PathBuf;
 use std::str::FromStr;
 
 use egui::{
-  Align, Color32, ComboBox, DragValue, Id, Layout, TextStyle, Ui, Visuals, WidgetText
+  Align, Color32, ComboBox, Context, DragValue, Id, Layout, TextStyle, Ui, Visuals, WidgetText
 };
 use egui_extras::{Column, TableBuilder};
 use f06::blocks::types::BlockType;
@@ -34,8 +34,10 @@ pub(crate) enum View {
   Solvers,
   /// The criteria sets.
   CriteriaSets,
-  /// A specific deck.
-  Deck(Uuid),
+  /// A specific deck's extractions.
+  Extractions(Uuid),
+  /// A deck's side-by-side results.
+  Results(Uuid, Option<usize>)
 }
 
 /// This struct rerpresents the GUI.
@@ -409,7 +411,7 @@ impl Gui {
   }
 
   /// Render function for the menu bar.
-  fn show_menu(&mut self, ctx: &egui::Context, ui: &mut Ui) {
+  fn show_menu(&mut self, ctx: &Context, ui: &mut Ui) {
     egui::menu::bar(ui, |ui| {
       // suite menu
       ui.menu_button("Suite", |ui| {
@@ -509,6 +511,10 @@ impl Gui {
         } else if ui.button("Change to dark mode").clicked() {
           ctx.set_visuals(Visuals::dark());
         }
+        // recompute flags
+        if ui.button("Recompute flags").clicked() {
+          self.state.recompute_all_flagged();
+        }
         // dump app state
         if ui.button("Dump app state").clicked() {
           info!("User-requested dump of app state:\n{:#?}", self);
@@ -526,7 +532,7 @@ impl Gui {
   }
 
   /// Render function for the global decks list.
-  fn view_decks(&mut self, ctx: &egui::Context) {
+  fn view_decks(&mut self, ctx: &Context) {
     // one per deck
     let deck_data = self.state.decks_by_name()
       .map(|(u, d, r)| (u, d.clone(), r))
@@ -534,7 +540,8 @@ impl Gui {
     egui::CentralPanel::default().show(ctx, |ui| {
       self.show_menu(ctx, ui);
       let heading_height = ui.text_style_height(&TextStyle::Heading);
-      let body_height = ui.text_style_height(&TextStyle::Body);
+      let dy = ui.spacing().item_spacing.y;
+      let body_height = ui.text_style_height(&TextStyle::Body) + dy;
       let mut cells = Layout::left_to_right(Align::Center);
       cells.main_wrap = false;
       let ndecks = deck_data.len();
@@ -573,11 +580,13 @@ impl Gui {
           .column(Column::auto().resizable(true))
           .column(Column::auto().resizable(true))
           .column(Column::auto().resizable(true))
+          .column(Column::auto().resizable(true))
           .header(heading_height, |mut header| {
             header.col(|ui| { ui.heading("File name"); });
             header.col(|ui| { ui.heading("Status"); });
             header.col(|ui| { ui.heading("Reference run"); });
             header.col(|ui| { ui.heading("Test run"); });
+            header.col(|ui| { ui.heading("Flagged"); });
             header.col(|ui| { ui.heading("Actions"); });
           })
           .body(|body| {
@@ -622,6 +631,16 @@ impl Gui {
                   row.col(|ui| lblres(ui, &handle.ref_f06));
                   // test run
                   row.col(|ui| lblres(ui, &handle.test_f06));
+                  // flags
+                  row.col(|ui| {
+                    let nflags: usize = handle.flagged
+                      .iter()
+                      .map(|v| match v {
+                        Some(ref m) => m.len(),
+                        None => 0,
+                      }).sum();
+                    ui.label(format!("{} values", nflags));
+                  });
                 } else {
                   // reference run
                   row.col(|ui| lblres(ui, &RunState::Running));
@@ -637,8 +656,8 @@ impl Gui {
               // actions
               row.col(|ui| {
                 ui.horizontal(|ui| {
-                  if ui.button("Configure").clicked() {
-                    self.switch_to(View::Deck(*uuid));
+                  if ui.button("Extractions...").clicked() {
+                    self.switch_to(View::Extractions(*uuid));
                   }
                   if ui.button("Remove").clicked() {
                     self.state.suite.decks.remove(uuid);
@@ -653,9 +672,10 @@ impl Gui {
   }
 
   /// Render function for a single deck, its extractions, etcetera.
-  fn view_deck(&mut self, ctx: &egui::Context, uuid: Uuid) {
+  fn view_deck_exns(&mut self, ctx: &Context, uuid: Uuid) {
     if self.state.suite.decks.contains_key(&uuid) {
       let exns_ui = |ui: &mut Ui| {
+        self.show_menu(ctx, ui);
         ui.vertical_centered(|ui| {
           ui.strong("Deck extractions:");
           if ui.button("Add new").clicked() {
@@ -676,12 +696,14 @@ impl Gui {
             .column(Column::remainder().resizable(true))
             .column(Column::remainder().resizable(true))
             .column(Column::remainder().resizable(true))
+            .column(Column::remainder().resizable(true))
             .header(heading_height, |mut header| {
               header.col(|ui| { ui.label("nº"); });
               header.col(|ui| { ui.label("blocks"); });
               header.col(|ui| { ui.label("subcases"); });
               header.col(|ui| { ui.label("nodes"); });
               header.col(|ui| { ui.label("elements"); });
+              header.col(|ui| { ui.label("on disjunction"); });
               header.col(|ui| { ui.label("criteria"); });
             })
             .body(|mut body| {
@@ -699,7 +721,6 @@ impl Gui {
                 ].into_iter().max().unwrap() + 1;
                 let est_height = max_exn_lens as f32 * item_height;
                 body.row(est_height, |mut row| {
-                  let mut new_height = body_height;
                   row.col(|ui| { ui.label(&i.to_string()); });
                   row.col(|ui| {
                     self.combo_specifier(
@@ -717,7 +738,6 @@ impl Gui {
                       .extractions.get_mut(i).expect("bad extraction index!")
                       .0.subcases
                     );
-                    new_height = new_height.max(ui.min_rect().height());
                   });
                   row.col(|ui| {
                     self.text_specifier(ui, |s| &mut s.state
@@ -725,7 +745,6 @@ impl Gui {
                       .extractions.get_mut(i).expect("bad extraction index!")
                       .0.grid_points
                     );
-                    new_height = new_height.max(ui.min_rect().height());
                   });
                   row.col(|ui| {
                     self.text_specifier(ui, |s| &mut s.state
@@ -733,7 +752,24 @@ impl Gui {
                       .extractions.get_mut(i).expect("bad extraction index!")
                       .0.elements
                     );
-                    new_height = new_height.max(ui.min_rect().height());
+                  });
+                  row.col(|ui| {
+                    let dxn = &mut self.state
+                      .suite.decks.get_mut(&uuid).expect("deck UUID missing!")
+                      .extractions.get_mut(i).expect("bad extraction index!")
+                      .0.dxn;
+                    ComboBox::from_id_source(ui.next_auto_id())
+                      .selected_text(dxn.to_string())
+                      .show_ui(ui, |ui| {
+                        let all = [
+                          DisjunctionBehaviour::AssumeZeroes,
+                          DisjunctionBehaviour::Skip,
+                          DisjunctionBehaviour::Flag
+                        ];
+                        for db in all {
+                          ui.selectable_value(dxn, db, db.to_string());
+                        }
+                      });
                   });
                   row.col(|ui| {
                     ComboBox::from_id_source(ui.next_auto_id())
@@ -744,11 +780,17 @@ impl Gui {
                           .map(|c| c.name.clone())
                           .expect("critset UUID missing"))
                       ).show_ui(ui, |ui| {
-                        let crit_mut = &mut self.state.suite.decks.get_mut(&uuid).unwrap().extractions.get_mut(i).unwrap().1;
+                        let crit_mut = &mut self.state.suite.decks
+                          .get_mut(&uuid).unwrap()
+                          .extractions.get_mut(i).unwrap().1;
                         ui.selectable_value(crit_mut, None, "<none>");
                         let critsets = self.state.suite.criteria_sets.iter();
                         for (uuid, crit) in critsets {
-                          ui.selectable_value(crit_mut, Some(*uuid), &crit.name);
+                          ui.selectable_value(
+                            crit_mut,
+                            Some(*uuid),
+                            &crit.name
+                          );
                         }
                       });
                   });
@@ -757,13 +799,7 @@ impl Gui {
             })
         })
       };
-      egui::TopBottomPanel::bottom("deck_extractions")
-        .resizable(true)
-        .show_separator_line(true)
-        .show(ctx, exns_ui);
-      egui::CentralPanel::default().show(ctx, |ui| {
-        self.show_menu(ctx, ui);
-      });
+      egui::CentralPanel::default().show(ctx, exns_ui);
     } else {
       egui::CentralPanel::default().show(ctx, |ui| {
         self.show_menu(ctx, ui);
@@ -774,7 +810,7 @@ impl Gui {
   }
 
   /// Render function for the criteria set list.
-  fn view_criteria_sets(&mut self, ctx: &egui::Context) {
+  fn view_criteria_sets(&mut self, ctx: &Context) {
     egui::CentralPanel::default().show(ctx, |ui| {
       self.show_menu(ctx, ui);
       let heading_height = ui.text_style_height(&TextStyle::Heading);
@@ -895,10 +931,15 @@ impl Gui {
       }
     });
   }
+
+  /// Render function for a deck's results, side-by-side.
+  fn view_results(&mut self, _ctx: &Context, _d: Uuid, _exn: Option<usize>) {
+
+  }
 }
 
 impl eframe::App for Gui {
-  fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+  fn update(&mut self, ctx: &Context, _frame: &mut eframe::Frame) {
     //if cfg!(debug_assertions) {
     //  ctx.set_debug_on_hover(true);
     //}
@@ -906,7 +947,8 @@ impl eframe::App for Gui {
       View::Decks => self.view_decks(ctx),
       View::Solvers => todo!(),
       View::CriteriaSets => self.view_criteria_sets(ctx),
-      View::Deck(uuid) => self.view_deck(ctx, uuid),
+      View::Extractions(uuid) => self.view_deck_exns(ctx, uuid),
+      View::Results(uuid, n) => self.view_results(ctx, uuid, n)
     };
   }
 }

@@ -87,6 +87,16 @@ pub enum DisjunctionBehaviour {
   Flag
 }
 
+impl Display for DisjunctionBehaviour {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    return write!(f, "{}", match self {
+      DisjunctionBehaviour::Skip => "skip",
+      DisjunctionBehaviour::AssumeZeroes => "assume zeros",
+      DisjunctionBehaviour::Flag => "flag",
+    });
+  }
+}
+
 impl Default for DisjunctionBehaviour {
   fn default() -> Self {
     return Self::AssumeZeroes;
@@ -219,7 +229,7 @@ pub struct FoundValues {
 }
 
 /// The reason a value was flagged.
-#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq, PartialOrd)]
 pub enum FlagReason {
   /// Flagged due to an absolute difference.
   Difference {
