@@ -155,6 +155,18 @@ pub struct Criteria {
   pub sig: bool
 }
 
+impl Default for Criteria {
+  fn default() -> Self {
+    return Self {
+      difference: None,
+      ratio: None,
+      nan: true,
+      inf: true,
+      sig: false
+    };
+  }
+}
+
 impl Criteria {
   /// Checks a pair of values against this set of criteria.
   pub fn check(&self, a: f64, b: f64) -> Option<FlagReason> {

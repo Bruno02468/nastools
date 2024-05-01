@@ -9,7 +9,7 @@ use std::path::PathBuf;
 use std::str::FromStr;
 
 use egui::{
-  Align, Color32, ComboBox, Id, Layout, TextStyle, Ui, Visuals, WidgetText
+  Align, Color32, ComboBox, DragValue, Id, Layout, TextStyle, Ui, Visuals, WidgetText
 };
 use egui_extras::{Column, TableBuilder};
 use f06::blocks::types::BlockType;
@@ -33,14 +33,8 @@ pub(crate) enum View {
   Solvers,
   /// The criteria sets.
   CriteriaSets,
-  /// The logs.
-  Logs,
   /// A specific deck.
   Deck(Uuid),
-  /// A specific solver.
-  Solver(Uuid),
-  /// A specific criteria set.
-  CriteriaSet(Uuid)
 }
 
 /// This struct rerpresents the GUI.
@@ -347,6 +341,72 @@ impl Gui {
       });
   }
 
+  /// Aux function to render text-inserted specifier inputs.
+  fn text_specifier<F, T: Clone + PartialEq + ToString + FromStr>(
+    &mut self,
+    ui: &mut Ui,
+    finder: F
+  )
+  where
+    <T as FromStr>::Err: Debug,
+    F: Fn(&mut Self) -> &mut Specifier<T>
+  {
+    ui.horizontal(|ui| {
+      ComboBox::from_id_source(ui.next_auto_id())
+        .selected_text(format!("{}", finder(self).get_type()))
+        .show_ui(ui, |ui| {
+          let tgt = finder(self);
+          let types = [
+            SpecifierType::All, SpecifierType::List, SpecifierType::AllExcept
+          ];
+          for new_type in types {
+            ui.selectable_value(tgt, tgt.with_type(new_type), new_type.name());
+          }
+        });
+      match finder(self) {
+        Specifier::All => {},
+        Specifier::List(_) | Specifier::AllExcept(_) => {
+          self.editable_vec(ui, |s| finder(s).inner_vec_mut().unwrap());
+        },
+      };
+    });
+  }
+
+  /// Aux function to render combo-inserted specifier inputs.
+  fn combo_specifier<F, T: Clone + PartialEq + ToString>(
+    &mut self,
+    ui: &mut Ui,
+    set: &'static [T],
+    spec_finder: F
+  )
+  where
+    F: Fn(&mut Self) -> &mut Specifier<T>,
+  {
+    ui.horizontal(|ui| {
+      ComboBox::from_id_source(ui.next_auto_id())
+        .selected_text(format!("{}", spec_finder(self).get_type()))
+        .show_ui(ui, |ui| {
+          let tgt = spec_finder(self);
+          let types = [
+            SpecifierType::All, SpecifierType::List, SpecifierType::AllExcept
+          ];
+          for new_type in types {
+            ui.selectable_value(tgt, tgt.with_type(new_type), new_type.name());
+          }
+        });
+      match spec_finder(self) {
+        Specifier::All => {},
+        Specifier::List(_) | Specifier::AllExcept(_) => {
+          self.comboable_vec(
+            ui,
+            set,
+            |s| spec_finder(s).inner_vec_mut().unwrap()
+          );
+        },
+      };
+    });
+  }
+
   /// Render function for the menu bar.
   fn show_menu(&mut self, ctx: &egui::Context, ui: &mut Ui) {
     egui::menu::bar(ui, |ui| {
@@ -445,7 +505,7 @@ impl Gui {
   }
 
   /// Render function for the global decks list.
-  fn show_decks(&mut self, ctx: &egui::Context) {
+  fn view_decks(&mut self, ctx: &egui::Context) {
     // one per deck
     let deck_data = self.state.decks_by_name()
       .map(|(u, d, r)| (u, d.clone(), r.cloned()))
@@ -455,6 +515,7 @@ impl Gui {
       let heading_height = ui.text_style_height(&TextStyle::Heading);
       let body_height = ui.text_style_height(&TextStyle::Body);
       let mut cells = Layout::left_to_right(Align::Center);
+      cells.main_wrap = false;
       let ndecks = deck_data.len();
       if deck_data.is_empty() {
         ui.columns(3, |cols| {
@@ -481,7 +542,6 @@ impl Gui {
         ui.vertical_centered(|ui| {
           ui.strong("Decks in current suite:");
         });
-        cells.main_wrap = false;
         TableBuilder::new(ui)
           .vscroll(true)
           .auto_shrink(true)
@@ -551,74 +611,8 @@ impl Gui {
     });
   }
 
-  /// Aux function to render text-inserted specifier inputs.
-  fn text_specifier<F, T: Clone + PartialEq + ToString + FromStr>(
-    &mut self,
-    ui: &mut Ui,
-    finder: F
-  )
-  where
-    <T as FromStr>::Err: Debug,
-    F: Fn(&mut Self) -> &mut Specifier<T>
-  {
-    ui.horizontal(|ui| {
-      ComboBox::from_id_source(ui.next_auto_id())
-        .selected_text(format!("{}", finder(self).get_type()))
-        .show_ui(ui, |ui| {
-          let tgt = finder(self);
-          let types = [
-            SpecifierType::All, SpecifierType::List, SpecifierType::AllExcept
-          ];
-          for new_type in types {
-            ui.selectable_value(tgt, tgt.with_type(new_type), new_type.name());
-          }
-        });
-      match finder(self) {
-        Specifier::All => {},
-        Specifier::List(_) | Specifier::AllExcept(_) => {
-          self.editable_vec(ui, |s| finder(s).inner_vec_mut().unwrap());
-        },
-      };
-    });
-  }
-
-  /// Aux function to render combo-inserted specifier inputs.
-  fn combo_specifier<F, T: Clone + PartialEq + ToString>(
-    &mut self,
-    ui: &mut Ui,
-    set: &'static [T],
-    spec_finder: F
-  )
-  where
-    F: Fn(&mut Self) -> &mut Specifier<T>,
-  {
-    ui.horizontal(|ui| {
-      ComboBox::from_id_source(ui.next_auto_id())
-        .selected_text(format!("{}", spec_finder(self).get_type()))
-        .show_ui(ui, |ui| {
-          let tgt = spec_finder(self);
-          let types = [
-            SpecifierType::All, SpecifierType::List, SpecifierType::AllExcept
-          ];
-          for new_type in types {
-            ui.selectable_value(tgt, tgt.with_type(new_type), new_type.name());
-          }
-        });
-      match spec_finder(self) {
-        Specifier::All => {},
-        Specifier::List(_) | Specifier::AllExcept(_) => {
-          self.comboable_vec(
-            ui,
-            set,
-            |s| spec_finder(s).inner_vec_mut().unwrap()
-          );
-        },
-      };
-    });
-  }
-
   /// Render function for a single deck, its extractions, etcetera.
-  fn show_deck(&mut self, ctx: &egui::Context, uuid: Uuid) {
+  fn view_deck(&mut self, ctx: &egui::Context, uuid: Uuid) {
     if self.state.suite.decks.contains_key(&uuid) {
       let exns_ui = |ui: &mut Ui| {
         ui.vertical_centered(|ui| {
@@ -737,6 +731,129 @@ impl Gui {
       });
     }
   }
+
+  /// Render function for the criteria set list.
+  fn view_criteria_sets(&mut self, ctx: &egui::Context) {
+    egui::CentralPanel::default().show(ctx, |ui| {
+      self.show_menu(ctx, ui);
+      let heading_height = ui.text_style_height(&TextStyle::Heading);
+      let body_height = ui.text_style_height(&TextStyle::Body) + ui.spacing().item_spacing.y;
+      let mut cells = Layout::left_to_right(Align::Center);
+      cells.main_wrap = false;
+      if self.state.suite.criteria_sets.is_empty() {
+        ui.columns(3, |cols| {
+          cols[1].horizontal_centered(|ui| {
+            egui::Grid::new("no_critsets_grid").show(ui, |ui| {
+              ui.strong("No criteria sets in current suite.");
+              ui.end_row();
+              ui.horizontal(|ui| {
+                ui.label("Maybe");
+                if ui.button("add one").clicked() {
+                  self.state.add_crit_set();
+                }
+                ui.label("or");
+                if ui.button("load a suite file").clicked() {
+                  self.try_run(ui, Gui::load_suite);
+                }
+                ui.label("?");
+              });
+              ui.end_row();
+            })
+          });
+        });
+      } else {
+        let mut names_ids = self.state.suite.criteria_sets
+          .iter()
+          .map(|(u, c)| (c.name.clone(), *u))
+          .collect::<Vec<(_, _)>>();
+        let nsets = self.state.suite.criteria_sets.len();
+        names_ids.sort_by(|a, b| a.0.cmp(&b.0));
+        ui.vertical_centered(|ui| {
+          ui.strong("Criteria sets in current suite:");
+          if ui.button("Add new").clicked() {
+            self.state.add_crit_set();
+          }
+        });
+        TableBuilder::new(ui)
+          .vscroll(true)
+          .auto_shrink(false)
+          .striped(true)
+          .cell_layout(cells)
+          .column(Column::auto().resizable(true))
+          .column(Column::auto().resizable(true))
+          .column(Column::auto().resizable(true))
+          .column(Column::auto())
+          .column(Column::auto())
+          .column(Column::auto())
+          .column(Column::auto())
+          .header(heading_height, |mut header| {
+            header.col(|ui| { ui.heading("Criteria set name"); });
+            header.col(|ui| { ui.heading("Max absolute difference"); });
+            header.col(|ui| { ui.heading("Max absolute ratio"); });
+            header.col(|ui| { ui.heading("Flag NaN"); });
+            header.col(|ui| { ui.heading("Flag infinities"); });
+            header.col(|ui| { ui.heading("Flag if signs differ"); });
+            header.col(|ui| { ui.heading("Actions"); });
+          })
+          .body(|body| {
+            body.rows(body_height, nsets, |mut row| {
+              let uuid = names_ids.get(row.index()).unwrap().1;
+              let critset = self.state.suite.criteria_sets
+                .get_mut(&uuid)
+                .expect("unable to find critset");
+              // name
+              row.col(|ui| {
+                ui.text_edit_singleline(&mut critset.name);
+              });
+              // disable-able number
+              let disableable_number = |ui: &mut Ui, n: &mut Option<f64>| {
+                if let Some(ref mut x) = n {
+                  let drag = DragValue::new(x).speed(0.1);
+                  ui.add(drag);
+                  if ui.button("disable").clicked() {
+                    *n = None;
+                  }
+                } else if ui.button("enable").clicked() {
+                  *n = Some(1.0);
+                }
+              };
+              // max abs diff
+              row.col(|ui| {
+                disableable_number(ui, &mut critset.criteria.difference);
+              });
+              // max ratio
+              row.col(|ui| {
+                disableable_number(ui, &mut critset.criteria.ratio);
+              });
+              // flag NaNs
+              row.col(|ui| {
+                ui.vertical_centered(|ui| {
+                  ui.checkbox(&mut critset.criteria.nan, "");
+                });
+              });
+              // flag NaNs
+              row.col(|ui| {
+                ui.vertical_centered(|ui| {
+                  ui.checkbox(&mut critset.criteria.inf, "");
+                });
+              });
+              // flag differing signals
+              row.col(|ui| {
+                ui.vertical_centered(|ui| {
+                  ui.checkbox(&mut critset.criteria.sig, "");
+                });
+              });
+              // delete action
+              row.col(|ui| {
+                if ui.button("Delete").clicked() {
+                  self.state.delete_crit_set(uuid);
+                }
+              });
+            });
+          });
+      }
+    });
+  }
 }
 
 impl eframe::App for Gui {
@@ -745,13 +862,10 @@ impl eframe::App for Gui {
     //  ctx.set_debug_on_hover(true);
     //}
     match self.view {
-      View::Decks => self.show_decks(ctx),
+      View::Decks => self.view_decks(ctx),
       View::Solvers => todo!(),
-      View::CriteriaSets => todo!(),
-      View::Logs => todo!(),
-      View::Deck(uuid) => self.show_deck(ctx, uuid),
-      View::Solver(_) => todo!(),
-      View::CriteriaSet(_) => todo!(),
+      View::CriteriaSets => self.view_criteria_sets(ctx),
+      View::Deck(uuid) => self.view_deck(ctx, uuid),
     };
   }
 }

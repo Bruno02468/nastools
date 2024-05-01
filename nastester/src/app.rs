@@ -31,17 +31,18 @@ pub(crate) struct AppState {
 
 impl AppState {
   /// Adds a deck file to the app's current suite.
-  pub(crate) fn add_deck(&mut self, in_file: PathBuf) {
+  pub(crate) fn add_deck(&mut self, in_file: PathBuf) -> Uuid {
     let deck = Deck {
       in_file,
       extractions: Vec::new(),
     };
     let uuid = Uuid::new_v4();
     self.suite.decks.insert(uuid, deck);
+    return uuid;
   }
 
   /// Adds a solver from a known binary.
-  pub(crate) fn add_solver_bin(&mut self, binary: PathBuf) {
+  pub(crate) fn add_solver_bin(&mut self, binary: PathBuf) -> Uuid {
     let nickname = binary
       .file_name()
       .and_then(|s| s.to_str())
@@ -54,10 +55,11 @@ impl AppState {
     };
     let uuid = Uuid::new_v4();
     self.solvers.insert(uuid, solver);
+    return uuid;
   }
 
   /// Adds a solver from an F06 directory.
-  pub(crate) fn add_solver_dir(&mut self, dir: PathBuf) {
+  pub(crate) fn add_solver_dir(&mut self, dir: PathBuf) -> Uuid {
     let nickname = dir
     .file_name()
     .and_then(|s| s.to_str())
@@ -70,6 +72,18 @@ impl AppState {
     };
     let uuid = Uuid::new_v4();
     self.solvers.insert(uuid, solver);
+    return uuid;
+  }
+
+  /// Adds a new criteria set.
+  pub(crate) fn add_crit_set(&mut self) -> Uuid {
+    let uuid = Uuid::new_v4();
+    let critset = NamedCriteria {
+      name: format!("critset_{}", self.suite.criteria_sets.len() + 1),
+      criteria: Criteria::default()
+    };
+    self.suite.criteria_sets.insert(uuid, critset);
+    return uuid;
   }
 
   /// Returns decks in order of name with their UUIDs.
@@ -119,5 +133,14 @@ impl AppState {
     } else {
       return None;
     }
+  }
+
+  /// Deletes a criteria set and removes it from decks.
+  pub(crate) fn delete_crit_set(&mut self, uuid: Uuid) {
+    self.suite.criteria_sets.remove(&uuid);
+    self.suite.decks.values_mut()
+      .for_each(|d| d.extractions.iter_mut().for_each(
+        |(_, u)| if u == &Some(uuid) { *u = None }
+      ))
   }
 }

@@ -263,7 +263,9 @@ pub struct Extraction {
   /// Row filter (for when you want very specific data).
   pub rows: Specifier<NasIndex>,
   /// Column filter (for when you want very specific data).
-  pub cols: Specifier<NasIndex>
+  pub cols: Specifier<NasIndex>,
+  /// Raw column filter (for ease of separation).
+  pub raw_cols: Specifier<usize>
 }
 
 impl Extraction {
@@ -285,7 +287,10 @@ impl Extraction {
         let cols = b.col_indexes.keys()
           .filter(|ci| self.cols.filter_fn(ci))
           .filter(|ci| self.grid_points.lax_filter(&ci.grid_point_id()))
-          .filter(|ci| self.elements.lax_filter(&ci.element_id()));
+          .filter(|ci| self.elements.lax_filter(&ci.element_id()))
+          .filter(
+            |ci| self.raw_cols.filter_fn(b.col_indexes.get(ci).unwrap())
+          );
         return rows.cartesian_product(cols).map(|(ri, ci)| DatumIndex {
           block_ref: BlockRef {
             subcase: b.subcase,
