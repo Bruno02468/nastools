@@ -3,7 +3,12 @@
 //! fully-interactive (like the GUI).
 
 use std::collections::BTreeMap;
+use std::collections::VecDeque;
 use std::path::PathBuf;
+use std::sync::atomic::AtomicUsize;
+use std::sync::Arc;
+use std::sync::Mutex;
+use std::thread;
 
 use f06::prelude::*;
 use serde::Deserialize;
@@ -11,22 +16,19 @@ use serde::Serialize;
 use uuid::Uuid;
 
 use crate::results::DeckResults;
+use crate::results::RunState;
 use crate::running::*;
 use crate::suite::*;
 
 /// This contains everything the app should be doing right now.
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub(crate) struct AppState {
   /// The solvers currently known to the app.
   pub(crate) solvers: BTreeMap<Uuid, RunnableSolver>,
   /// The current test suite.
   pub(crate) suite: Suite,
-  /// The currently-selected reference solver, if any.
-  pub(crate) ref_solver: Option<Uuid>,
-  /// The currently-selected solver under test, if any.
-  pub(crate) test_solver: Option<Uuid>,
-  /// The results currently loaded for the decks.
-  pub(crate) results: BTreeMap<Uuid, DeckResults>
+  /// The runner.
+  pub(crate) runner: Runner
 }
 
 impl AppState {
@@ -97,23 +99,23 @@ impl AppState {
   /// Iterates over decks and their results, sorted by name.
   pub(crate) fn decks_by_name(
     &self
-  ) -> impl Iterator<Item = (Uuid, &Deck, Option<&DeckResults>)> {
+  ) -> impl Iterator<Item = (Uuid, &Deck, Option<Arc<Mutex<DeckResults>>>)> {
     return self.decks_names().map(|(_, u)| (
       u,
       self.suite.decks.get(&u).expect("invalid deck UUID"),
-      self.results.get(&u))
-    )
+      self.runner.results.get(&u).cloned()
+    ))
   }
 
   /// Returns a deck and its results.
   pub(crate) fn get_deck(
-    &self,
+    &mut self,
     uuid: Uuid
-  ) -> Option<(&Deck, Option<&DeckResults>)> {
+  ) -> Option<(&Deck, Arc<Mutex<DeckResults>>)> {
     if let Some(deck) = self.suite.decks.get(&uuid) {
       return Some((
         deck,
-        self.results.get(&uuid)
+        self.runner.results.entry(uuid).or_default().clone()
       ));
     } else {
       return None;
@@ -124,11 +126,11 @@ impl AppState {
   pub(crate) fn get_deck_mut(
     &mut self,
     uuid: Uuid
-  ) -> Option<(&mut Deck, Option<&mut DeckResults>)> {
+  ) -> Option<(&mut Deck, Option<Arc<Mutex<DeckResults>>>)> {
     if let Some(deck) = self.suite.decks.get_mut(&uuid) {
       return Some((
         deck,
-        self.results.get_mut(&uuid)
+        self.runner.results.get(&uuid).cloned()
       ));
     } else {
       return None;
@@ -142,5 +144,109 @@ impl AppState {
       .for_each(|d| d.extractions.iter_mut().for_each(
         |(_, u)| if u == &Some(uuid) { *u = None }
       ))
+  }
+
+  /// Clears all results.
+  pub(crate) fn clear_results(&mut self) {
+    self.runner.results.clear();
+  }
+
+  /// Gets a handle into a run state.
+  pub(crate) fn get_run_state(
+    &mut self,
+    deck: Uuid
+  ) -> Arc<Mutex<DeckResults>> {
+    let tgt = self.runner.results
+      .entry(deck)
+      .or_insert(Arc::new(Mutex::new(DeckResults::default())));
+    return tgt.clone();
+  }
+
+  /// Sets a run state. Might block!
+  pub(crate) fn set_run_state(
+    &mut self,
+    deck: Uuid,
+    pick: SolverPick,
+    state: RunState
+  ) {
+    let handle = self.get_run_state(deck);
+    *handle.lock().expect("mutex poisoned").get_mut(pick) = state;
+  }
+
+  /// Gets the current picked solver for something.
+  pub(crate) fn get_solver(&self, pick: SolverPick) -> Option<&RunnableSolver> {
+    return self.runner.get_solver(pick).and_then(|u| self.solvers.get(&u));
+  }
+
+  /// Enqueues a run for a single deck. Does nothing if there isn't a solver
+  /// picked yet.
+  pub(crate) fn enqueue_deck(&mut self, deck_uuid: Uuid, pick: SolverPick) {
+    if let Some(solver) = self.get_solver(pick).cloned() {
+      if let Some((deck, res)) = self.get_deck(deck_uuid) {
+        let job = Job {
+          deck: deck.clone(),
+          pick,
+          target: res,
+          solver: solver.clone(),
+        };
+        self.runner.job_queue.lock().expect("mutex poisoned").push_back(job);
+        self.set_run_state(deck_uuid, pick, RunState::Enqueued);
+      }
+    }
+
+  }
+
+  /// Enqueues all jobs for a solver pick.
+  pub(crate) fn enqueue_solver(&mut self, pick: SolverPick) {
+    let decks = self.suite.decks.keys().copied().collect::<Vec<_>>();
+    for u in decks {
+      self.enqueue_deck(u, pick);
+    }
+  }
+
+  /// Enqueues all jobs for all solvers.
+  pub(crate) fn enqueue_all(&mut self) {
+    self.enqueue_solver(SolverPick::Reference);
+    self.enqueue_solver(SolverPick::Testing);
+  }
+
+  /// Clears the job queue.
+  pub(crate) fn clear_queue(&self) {
+    self.runner.job_queue.lock().unwrap().clear();
+  }
+
+  /// Spawns threads to run the queue.
+  pub(crate) fn run_queue(&self) {
+    let relaxed = std::sync::atomic::Ordering::Relaxed;
+    let runner = |queue: Arc<Mutex<VecDeque<Job>>>, mj: Arc<AtomicUsize>| {
+      let relaxed = std::sync::atomic::Ordering::Relaxed;
+      mj.fetch_add(1, relaxed);
+      log::debug!("Runner {} spawned!", mj.load(relaxed));
+      loop {
+        let job_opt = queue.lock().expect("lock poisoned").pop_front();
+        if let Some(job) = job_opt {
+          job.run();
+        } else {
+          break;
+        }
+      }
+      log::debug!("Runner {} done!", mj.load(relaxed));
+      mj.fetch_sub(1, relaxed);
+    };
+    let nt = if self.runner.max_jobs == 0 {
+      num_cpus::get()
+    } else {
+      self.runner.max_jobs
+    };
+    for jn in 0..4 {
+      if self.runner.current_jobs.load(relaxed) < nt {
+        let queue = self.runner.job_queue.clone();
+        let job_count = self.runner.current_jobs.clone();
+        thread::Builder::new()
+          .name(format!("job_runner_{}", jn+1))
+          .spawn(move || runner(queue, job_count))
+          .expect("failed to spawn thread");
+      }
+    }
   }
 }

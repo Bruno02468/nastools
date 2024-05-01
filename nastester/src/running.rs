@@ -1,14 +1,20 @@
 //! This defines subroutines to run decks and do test runs.
 
+use std::collections::{BTreeMap, VecDeque};
 use std::error::Error;
 use core::fmt::Display;
 use std::ffi::OsStr;
+use std::fs::File;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::AtomicUsize;
+use std::sync::{Arc, Mutex};
 
 use f06::prelude::*;
 use serde::{Deserialize, Serialize};
 use subprocess::{ExitStatus, Popen, PopenConfig, PopenError};
+use uuid::Uuid;
 
+use crate::results::{DeckResults, RunState};
 use crate::suite::*;
 
 #[cfg(target_os = "macos")]
@@ -156,37 +162,106 @@ impl RunnableSolver {
     match &self.method {
       RunMethod::ImportFromDir(d) => return do_dir(d, basename),
       RunMethod::RunSolver(bin) => {
-        let tmp = tempdir::TempDir::new("nastester_run_")
+        let tmp = tempfile::TempDir::with_prefix("nastester_run_")
           .map_err(|_| RunError::TempdirCreationFailed)?;
+        let file_in_tmp = |name: &Path| -> PathBuf {
+          let mut subfile = tmp.path().to_path_buf();
+          subfile.push(name);
+          return subfile;
+        };
+        let stdout = File::create(file_in_tmp("stdout.log".as_ref()))?;
+        let stderr = File::create(file_in_tmp("stderr.log".as_ref()))?;
         let pc = PopenConfig {
           stdin: subprocess::Redirection::None,
-          stdout: subprocess::Redirection::None,
-          stderr: subprocess::Redirection::None,
+          stdout: subprocess::Redirection::File(stdout),
+          stderr: subprocess::Redirection::File(stderr),
           executable: Some(bin.clone().into_os_string()),
           cwd: Some(tmp.path().as_os_str().to_owned()),
           ..Default::default()
         };
-        let mut proc = Popen::create(&[bin, &deck.in_file], pc)?;
-        let code = proc.wait()?;
-        match code {
-          ExitStatus::Exited(0) => {
-            return do_dir(tmp.path(), basename);
+        let tmp_deck = file_in_tmp(deck.name().as_ref());
+        std::fs::copy(&deck.in_file, &tmp_deck)?;
+        let mut proc = Popen::create(&[bin, &tmp_deck], pc)?;
+        proc.detach();
+        //let code = proc.wait_timeout(Duration::from_secs(60));
+        let code = proc.wait();
+        let res = match code {
+          Ok(ExitStatus::Exited(0)) => {
+            do_dir(tmp.path(), basename)
           },
-          ExitStatus::Exited(i) => return Err(
+          Ok(ExitStatus::Exited(i)) => return Err(
             RunError::SolverFailed(self.nickname.clone(), Some(i))
           ),
           _ => return Err(RunError::SolverFailed(self.nickname.clone(), None))
         };
+        if res.is_err() {
+          dbg!(&res);
+        }
+        std::mem::drop(tmp);
+        return res;
       },
     };
   }
 }
 
-/// These are testing settings.
+/// A pick of solver for a job. Sugar.
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
+pub(crate) enum SolverPick {
+  /// The reference solver.
+  Reference,
+  /// The solver under test.
+  Testing
+}
+
+/// This specifies a run job.
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub(crate) struct TestSettings {
-  /// Keep the parsed F06 results?
-  pub(crate) keep_f06_mem: bool,
-  /// Max flagged indices per deck.
-  pub(crate) max_flags: usize
+pub(crate) struct Job {
+  /// The deck this is for.
+  pub(crate) deck: Deck,
+  /// The solver to use.
+  pub(crate) solver: RunnableSolver,
+  /// The pick of solver for the job.
+  pub(crate) pick: SolverPick,
+  /// The target to write results to.
+  pub(crate) target: Arc<Mutex<DeckResults>>
+}
+
+impl Job {
+  /// Runs this job. This blocks! Careful.
+  pub(crate) fn run(&self) {
+    let set = |state: RunState| {
+      let mut s = self.target.lock().expect("mutex poisoned");
+      *s.get_mut(self.pick) = state;
+    };
+    set(RunState::Running);
+    let res = self.solver.make_f06(&self.deck).map_err(|e| e.to_string());
+    set(res.into());
+  }
+}
+
+/// This contains everything needed to run decks, and locks stuff.
+#[derive(Debug, Default, Serialize, Deserialize)]
+pub(crate) struct Runner {
+  /// The currently-selected reference solver, if any.
+  pub(crate) ref_solver: Option<Uuid>,
+  /// The currently-selected solver under test, if any.
+  pub(crate) test_solver: Option<Uuid>,
+  /// The results currently loaded for the decks.
+  pub(crate) results: BTreeMap<Uuid, Arc<Mutex<DeckResults>>>,
+  /// Runs in queue.
+  pub(crate) job_queue: Arc<Mutex<VecDeque<Job>>>,
+  /// Max concurrent jobs. If zero, auto-detect.
+  pub(crate) max_jobs: usize,
+  /// Current number of jobs running.
+  pub(crate) current_jobs: Arc<AtomicUsize>
+}
+
+impl Runner {
+  /// Returns the UUID of a solver pick.
+  pub(crate) fn get_solver(&self, pick: SolverPick) -> Option<Uuid> {
+    return match pick {
+      SolverPick::Reference => self.ref_solver,
+      SolverPick::Testing => self.test_solver,
+    };
+  }
 }

@@ -20,6 +20,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::app::*;
+use crate::results::RunState;
 use crate::running::*;
 use crate::suite::*;
 
@@ -38,7 +39,7 @@ pub(crate) enum View {
 }
 
 /// This struct rerpresents the GUI.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub(crate) struct Gui {
   /// The inner app state.
   pub(crate) state: AppState,
@@ -459,15 +460,24 @@ impl Gui {
           self.try_run(ui, Gui::add_solver_dir);
         }
         ui.menu_button("Set reference solver", |ui| {
-          btn(ui, None, "<none>", &mut self.state.ref_solver);
+          btn(ui, None, "<none>", &mut self.state.runner.ref_solver);
           for (u, s) in self.state.solvers.iter() {
-            btn(ui, Some(*u), s.nickname.as_str(), &mut self.state.ref_solver);
+            btn(
+              ui,
+              Some(*u),
+              s.nickname.as_str(), &mut self.state.runner.ref_solver
+            );
           }
         });
         ui.menu_button("Set solver under test", |ui| {
-          btn(ui, None, "<none>", &mut self.state.test_solver);
+          btn(ui, None, "<none>", &mut self.state.runner.test_solver);
           for (u, s) in self.state.solvers.iter() {
-            btn(ui, Some(*u), s.nickname.as_str(), &mut self.state.test_solver);
+            btn(
+              ui,
+              Some(*u),
+              s.nickname.as_str(),
+              &mut self.state.runner.test_solver
+            );
           }
         });
       });
@@ -475,6 +485,17 @@ impl Gui {
       ui.menu_button("Criteria sets", |ui| {
         if ui.button("Edit criteria sets").clicked() {
           self.switch_to(View::CriteriaSets);
+        }
+      });
+      // run menu
+      ui.menu_button("Run!", |ui| {
+        if ui.button("Run all on reference solver").clicked() {
+          self.state.enqueue_solver(SolverPick::Reference);
+          self.state.run_queue();
+        }
+        if ui.button("Run all on solver under test").clicked() {
+          self.state.enqueue_solver(SolverPick::Testing);
+          self.state.run_queue();
         }
       });
       // advanced stuff
@@ -508,7 +529,7 @@ impl Gui {
   fn view_decks(&mut self, ctx: &egui::Context) {
     // one per deck
     let deck_data = self.state.decks_by_name()
-      .map(|(u, d, r)| (u, d.clone(), r.cloned()))
+      .map(|(u, d, r)| (u, d.clone(), r))
       .collect::<Vec<_>>();
     egui::CentralPanel::default().show(ctx, |ui| {
       self.show_menu(ctx, ui);
@@ -574,19 +595,39 @@ impl Gui {
               });
               // results
               if let Some(res) = results {
-                let lblres = |ui: &mut Ui, res: &Result<_, String>| {
+                let lblres = |ui: &mut Ui, res: &RunState| {
                   let (text, color) = match res {
-                    Ok(_) => ("Finished".to_owned(), Color32::DARK_GREEN),
-                    Err(e) => (format!("Error: {}", e), Color32::RED),
+                    RunState::Ready => {
+                      ("Not yet run".to_owned(), Color32::LIGHT_YELLOW)
+                    },
+                    RunState::Enqueued => {
+                      ("In queue".to_owned(), Color32::LIGHT_YELLOW)
+                    },
+                    RunState::Running => {
+                      ("Running".to_owned(), Color32::YELLOW)
+                    },
+                    RunState::Finished(_) => {
+                      ("Finished".to_owned(), Color32::DARK_GREEN)
+                    },
+                    RunState::Error(e) => {
+                      (format!("Error: {}", e), Color32::RED)
+                    },
                   };
                   ui.add(egui::Label::new(
-                    WidgetText::from(&text).color(color))
+                    WidgetText::from(text).color(color))
                   );
                 };
-                // reference run
-                row.col(|ui| lblres(ui, &res.ref_f06));
-                // test run
-                row.col(|ui| lblres(ui, &res.test_f06));
+                if let Ok(handle) = res.try_lock() {
+                  // reference run
+                  row.col(|ui| lblres(ui, &handle.ref_f06));
+                  // test run
+                  row.col(|ui| lblres(ui, &handle.test_f06));
+                } else {
+                  // reference run
+                  row.col(|ui| lblres(ui, &RunState::Running));
+                  // test run
+                  row.col(|ui| lblres(ui, &RunState::Running));
+                }
               } else {
                 // reference run
                 row.col(|ui| { ui.label("Not yet run"); });
