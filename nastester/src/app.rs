@@ -164,6 +164,17 @@ impl AppState {
       ))
   }
 
+  /// Clears results for a specific solver pick. Might lock.
+  pub(crate) fn clear_results_of(&mut self, pick: SolverPick) {
+    let decks = self.suite.decks.keys().copied().collect::<Vec<_>>();
+    for u in decks {
+      let l = self.get_run_state(u);
+      let mut h = l.lock().unwrap();
+      *h.get_mut(pick) = RunState::Ready;
+      h.flagged.clear();
+    }
+  }
+
   /// Clears all results.
   pub(crate) fn clear_results(&mut self) {
     self.runner.results.clear();
@@ -191,9 +202,9 @@ impl AppState {
     *handle.lock().expect("mutex poisoned").get_mut(pick) = state;
   }
 
-  /// Gets the current picked solver for something.
-  pub(crate) fn get_solver(&self, pick: SolverPick) -> Option<&RunnableSolver> {
-    return self.runner.get_solver(pick).and_then(|u| self.solvers.get(&u));
+  /// Gets a current picked solver.
+  pub(crate) fn get_solver(&self, p: SolverPick) -> Option<&RunnableSolver> {
+    return self.runner.get_solver(p).and_then(|u| self.solvers.get(&u));
   }
 
   /// Generates a job for a deck and a solver pick.
@@ -239,6 +250,7 @@ impl AppState {
 
   /// Enqueues all jobs for a solver pick.
   pub(crate) fn enqueue_solver(&mut self, pick: SolverPick) {
+    self.clear_results_of(pick);
     let decks = self.suite.decks.keys().copied().collect::<Vec<_>>();
     for u in decks {
       self.enqueue_deck(u, pick);
@@ -300,11 +312,21 @@ impl AppState {
     }
   }
 
-  /// Re-computes all flagged values in the UI thread.
+  /// Re-computes all flagged values.
   pub(crate) fn recompute_all_flagged(&mut self) {
     let uuids = self.suite.decks.keys().copied().collect::<Vec<_>>();
     for deck in uuids {
       self.recompute_flagged(deck);
+    }
+  }
+
+  /// Removes a solver and all associated results.
+  pub(crate) fn remove_solver(&mut self, uuid: Uuid) {
+    self.solvers.remove(&uuid);
+    for pick in SolverPick::all() {
+      if self.runner.get_solver(*pick) == Some(uuid) {
+        self.clear_results_of(*pick);
+      }
     }
   }
 }

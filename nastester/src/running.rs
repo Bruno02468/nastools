@@ -213,6 +213,13 @@ pub(crate) enum SolverPick {
   Testing
 }
 
+impl SolverPick {
+  /// Returns all variants.
+  pub(crate) fn all() -> &'static [Self] {
+    return &[Self::Reference, Self::Testing];
+  }
+}
+
 /// This specifies a run job.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub(crate) struct Job {

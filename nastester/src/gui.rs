@@ -179,15 +179,20 @@ impl Gui {
     }
   }
 
-  /// Add a solver binary. Returns whether it's been added.
-  fn add_solver_bin(&mut self, _ui: &mut Ui) -> Result<bool, Box<dyn Error>> {
+  /// Fila dialog to pick a solver binary.
+  fn solver_bin_dialog() -> Option<PathBuf> {
     let mut dialog = rfd::FileDialog::new()
       .set_title("Choose solver binary...")
       .set_can_create_directories(true);
     if !BINARY_EXTENSIONS.is_empty() {
       dialog = dialog.add_filter("Executable file", BINARY_EXTENSIONS);
     }
-    let binary = dialog.pick_file();
+    return dialog.pick_file();
+  }
+
+  /// Add a solver binary. Returns whether it's been added.
+  fn add_solver_bin(&mut self, _ui: &mut Ui) -> Result<bool, Box<dyn Error>> {
+    let binary = Self::solver_bin_dialog();
     if let Some(bin) = binary {
       log::info!("Added solver binary {}.", bin.display());
       self.state.add_solver_bin(bin);
@@ -198,12 +203,17 @@ impl Gui {
     }
   }
 
+  /// Dialog to pick an F06 directory.
+  fn solver_dir_dialog() -> Option<PathBuf> {
+    return rfd::FileDialog::new()
+    .set_title("Choose F06 directory...")
+    .set_can_create_directories(true)
+    .pick_folder();
+  }
+
   /// Add a solver as an F06 directory. Returns whether it's been added.
   fn add_solver_dir(&mut self, _ui: &mut Ui) -> Result<bool, Box<dyn Error>> {
-    let directory = rfd::FileDialog::new()
-      .set_title("Choose F06 directory...")
-      .set_can_create_directories(true)
-      .pick_folder();
+    let directory = Self::solver_dir_dialog();
     if let Some(dir) = directory {
       log::info!("Added solver as F06 directory {}.", dir.display());
       self.state.add_solver_dir(dir);
@@ -240,6 +250,26 @@ impl Gui {
       log::info!("Deck addition cancelled by user or no file(s) selected.");
       return Ok(false);
     }
+  }
+
+  /// Change a solver's path. Returns whether it's been changed.
+  fn change_solver(&mut self, solver: Uuid) -> Result<bool, Box<dyn Error>> {
+    let current = self.state.solvers.get_mut(&solver).unwrap();
+    match current.method {
+      RunMethod::ImportFromDir(ref mut p) => {
+        if let Some(np) = Self::solver_dir_dialog() {
+          *p = np;
+          return Ok(true);
+        }
+      },
+      RunMethod::RunSolver(ref mut p) => {
+        if let Some(np) = Self::solver_bin_dialog() {
+          *p = np;
+          return Ok(true);
+        }
+      }
+    };
+    return Ok(false);
   }
 
   /// Run a function and, if an error happens, do a pop-up.
@@ -446,6 +476,8 @@ impl Gui {
       ui.menu_button("Suite", |ui| {
         if ui.button("New").clicked() {
           self.state = AppState::default();
+          self.suite_clean = true;
+          self.suite_file = None;
         }
         if ui.button("Save").clicked() {
           self.try_run(ui, Gui::save_suite);
@@ -468,15 +500,21 @@ impl Gui {
       });
       // generates sub-menu solver buttons
       let btn = |
+        state: &mut AppState,
         ui: &mut Ui,
         opt: Option<Uuid>,
         lbl: &str,
-        tgt: &mut Option<Uuid>
+        pick: SolverPick,
       | {
         let mut rt = RichText::new(lbl);
+        let tgt = match pick {
+          SolverPick::Reference => &mut state.runner.ref_solver,
+          SolverPick::Testing => &mut state.runner.test_solver,
+        };
         if opt == *tgt { rt = rt.strong(); }
-        if ui.button(rt).clicked() {
-          *tgt = opt
+        if ui.button(rt).clicked() && opt != *tgt {
+          *tgt = opt;
+          state.clear_results_of(pick);
         }
       };
       // solvers menu
@@ -494,24 +532,26 @@ impl Gui {
           .map(|(s, u)| (s.to_owned(), u))
           .collect::<Vec<_>>();
         ui.menu_button("Set reference solver", |ui| {
-          btn(ui, None, "<none>", &mut self.state.runner.ref_solver);
+          btn(&mut self.state, ui, None, "<none>", SolverPick::Reference);
           for (s, u) in snames.iter() {
             btn(
+              &mut self.state,
               ui,
               Some(*u),
               s.as_str(),
-              &mut self.state.runner.ref_solver
+              SolverPick::Reference
             );
           }
         });
         ui.menu_button("Set solver under test", |ui| {
-          btn(ui, None, "<none>", &mut self.state.runner.test_solver);
+          btn(&mut self.state, ui, None, "<none>", SolverPick::Testing);
           for (s, u) in snames.iter() {
             btn(
+              &mut self.state,
               ui,
               Some(*u),
               s.as_str(),
-              &mut self.state.runner.test_solver
+              SolverPick::Testing
             );
           }
         });
@@ -1010,6 +1050,93 @@ impl Gui {
     });
   }
 
+  /// Render function for the solvers.
+  fn view_solvers(&mut self, ctx: &Context) {
+    egui::CentralPanel::default().show(ctx, |ui| {
+      self.show_menu(ctx, ui);
+      let heading_height = ui.text_style_height(&TextStyle::Heading);
+      let dy = ui.spacing().item_spacing.y;
+      let body_height = ui.text_style_height(&TextStyle::Body) + dy;
+      let mut cells = Layout::left_to_right(Align::Center);
+      let nsolvers = self.state.solvers.len();
+      let snames = self.state.solvers_names()
+        .map(|(s, u)| (s.to_owned(), u))
+        .collect::<Vec<_>>();
+      cells.main_wrap = false;
+      ui.vertical_centered(|ui| {
+        ui.strong("Solvers:");
+        if ui.button("Add binary").clicked() {
+          self.try_run(ui, Gui::add_solver_bin);
+        }
+        if ui.button("Add F06 directory").clicked() {
+          self.try_run(ui, Gui::add_solver_dir);
+        }
+        TableBuilder::new(ui)
+          .vscroll(true)
+          .auto_shrink(true)
+          .striped(true)
+          .cell_layout(cells)
+          .column(Column::auto().resizable(true))
+          .column(Column::auto().resizable(true))
+          .column(Column::auto().resizable(true))
+          .column(Column::auto().resizable(true))
+          .column(Column::auto().resizable(true))
+          .header(heading_height, |mut header| {
+            header.col(|ui| { ui.heading("Solver nickname"); });
+            header.col(|ui| { ui.heading("F06 acquisition method"); });
+            header.col(|ui| { ui.heading("Current reference solver"); });
+            header.col(|ui| { ui.heading("Current solver under test"); });
+            header.col(|ui| { ui.heading("Actions"); });
+          })
+          .body(|body| {
+            body.rows(body_height, nsolvers, |mut row| {
+              let (_name, uuid) = snames.get(row.index()).unwrap();
+              let solver = self.state.solvers.get_mut(uuid)
+                .expect("missing solver UUID!");
+              // nickname
+              row.col(|ui| {
+                ui.text_edit_singleline(&mut solver.nickname);
+              });
+              // method
+              row.col(|ui| {
+                ui.label(match &solver.method {
+                  RunMethod::ImportFromDir(p) => {
+                    format!("Get from {}", p.display())
+                  },
+                  RunMethod::RunSolver(p) => {
+                    format!("Run solver {}", p.display())
+                  }
+                });
+              });
+              // columns for solver picks
+              for pick in SolverPick::all() {
+                let tgt = match pick {
+                  SolverPick::Reference => &mut self.state.runner.ref_solver,
+                  SolverPick::Testing => &mut self.state.runner.test_solver,
+                };
+                row.col(|ui| {
+                  if *tgt == Some(*uuid) {
+                    ui.label("Is current");
+                  } else if ui.button("Make current").clicked() {
+                    *tgt = Some(*uuid);
+                  }
+                });
+              }
+              // actions
+              row.col(|ui| {
+                if ui.button("Change path").clicked() {
+                  self.change_solver(*uuid).ok();
+                }
+                if ui.button("Remove").clicked() {
+                  self.state.remove_solver(*uuid);
+                }
+              });
+            });
+          });
+      });
+    });
+  }
+
   /// Render function for a deck's results, side-by-side.
   fn view_results(&mut self, _ctx: &Context, _d: Uuid, _exn: Option<usize>) {
 
@@ -1023,7 +1150,7 @@ impl eframe::App for Gui {
     //}
     match self.view {
       View::Decks => self.view_decks(ctx),
-      View::Solvers => todo!(),
+      View::Solvers => self.view_solvers(ctx),
       View::CriteriaSets => self.view_criteria_sets(ctx),
       View::Extractions(uuid) => self.view_deck_exns(ctx, uuid),
       View::Results(uuid, n) => self.view_results(ctx, uuid, n)
