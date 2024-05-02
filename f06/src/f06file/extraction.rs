@@ -303,4 +303,28 @@ impl Extraction {
         })
       })
   }
+
+  /// Produces a series of `FinalBlock`s from extracting data from a file.
+  pub fn blockify(&self, file: &F06File) -> Vec<FinalBlock> {
+    let mut subs: Vec<FinalBlock> = Vec::new();
+    let compatible_blocks = file.all_blocks(true)
+      .filter(|b| self.subcases.filter_fn(&b.subcase))
+      .filter(|b| self.block_types.filter_fn(&b.block_type));
+    for block in compatible_blocks {
+      let mut clone = block.clone();
+      let rows = b.row_indexes.keys()
+        .filter(|ri| self.rows.filter_fn(ri))
+        .filter(|ri| self.grid_points.lax_filter(&ri.grid_point_id()))
+        .filter(|ri| self.elements.lax_filter(&ri.element_id()));
+      let cols = b.col_indexes.keys()
+        .filter(|ci| self.cols.filter_fn(ci))
+        .filter(|ci| self.grid_points.lax_filter(&ci.grid_point_id()))
+        .filter(|ci| self.elements.lax_filter(&ci.element_id()))
+        .filter(
+          |ci| self.raw_cols.filter_fn(b.col_indexes.get(ci).unwrap())
+        );
+      subs.push(clone);
+    }
+    return subs;
+  }
 }

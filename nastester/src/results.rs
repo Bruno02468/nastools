@@ -34,6 +34,18 @@ impl<T: ToString> From<Result<F06File, T>> for RunState {
   }
 }
 
+/// This structure holds extraction data in matrix form.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub(crate) struct ExtractionMatrix {
+  /// The solver pick this is for.
+  pub(crate) solver: SolverPick,
+  /// The extraction number this is for.
+  pub(crate) extraction_num: usize,
+  /// The resulting sub-blocks.
+  pub(crate) blocks: Vec<FinalBlock>
+}
+
+
 /// These are the results for a single deck.
 #[derive(Default, Clone, Debug, Serialize, Deserialize)]
 pub(crate) struct DeckResults {

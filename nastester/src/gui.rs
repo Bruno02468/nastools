@@ -1139,7 +1139,7 @@ impl Gui {
 
   /// Render function for a deck's results, side-by-side.
   fn view_results(&mut self, _ctx: &Context, _d: Uuid, _exn: Option<usize>) {
-
+    
   }
 }
 
