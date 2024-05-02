@@ -172,7 +172,7 @@ impl RunnableSolver {
         let stdout = File::create(file_in_tmp("stdout.log".as_ref()))?;
         let stderr = File::create(file_in_tmp("stderr.log".as_ref()))?;
         let pc = PopenConfig {
-          stdin: subprocess::Redirection::None,
+          stdin: subprocess::Redirection::Pipe,
           stdout: subprocess::Redirection::File(stdout),
           stderr: subprocess::Redirection::File(stderr),
           executable: Some(bin.clone().into_os_string()),
@@ -223,19 +223,19 @@ pub(crate) struct Job {
   /// The pick of solver for the job.
   pub(crate) pick: SolverPick,
   /// The target to write results to.
-  pub(crate) target: Arc<Mutex<DeckResults>>
+  pub(crate) target: Arc<Mutex<DeckResults>>,
+  /// A copy of the crit-sets at the instant of job creation.
+  pub(crate) crit_sets: BTreeMap<Uuid, NamedCriteria>
 }
 
 impl Job {
   /// Runs this job. This blocks! Careful.
   pub(crate) fn run(&self) {
-    let set = |state: RunState| {
-      let mut s = self.target.lock().expect("mutex poisoned");
-      *s.get_mut(self.pick) = state;
-    };
-    set(RunState::Running);
+    let mut h = self.target.lock().expect("mutex poisoned");
+    *h.get_mut(self.pick) = RunState::Running;
     let res = self.solver.make_f06(&self.deck).map_err(|e| e.to_string());
-    set(res.into());
+    *h.get_mut(self.pick) = res.into();
+    h.recompute_flagged(&self.deck, &self.crit_sets)
   }
 }
 

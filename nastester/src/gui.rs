@@ -9,18 +9,19 @@ use std::path::PathBuf;
 use std::str::FromStr;
 
 use egui::{
-  Align, Color32, ComboBox, Context, DragValue, Id, Layout, TextStyle, Ui, Visuals, WidgetText
+  Align, Color32, ComboBox, Context, DragValue, Id, Layout, RichText,
+  TextStyle, Ui, Visuals, WidgetText
 };
 use egui_extras::{Column, TableBuilder};
 use f06::blocks::types::BlockType;
 use f06::prelude::*;
-use log::info;
+use log::*;
 use native_dialog::{MessageDialog, MessageType};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::app::*;
-use crate::results::RunState;
+use crate::results::*;
 use crate::running::*;
 use crate::suite::*;
 
@@ -188,7 +189,7 @@ impl Gui {
     }
     let binary = dialog.pick_file();
     if let Some(bin) = binary {
-      log::info!("Added deck from file {}.", bin.display());
+      log::info!("Added solver binary {}.", bin.display());
       self.state.add_solver_bin(bin);
       return Ok(true);
     } else {
@@ -209,6 +210,34 @@ impl Gui {
       return Ok(true);
     } else {
       log::info!("Solver addition cancelled by user or no folder selected.");
+      return Ok(false);
+    }
+  }
+
+  /// Change a deck's file path. Returns whether it's been changed.
+  fn change_deck(&mut self, deck: Uuid) -> Result<bool, Box<dyn Error>> {
+    let deck_file = rfd::FileDialog::new()
+      .add_filter("NASTRAN input files", DECK_EXTENSIONS)
+      .add_filter("All files", &["*"])
+      .set_title("Choose input files...")
+      .set_can_create_directories(true)
+      .pick_file();
+    if let Some(v) = deck_file {
+      if let Some(d) = self.state.suite.decks.get_mut(&deck) {
+        log::info!(
+          "Deck {} path changed from {} to {}.",
+          deck,
+          d.in_file.display(),
+          v.display()
+        );
+        d.in_file = v;
+        self.suite_clean = false;
+        return Ok(true);
+      }
+      log::warn!("Tried to change path for non-existing deck!");
+      return Ok(false);
+    } else {
+      log::info!("Deck addition cancelled by user or no file(s) selected.");
       return Ok(false);
     }
   }
@@ -415,6 +444,9 @@ impl Gui {
     egui::menu::bar(ui, |ui| {
       // suite menu
       ui.menu_button("Suite", |ui| {
+        if ui.button("New").clicked() {
+          self.state = AppState::default();
+        }
         if ui.button("Save").clicked() {
           self.try_run(ui, Gui::save_suite);
         }
@@ -441,12 +473,9 @@ impl Gui {
         lbl: &str,
         tgt: &mut Option<Uuid>
       | {
-        let label = format!(
-          "{}{}",
-          lbl,
-          if opt == *tgt { " (selected)" } else { "" },
-        );
-        if ui.button(label).clicked() {
+        let mut rt = RichText::new(lbl);
+        if opt == *tgt { rt = rt.strong(); }
+        if ui.button(rt).clicked() {
           *tgt = opt
         }
       };
@@ -461,23 +490,27 @@ impl Gui {
         if ui.button("Add F06 directory...").clicked() {
           self.try_run(ui, Gui::add_solver_dir);
         }
+        let snames = self.state.solvers_names()
+          .map(|(s, u)| (s.to_owned(), u))
+          .collect::<Vec<_>>();
         ui.menu_button("Set reference solver", |ui| {
           btn(ui, None, "<none>", &mut self.state.runner.ref_solver);
-          for (u, s) in self.state.solvers.iter() {
+          for (s, u) in snames.iter() {
             btn(
               ui,
               Some(*u),
-              s.nickname.as_str(), &mut self.state.runner.ref_solver
+              s.as_str(),
+              &mut self.state.runner.ref_solver
             );
           }
         });
         ui.menu_button("Set solver under test", |ui| {
           btn(ui, None, "<none>", &mut self.state.runner.test_solver);
-          for (u, s) in self.state.solvers.iter() {
+          for (s, u) in snames.iter() {
             btn(
               ui,
               Some(*u),
-              s.nickname.as_str(),
+              s.as_str(),
               &mut self.state.runner.test_solver
             );
           }
@@ -491,6 +524,11 @@ impl Gui {
       });
       // run menu
       ui.menu_button("Run!", |ui| {
+        if ui.button("Run all on both solvers").clicked() {
+          self.state.enqueue_solver(SolverPick::Reference);
+          self.state.enqueue_solver(SolverPick::Testing);
+          self.state.run_queue();
+        }
         if ui.button("Run all on reference solver").clicked() {
           self.state.enqueue_solver(SolverPick::Reference);
           self.state.run_queue();
@@ -575,7 +613,7 @@ impl Gui {
           .auto_shrink(true)
           .striped(true)
           .cell_layout(cells)
-          .column(Column::remainder().resizable(true))
+          .column(Column::auto().resizable(true))
           .column(Column::auto().resizable(true))
           .column(Column::auto().resizable(true))
           .column(Column::auto().resizable(true))
@@ -599,65 +637,105 @@ impl Gui {
                 ui.label("Ready");
               } else {
                 ui.add(egui::Label::new(
-                  WidgetText::from("Missing").strong().color(Color32::RED))
+                  WidgetText::from("Missing!").strong().color(Color32::RED))
                 );
+                if ui.button("Locate...").clicked() {
+                  self.change_deck(*uuid).ok();
+                }
               });
               // results
-              if let Some(res) = results {
-                let lblres = |ui: &mut Ui, res: &RunState| {
-                  let (text, color) = match res {
-                    RunState::Ready => {
-                      ("Not yet run".to_owned(), Color32::LIGHT_YELLOW)
-                    },
-                    RunState::Enqueued => {
-                      ("In queue".to_owned(), Color32::LIGHT_YELLOW)
-                    },
-                    RunState::Running => {
-                      ("Running".to_owned(), Color32::YELLOW)
-                    },
-                    RunState::Finished(_) => {
-                      ("Finished".to_owned(), Color32::DARK_GREEN)
-                    },
-                    RunState::Error(e) => {
-                      (format!("Error: {}", e), Color32::RED)
-                    },
-                  };
-                  ui.add(egui::Label::new(
-                    WidgetText::from(text).color(color))
-                  );
+              let mut lblres = |ui: &mut Ui, res: &RunState, p: SolverPick| {
+                let (text, color) = match res {
+                  RunState::Ready => {
+                    if ui.button("Run").clicked() {
+                      self.state.enqueue_deck_safe(*uuid, p);
+                      self.state.run_queue();
+                    }
+                    return;
+                  },
+                  RunState::Enqueued => {
+                    ("In queue".to_owned(), Color32::LIGHT_YELLOW)
+                  },
+                  RunState::Running => {
+                    ("Running".to_owned(), Color32::YELLOW)
+                  },
+                  RunState::Finished(_) => {
+                    ("Finished".to_owned(), Color32::DARK_GREEN)
+                  },
+                  RunState::Error(e) => {
+                    (format!("Error: {}", e), Color32::RED)
+                  },
                 };
-                if let Ok(handle) = res.try_lock() {
+                ui.add(egui::Label::new(
+                  WidgetText::from(text).color(color))
+                );
+              };
+              if let Some(res) = results {
+                if let Ok(h) = res.try_lock() {
+                  // got lock on results
                   // reference run
-                  row.col(|ui| lblres(ui, &handle.ref_f06));
+                  row.col(|ui| lblres(ui, &h.ref_f06, SolverPick::Reference));
                   // test run
-                  row.col(|ui| lblres(ui, &handle.test_f06));
+                  row.col(|ui| lblres(ui, &h.test_f06, SolverPick::Testing));
                   // flags
-                  row.col(|ui| {
-                    let nflags: usize = handle.flagged
-                      .iter()
-                      .map(|v| match v {
-                        Some(ref m) => m.len(),
-                        None => 0,
-                      }).sum();
-                    ui.label(format!("{} values", nflags));
-                  });
+                  match (&h.ref_f06, &h.test_f06) {
+                    (RunState::Finished(_), RunState::Finished(_)) => {
+                      row.col(|ui| {
+                        let nflags: usize = h.flagged
+                          .iter()
+                          .map(|v| match v {
+                            Some(ref m) => m.len(),
+                            None => 0,
+                          }).sum();
+                        ui.label(format!("{} values", nflags));
+                      });
+                    },
+                    _ => {
+                      row.col(|ui| { ui.label("(requires both runs)"); });
+                    }
+                  };
                 } else {
+                  // no lock on results
                   // reference run
-                  row.col(|ui| lblres(ui, &RunState::Running));
+                  row.col(|ui| lblres(
+                    ui,
+                    &RunState::Running,
+                    SolverPick::Reference
+                  ));
                   // test run
-                  row.col(|ui| lblres(ui, &RunState::Running));
+                  row.col(|ui| lblres(
+                    ui,
+                    &RunState::Running,
+                    SolverPick::Testing
+                  ));
+                  // flags
+                  row.col(|ui| { ui.label("(running)"); });
                 }
               } else {
+                // no results, so it's just ready
                 // reference run
-                row.col(|ui| { ui.label("Not yet run"); });
+                row.col(|ui| lblres(
+                  ui,
+                  &RunState::Ready,
+                  SolverPick::Reference
+                ));
                 // test run
-                row.col(|ui| { ui.label("Not yet run"); });
+                row.col(|ui| lblres(
+                  ui,
+                  &RunState::Ready,
+                  SolverPick::Testing
+                ));
+                // flags
+                row.col(|ui| { ui.label("(requires both runs)"); });
               }
               // actions
               row.col(|ui| {
                 ui.horizontal(|ui| {
-                  if ui.button("Extractions...").clicked() {
+                  if ui.button("Edit extractions").clicked() {
                     self.switch_to(View::Extractions(*uuid));
+                  }
+                  if ui.button("Change file path").clicked() {
+                    self.change_deck(*uuid).ok();
                   }
                   if ui.button("Remove").clicked() {
                     self.state.suite.decks.remove(uuid);

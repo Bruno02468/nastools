@@ -3,7 +3,6 @@
 //! fully-interactive (like the GUI).
 
 use std::collections::BTreeMap;
-use std::collections::BTreeSet;
 use std::collections::VecDeque;
 use std::path::PathBuf;
 use std::sync::atomic::AtomicUsize;
@@ -12,8 +11,6 @@ use std::sync::Mutex;
 use std::thread;
 
 use f06::prelude::*;
-use rayon::iter::IntoParallelRefIterator;
-use rayon::iter::ParallelIterator;
 use serde::Deserialize;
 use serde::Serialize;
 use uuid::Uuid;
@@ -110,6 +107,24 @@ impl AppState {
     ))
   }
 
+  /// Returns the names of solvers, in order.
+  pub(crate) fn solvers_names(&self) -> impl Iterator<Item = (&str, Uuid)> {
+    let ordering: BTreeMap<&str, Uuid> = self.solvers.iter()
+      .map(|(u, d)| (d.nickname.as_str(), *u))
+      .collect();
+    return ordering.into_iter();
+  }
+
+  /// Iterates over solvers by name.
+  pub(crate) fn solvers_by_name(
+    &self
+  ) -> impl Iterator<Item = (Uuid, &RunnableSolver)> {
+    return self.solvers_names().map(|(_, u)| (
+      u,
+      self.solvers.get(&u).expect("invalid solver UUID")
+    ))
+  }
+
   /// Returns a deck and its results.
   pub(crate) fn get_deck(
     &mut self,
@@ -181,22 +196,45 @@ impl AppState {
     return self.runner.get_solver(pick).and_then(|u| self.solvers.get(&u));
   }
 
-  /// Enqueues a run for a single deck. Does nothing if there isn't a solver
-  /// picked yet.
-  pub(crate) fn enqueue_deck(&mut self, deck_uuid: Uuid, pick: SolverPick) {
+  /// Generates a job for a deck and a solver pick.
+  pub(crate) fn gen_job(
+    &mut self,
+    deck_uuid: Uuid,
+    pick: SolverPick
+  ) -> Option<Job> {
     if let Some(solver) = self.get_solver(pick).cloned() {
       if let Some((deck, res)) = self.get_deck(deck_uuid) {
-        let job = Job {
+        return Some(Job {
           deck: deck.clone(),
           pick,
           target: res,
           solver: solver.clone(),
-        };
-        self.runner.job_queue.lock().expect("mutex poisoned").push_back(job);
-        self.set_run_state(deck_uuid, pick, RunState::Enqueued);
+          crit_sets: self.suite.criteria_sets.clone()
+        });
       }
     }
+    return None;
+  }
 
+  /// Enqueues a run for a single deck. Does nothing if there isn't a solver
+  /// picked yet. This might lock, use enqueue_deck safe if in doubt.
+  pub(crate) fn enqueue_deck(&mut self, deck_uuid: Uuid, pick: SolverPick) {
+    if let Some(job) = self.gen_job(deck_uuid, pick) {
+      self.runner.job_queue.lock().expect("mutex poisoned").push_back(job);
+      self.set_run_state(deck_uuid, pick, RunState::Enqueued);
+    }
+  }
+
+  /// Enqueues a deck in a separate thread to prevent UI locking.
+  pub(crate) fn enqueue_deck_safe(&mut self, deck: Uuid, pick: SolverPick) {
+    let queue = self.runner.job_queue.clone();
+    let state = self.get_run_state(deck);
+    if let Some(job) = self.gen_job(deck, pick) {
+      thread::spawn(move || {
+        queue.lock().unwrap().push_back(job);
+        *state.lock().unwrap().get_mut(pick) = RunState::Enqueued;
+      });
+    }
   }
 
   /// Enqueues all jobs for a solver pick.
@@ -258,54 +296,15 @@ impl AppState {
     let critsets = self.suite.criteria_sets.clone();
     if let Some((deck, results_mtx)) = self.get_deck(deck) {
       let mut results = results_mtx.lock().expect("mutex poisoned");
-      results.flagged.clear();
-      let pair = (&results.ref_f06, &results.test_f06);
-      if let (RunState::Finished(r), RunState::Finished(t)) = pair {
-        for (exn, crit_uuid) in deck.extractions.iter() {
-          if let Some(critset) = crit_uuid.and_then(|u| critsets.get(&u)) {
-            let in_ref = exn.lookup(r).collect::<BTreeSet<_>>();
-            let in_test = exn.lookup(t).collect::<BTreeSet<_>>();
-            let in_either = in_ref.union(&in_test).collect::<BTreeSet<_>>();
-            let dxn = in_ref.symmetric_difference(&in_test)
-              .collect::<BTreeSet<_>>();
-            let mut flagged: BTreeSet<DatumIndex> = BTreeSet::new();
-            if exn.dxn == DisjunctionBehaviour::Flag {
-              flagged.extend(dxn);
-            }
-            let get = |f: &F06File, ix: &DatumIndex| -> Option<F06Number> {
-              let v = ix.get_from(f);
-              if v.is_err() && exn.dxn == DisjunctionBehaviour::AssumeZeroes {
-                return Some(0.0.into());
-              } else {
-                return Some(v.unwrap());
-              }
-            };
-            for ix in in_either {
-              let val_ref = get(r, ix);
-              let val_test = get(t, ix);
-              if let (Some(rv), Some(tv)) = (val_ref, val_test) {
-                if critset.criteria.check(rv.into(), tv.into()).is_some() {
-                  flagged.insert(*ix);
-                }
-              }
-            }
-            results_mtx.lock().expect("poisoned").flagged.push(Some(flagged));
-          } else {
-            results_mtx.lock().expect("mutex poisoned").flagged.push(None);
-          }
-        }
-      }
+      results.recompute_flagged(deck, &critsets);
     }
   }
 
-  /// Re-computes all flagged values in a background thread.
+  /// Re-computes all flagged values in the UI thread.
   pub(crate) fn recompute_all_flagged(&mut self) {
-    let decks = self.suite.decks.keys().cloned().collect::<Vec<_>>();
-    let mref = Arc::new(Mutex::new(self));
-    decks.par_iter()
-      .map(|u| (u, mref.clone()))
-      .for_each(|(u, s)| {
-        if let Ok(mut s) = s.lock() { s.recompute_flagged(*u); }
-      })
+    let uuids = self.suite.decks.keys().copied().collect::<Vec<_>>();
+    for deck in uuids {
+      self.recompute_flagged(deck);
+    }
   }
 }
