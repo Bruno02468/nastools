@@ -242,7 +242,7 @@ impl Job {
     *h.get_mut(self.pick) = RunState::Running;
     let res = self.solver.make_f06(&self.deck).map_err(|e| e.to_string());
     *h.get_mut(self.pick) = res.into();
-    h.recompute_flagged(&self.deck, &self.crit_sets)
+    h.recompute_extractions(&self.deck, &self.crit_sets)
   }
 }
 

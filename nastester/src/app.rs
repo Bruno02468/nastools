@@ -170,8 +170,7 @@ impl AppState {
     for u in decks {
       let l = self.get_run_state(u);
       let mut h = l.lock().unwrap();
-      *h.get_mut(pick) = RunState::Ready;
-      h.flagged.clear();
+      h.clear_of(pick);
     }
   }
 
@@ -308,7 +307,7 @@ impl AppState {
     let critsets = self.suite.criteria_sets.clone();
     if let Some((deck, results_mtx)) = self.get_deck(deck) {
       let mut results = results_mtx.lock().expect("mutex poisoned");
-      results.recompute_flagged(deck, &critsets);
+      results.recompute_extractions(deck, &critsets);
     }
   }
 

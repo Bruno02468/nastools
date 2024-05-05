@@ -721,13 +721,7 @@ impl Gui {
                   match (&h.ref_f06, &h.test_f06) {
                     (RunState::Finished(_), RunState::Finished(_)) => {
                       row.col(|ui| {
-                        let nflags: usize = h.flagged
-                          .iter()
-                          .map(|v| match v {
-                            Some(ref m) => m.len(),
-                            None => 0,
-                          }).sum();
-                        ui.label(format!("{} values", nflags));
+                        ui.label(format!("{} values", h.num_flagged()));
                       });
                     },
                     _ => {

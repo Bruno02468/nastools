@@ -312,17 +312,23 @@ impl Extraction {
       .filter(|b| self.block_types.filter_fn(&b.block_type));
     for block in compatible_blocks {
       let mut clone = block.clone();
-      let rows = clone.row_indexes.keys()
+      let rows: Vec<NasIndex> = clone.row_indexes.keys()
         .filter(|ri| self.rows.filter_fn(ri))
         .filter(|ri| self.grid_points.lax_filter(&ri.grid_point_id()))
-        .filter(|ri| self.elements.lax_filter(&ri.element_id()));
-      let cols = clone.col_indexes.keys()
+        .filter(|ri| self.elements.lax_filter(&ri.element_id()))
+        .copied()
+        .collect();
+      let cols: Vec<NasIndex> = clone.col_indexes.keys()
         .filter(|ci| self.cols.filter_fn(ci))
         .filter(|ci| self.grid_points.lax_filter(&ci.grid_point_id()))
         .filter(|ci| self.elements.lax_filter(&ci.element_id()))
         .filter(
           |ci| self.raw_cols.filter_fn(clone.col_indexes.get(ci).unwrap())
-        );
+        )
+        .copied()
+        .collect();
+      clone.row_indexes.retain(|ri, _| rows.contains(ri));
+      clone.col_indexes.retain(|ci, _| cols.contains(ci));
       subs.push(clone);
     }
     return subs;
