@@ -306,7 +306,9 @@ impl OnePassParser {
       if buf.is_empty() {
         break;
       }
+      buf.pop();
       let line = String::from_utf8_lossy(&buf);
+      dbg!(&line);
       match parser.consume(&line) {
         ParserResponse::PassedToDecoder(bt, lr) if lr.abnormal() => warn!(
           "Got abnormal response {:?} from {} while parsing line {}!",
