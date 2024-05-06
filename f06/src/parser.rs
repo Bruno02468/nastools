@@ -299,10 +299,15 @@ impl OnePassParser {
   }
 
   /// Parses from a BufRead instance.
-  pub fn parse_bufread<R: BufRead>(reader: R) -> io::Result<F06File> {
+  pub fn parse_bufread<R: BufRead>(mut reader: R) -> io::Result<F06File> {
     let mut parser = Self::new();
-    for line in reader.lines() {
-      match parser.consume(&line?) {
+    let mut buf = vec![];
+    while reader.read_until(b'\n', &mut buf).is_ok() {
+      if buf.is_empty() {
+        break;
+      }
+      let line = String::from_utf8_lossy(&buf);
+      match parser.consume(&line) {
         ParserResponse::PassedToDecoder(bt, lr) if lr.abnormal() => warn!(
           "Got abnormal response {:?} from {} while parsing line {}!",
           lr,
@@ -315,6 +320,7 @@ impl OnePassParser {
         ),
         _ => {}
       }
+      buf.clear();
     }
     return Ok(parser.finish());
   }
