@@ -150,6 +150,19 @@ impl DeckResults {
     }
   }
 
+  /// Returns all block refs in the results set.
+  pub(crate) fn all_block_refs(&self) -> Vec<BlockRef> {
+    let mut v: Vec<BlockRef> = Vec::new();
+    for pick in SolverPick::all() {
+      if let RunState::Finished(f) = self.get(*pick) {
+        v.extend(f.all_blocks(true).map(|b| b.block_ref()));
+      }
+    }
+    v.dedup();
+    v.sort();
+    return v;
+  }
+
   /// Returns the total number of flagged values.
   pub(crate) fn num_flagged(&self) -> usize {
     return self.extractions.iter()

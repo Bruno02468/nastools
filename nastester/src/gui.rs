@@ -1,6 +1,6 @@
 //! This module implements the top-level GUI for `nastester`.
 
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::error::Error;
 use std::fmt::Debug;
 use std::fs::File;
@@ -9,13 +9,13 @@ use std::path::PathBuf;
 use std::str::FromStr;
 
 use egui::{
-  Align, Color32, ComboBox, Context, DragValue, Id, Layout, RichText,
-  TextStyle, Ui, Visuals, WidgetText
+  Align, Color32, ComboBox, Context, DragValue, FontFamily, Id, Layout, RichText, TextStyle, Ui, Visuals, WidgetText
 };
 use egui_extras::{Column, TableBuilder};
 use f06::blocks::types::BlockType;
 use f06::prelude::*;
 use log::*;
+use nas_csv::formatting::FloatFormat;
 use native_dialog::{MessageDialog, MessageType};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -38,7 +38,7 @@ pub(crate) enum View {
   /// A specific deck's extractions.
   Extractions(Uuid),
   /// A deck's side-by-side results.
-  Results(Uuid, Option<usize>)
+  Results(Uuid, Option<BlockRef>)
 }
 
 /// This struct rerpresents the GUI.
@@ -768,6 +768,9 @@ impl Gui {
                   if ui.button("Edit extractions").clicked() {
                     self.switch_to(View::Extractions(*uuid));
                   }
+                  if ui.button("View results").clicked() {
+                    self.switch_to(View::Results(*uuid, None));
+                  }
                   if ui.button("Change file path").clicked() {
                     self.change_deck(*uuid).ok();
                   }
@@ -1132,8 +1135,100 @@ impl Gui {
   }
 
   /// Render function for a deck's results, side-by-side.
-  fn view_results(&mut self, _ctx: &Context, _d: Uuid, _exn: Option<usize>) {
-    
+  fn view_results(&mut self, ctx: &Context, d: Uuid, br: Option<BlockRef>) {
+    // convert option bref to text
+    let obref_str = |o: &Option<BlockRef>| -> String {
+      if let Some(bref) = o {
+        return format!("Subcase {}, {}", bref.subcase, bref.block_type);
+      } else {
+        return "Results summary".to_string();
+      }
+    };
+    // show block in column
+    let formatter = FloatFormat::default();
+    let block_table = |ui: &mut Ui, block: &FinalBlock| {
+      let heading_height = ui.text_style_height(&TextStyle::Heading);
+      let dy = ui.spacing().item_spacing.y;
+      let body_height = ui.text_style_height(&TextStyle::Body) + dy;
+      let mut cells = Layout::left_to_right(Align::Center);
+      cells.main_wrap = false;
+      let rows: BTreeMap<usize, NasIndex> = block.row_indexes
+        .keys()
+        .copied()
+        .enumerate()
+        .collect();
+      TableBuilder::new(ui)
+        .vscroll(true)
+        .auto_shrink(true)
+        .striped(true)
+        .cell_layout(cells)
+        .columns(Column::auto(), block.col_indexes.len()+1)
+        .header(heading_height, |mut header| {
+          header.col(|ui| { ui.label("Row/Col"); });
+          for col_index in block.col_indexes.keys() {
+            header.col(|ui| { ui.strong(col_index.to_string()); });
+          }
+        })
+        .body(|body| {
+          body.rows(body_height, rows.len(), |mut row| {
+            let row_index = rows.get(&row.index()).unwrap();
+            row.col(|ui| {
+              ui.strong(row_index.to_string());
+            });
+            for col_index in block.col_indexes.keys() {
+              row.col(|ui| {
+                let mut fbuf = String::new();
+                let x = block.get(*row_index, *col_index).unwrap();
+                formatter.fmt_f64(&mut fbuf, x.into()).ok();
+                let rt = RichText::new(fbuf)
+                  .family(FontFamily::Monospace);
+                ui.label(rt);
+              });
+            }
+          });
+        });
+    };
+    let block_col = |ui: &mut Ui, rs: &RunState, br: BlockRef| {
+      if let RunState::Finished(f) = rs {
+        if let Some(fb) = f.blocks.get(&br) {
+          block_table(ui, &fb[0]);
+        } else {
+          ui.label("Block absent!");
+        }
+      } else {
+        ui.label("F06 absent!");
+      }
+    };
+    let (_deck, res_mtx) = self.state.get_deck(d).expect("bad deck uuid");
+    let res = res_mtx.lock().expect("results mutex poisoned");
+    egui::CentralPanel::default().show(ctx, |ui| {
+      self.show_menu(ctx, ui);
+      // blockref picker
+      ui.vertical_centered(|ui| {
+        ComboBox::from_id_source(ui.next_auto_id())
+          .selected_text(obref_str(&br))
+          .show_ui(ui, |ui| {
+            if let View::Results(_d, opt) = &mut self.view {
+              ui.selectable_value(opt, None, obref_str(&None));
+              for cand in res.all_block_refs() {
+                ui.selectable_value(opt, Some(cand), obref_str(&Some(cand)));
+              }
+            }
+          });
+      });
+      if let Some(bref) = br {
+        // show chosen block
+        ui.columns(2, |cols| {
+          for (i, pick) in SolverPick::all().iter().enumerate() {
+            cols[i].vertical_centered(|ui|
+              ui.push_id(i, |ui| {
+                block_col(ui, res.get(*pick), bref);
+              })
+            );
+          }
+        });
+      }
+    });
   }
 }
 

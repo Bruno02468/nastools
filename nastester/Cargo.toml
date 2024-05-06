@@ -23,6 +23,10 @@ num_cpus = "1.16"
 version = "0.3"
 path = "../f06"
 
+[dependencies.nas_csv]
+version = "0.3"
+path = "../nas_csv"
+
 [dependencies.egui]
 version = "0.27"
 features = ["log", "mint", "persistence", "rayon", "serde"]
