@@ -43,8 +43,10 @@ pub(crate) struct ExtractionResults {
   pub(crate) blocks_ref: Vec<FinalBlock>,
   /// The resulting sub-blocks gotten from the solver under test.
   pub(crate) blocks_test: Vec<FinalBlock>,
-  /// The flagged indexes.
-  pub(crate) flagged: Option<BTreeSet<DatumIndex>>
+  /// The flagged indices.
+  pub(crate) flagged: Option<BTreeSet<DatumIndex>>,
+  /// The extracted indices.
+  pub(crate) extracted: BTreeSet<DatumIndex>
 }
 
 
@@ -56,7 +58,11 @@ pub(crate) struct DeckResults {
   /// The F06 file from the solver under test.
   pub(crate) test_f06: RunState,
   /// Contains the results for each extraction.
-  pub(crate) extractions: Vec<ExtractionResults>
+  pub(crate) extractions: Vec<ExtractionResults>,
+  /// Contains all flagged indices.
+  pub(crate) flagged: BTreeSet<DatumIndex>,
+  /// Contains all extracted indices.
+  pub(crate) extracted: BTreeSet<DatumIndex>
 }
 
 impl DeckResults {
@@ -81,6 +87,7 @@ impl DeckResults {
     for res in self.extractions.iter_mut() {
       res.flagged = None;
     }
+    self.flagged.clear();
   }
 
   /// Clears a run's results.
@@ -110,7 +117,10 @@ impl DeckResults {
           blocks_ref: exn.blockify(r),
           blocks_test: exn.blockify(t),
           flagged: None,
+          extracted: BTreeSet::new()
         };
+        res.extracted.extend(exn.lookup(r));
+        res.extracted.extend(exn.lookup(t));
         if let Some(critset) = crit_uuid.and_then(|u| crit_sets.get(&u)) {
           let in_ref = exn.lookup(r).collect::<BTreeSet<_>>();
           let in_test = exn.lookup(t).collect::<BTreeSet<_>>();
@@ -143,8 +153,10 @@ impl DeckResults {
               }
             }
           }
+          self.flagged.extend(flagged.iter().copied());
           res.flagged = Some(flagged);
         }
+        self.extracted.extend(res.extracted.iter().copied());
         self.extractions.push(res);
       }
     }
@@ -158,8 +170,8 @@ impl DeckResults {
         v.extend(f.all_blocks(true).map(|b| b.block_ref()));
       }
     }
-    v.dedup();
     v.sort();
+    v.dedup();
     return v;
   }
 

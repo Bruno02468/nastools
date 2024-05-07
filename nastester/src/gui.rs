@@ -1,6 +1,6 @@
 //! This module implements the top-level GUI for `nastester`.
 
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::error::Error;
 use std::fmt::Debug;
 use std::fs::File;
@@ -9,7 +9,8 @@ use std::path::PathBuf;
 use std::str::FromStr;
 
 use egui::{
-  Align, Color32, ComboBox, Context, DragValue, FontFamily, Id, Layout, RichText, TextStyle, Ui, Visuals, WidgetText
+  Align, Color32, ComboBox, Context, DragValue, FontFamily, Id, Layout,
+  RichText, TextStyle, Ui, Visuals, WidgetText
 };
 use egui_extras::{Column, TableBuilder};
 use f06::blocks::types::BlockType;
@@ -38,7 +39,31 @@ pub(crate) enum View {
   /// A specific deck's extractions.
   Extractions(Uuid),
   /// A deck's side-by-side results.
-  Results(Uuid, Option<BlockRef>)
+  Results
+}
+
+/// This contains form fields hat are always present.
+#[derive(Debug, Serialize, Deserialize)]
+pub(crate) struct StaticFields {
+  /// The deck whose results we're looking at.
+  current_deck: Option<Uuid>,
+  /// The currently-selected results blockref.
+  block_ref: Option<BlockRef>,
+  /// Limit display to values that are part of extractions?
+  extractions_only: bool,
+  /// Highlight flagged values?
+  highlight_flagged: bool
+}
+
+impl Default for StaticFields {
+  fn default() -> Self {
+    return Self {
+      current_deck: None,
+      block_ref: None,
+      extractions_only: false,
+      highlight_flagged: true
+    };
+  }
 }
 
 /// This struct rerpresents the GUI.
@@ -54,7 +79,9 @@ pub(crate) struct Gui {
   pub(crate) suite_clean: bool,
   /// Text fields that are not 1:1 with state data, so they need to stay
   /// "invalid" sometimes. These are cleared when the view changes.
-  pub(crate) text_fields: HashMap<Id, String>
+  pub(crate) text_fields: HashMap<Id, String>,
+  /// Fields that are always present.
+  pub(crate) static_fields: StaticFields
 }
 
 impl Default for Gui {
@@ -64,7 +91,8 @@ impl Default for Gui {
       view: View::Decks,
       suite_file: None,
       suite_clean: true,
-      text_fields: HashMap::new()
+      text_fields: HashMap::new(),
+      static_fields: StaticFields::default()
     };
   }
 }
@@ -769,7 +797,8 @@ impl Gui {
                     self.switch_to(View::Extractions(*uuid));
                   }
                   if ui.button("View results").clicked() {
-                    self.switch_to(View::Results(*uuid, None));
+                    self.static_fields.current_deck = Some(*uuid);
+                    self.switch_to(View::Results);
                   }
                   if ui.button("Change file path").clicked() {
                     self.change_deck(*uuid).ok();
@@ -792,6 +821,16 @@ impl Gui {
       let exns_ui = |ui: &mut Ui| {
         self.show_menu(ctx, ui);
         ui.vertical_centered(|ui| {
+          let sf = &mut self.static_fields;
+          let dn = self.state.get_deck(uuid).unwrap().0.name().to_owned();
+          let deck_data = self.state.decks_names().collect::<Vec<(_, _)>>();
+          ComboBox::from_id_source("res_deck_picker")
+            .selected_text(dn)
+            .show_ui(ui, |ui| {
+              for (s, u) in deck_data {
+                ui.selectable_value(&mut sf.current_deck, Some(u), s);
+              }
+            });
           ui.strong("Deck extractions:");
           if ui.button("Add new").clicked() {
             self.state.get_deck_mut(uuid)
@@ -813,7 +852,7 @@ impl Gui {
             .column(Column::remainder().resizable(true))
             .column(Column::remainder().resizable(true))
             .header(heading_height, |mut header| {
-              header.col(|ui| { ui.label("nº"); });
+              header.col(|ui| { ui.label("#"); });
               header.col(|ui| { ui.label("blocks"); });
               header.col(|ui| { ui.label("subcases"); });
               header.col(|ui| { ui.label("nodes"); });
@@ -1135,8 +1174,15 @@ impl Gui {
   }
 
   /// Render function for a deck's results, side-by-side.
-  fn view_results(&mut self, ctx: &Context, d: Uuid, br: Option<BlockRef>) {
-    // convert option bref to text
+  fn view_results(&mut self, ctx: &Context) {
+    // ensure deck
+    let d = if let Some(u) = self.static_fields.current_deck {
+      u
+    } else {
+      warn!("tried to view results with no deck!");
+      return;
+    };
+    // block ref option to string
     let obref_str = |o: &Option<BlockRef>| -> String {
       if let Some(bref) = o {
         return format!("Subcase {}, {}", bref.subcase, bref.block_type);
@@ -1146,7 +1192,12 @@ impl Gui {
     };
     // show block in column
     let formatter = FloatFormat::default();
-    let block_table = |ui: &mut Ui, block: &FinalBlock| {
+    let block_table = |
+      ui: &mut Ui,
+      block: &FinalBlock,
+      oe: Option<&BTreeSet<DatumIndex>>,
+      hf: Option<&BTreeSet<DatumIndex>>
+    | {
       let heading_height = ui.text_style_height(&TextStyle::Heading);
       let dy = ui.spacing().item_spacing.y;
       let body_height = ui.text_style_height(&TextStyle::Body) + dy;
@@ -1154,6 +1205,17 @@ impl Gui {
       cells.main_wrap = false;
       let rows: BTreeMap<usize, NasIndex> = block.row_indexes
         .keys()
+        .filter(|ri| oe.is_none() || oe.is_some_and(
+          |k| k.iter().any(|d| &&d.row == ri)
+        ))
+        .copied()
+        .enumerate()
+        .collect();
+      let cols: BTreeMap<usize, NasIndex> = block.col_indexes
+        .keys()
+        .filter(|ci| oe.is_none() || oe.is_some_and(
+          |k| k.iter().any(|d| &&d.col == ci)
+        ))
         .copied()
         .enumerate()
         .collect();
@@ -1162,36 +1224,53 @@ impl Gui {
         .auto_shrink(true)
         .striped(true)
         .cell_layout(cells)
-        .columns(Column::auto(), block.col_indexes.len()+1)
+        .columns(Column::auto(), cols.len()+1)
         .header(heading_height, |mut header| {
           header.col(|ui| { ui.label("Row/Col"); });
-          for col_index in block.col_indexes.keys() {
+          for col_index in cols.values() {
+            // column indexes heading
             header.col(|ui| { ui.strong(col_index.to_string()); });
           }
         })
         .body(|body| {
           body.rows(body_height, rows.len(), |mut row| {
             let row_index = rows.get(&row.index()).unwrap();
+            // row indexes column
             row.col(|ui| {
               ui.strong(row_index.to_string());
             });
             for col_index in block.col_indexes.keys() {
+              // data rows
               row.col(|ui| {
                 let mut fbuf = String::new();
                 let x = block.get(*row_index, *col_index).unwrap();
                 formatter.fmt_f64(&mut fbuf, x.into()).ok();
-                let rt = RichText::new(fbuf)
+                let mut rt = RichText::new(fbuf)
                   .family(FontFamily::Monospace);
+                let di = DatumIndex {
+                  block_ref: block.block_ref(),
+                  row: *row_index,
+                  col: *col_index,
+                };
+                if hf.is_some_and(|f| f.contains(&di)) {
+                  rt = rt.color(Color32::RED);
+                }
                 ui.label(rt);
               });
             }
           });
         });
     };
-    let block_col = |ui: &mut Ui, rs: &RunState, br: BlockRef| {
+    let block_col = |
+      ui: &mut Ui,
+      rs: &RunState,
+      br: BlockRef,
+      oe: Option<&BTreeSet<DatumIndex>>,
+      hf: Option<&BTreeSet<DatumIndex>>
+    | {
       if let RunState::Finished(f) = rs {
         if let Some(fb) = f.blocks.get(&br) {
-          block_table(ui, &fb[0]);
+          block_table(ui, &fb[0], oe, hf);
         } else {
           ui.label("Block absent!");
         }
@@ -1199,35 +1278,65 @@ impl Gui {
         ui.label("F06 absent!");
       }
     };
-    let (_deck, res_mtx) = self.state.get_deck(d).expect("bad deck uuid");
-    let res = res_mtx.lock().expect("results mutex poisoned");
     egui::CentralPanel::default().show(ctx, |ui| {
       self.show_menu(ctx, ui);
-      // blockref picker
-      ui.vertical_centered(|ui| {
-        ComboBox::from_id_source(ui.next_auto_id())
-          .selected_text(obref_str(&br))
+      let (deck, res_mtx) = self.state.get_deck(d).expect("bad deck uuid");
+      let deck_name = deck.name().to_owned();
+      let res = res_mtx.lock().expect("results mutex poisoned");
+      let sf = &mut self.static_fields;
+      let deck_data = self.state.decks_names().collect::<Vec<(_, _)>>();
+      ui.horizontal(|ui| {
+        // deck picker
+        ComboBox::from_id_source("res_deck_picker")
+          .selected_text(deck_name)
           .show_ui(ui, |ui| {
-            if let View::Results(_d, opt) = &mut self.view {
-              ui.selectable_value(opt, None, obref_str(&None));
-              for cand in res.all_block_refs() {
-                ui.selectable_value(opt, Some(cand), obref_str(&Some(cand)));
-              }
+            for (s, u) in deck_data {
+              ui.selectable_value(&mut sf.current_deck, Some(u), s);
             }
           });
+        // blockref picker
+        let bref = &mut sf.block_ref;
+        ComboBox::from_id_source("res_block_picker")
+          .selected_text(obref_str(bref))
+          .show_ui(ui, |ui| {
+            ui.selectable_value(bref, None, obref_str(&None));
+            for cand in res.all_block_refs() {
+              ui.selectable_value(bref, Some(cand), obref_str(&Some(cand)));
+            }
+          });
+        // limit to extracted
+        ui.checkbox(
+          &mut sf.extractions_only,
+          "Show only values in extractions"
+        );
+        // highlight flagged
+        ui.checkbox(
+          &mut sf.highlight_flagged,
+          "Highlight flagged values"
+        );
       });
-      if let Some(bref) = br {
+      if let Some(bref) = sf.block_ref {
         // show chosen block
         ui.columns(2, |cols| {
           for (i, pick) in SolverPick::all().iter().enumerate() {
             cols[i].vertical_centered(|ui|
               ui.push_id(i, |ui| {
-                block_col(ui, res.get(*pick), bref);
+                block_col(
+                  ui,
+                  res.get(*pick),
+                  bref,
+                  if sf.extractions_only {
+                    Some(&res.extracted)
+                  } else {
+                    None
+                  },
+                  if sf.highlight_flagged { Some(&res.flagged) } else { None }
+                );
               })
             );
           }
         });
-      }
+      };
     });
   }
 }
@@ -1242,7 +1351,7 @@ impl eframe::App for Gui {
       View::Solvers => self.view_solvers(ctx),
       View::CriteriaSets => self.view_criteria_sets(ctx),
       View::Extractions(uuid) => self.view_deck_exns(ctx, uuid),
-      View::Results(uuid, n) => self.view_results(ctx, uuid, n)
+      View::Results => self.view_results(ctx)
     };
   }
 }
