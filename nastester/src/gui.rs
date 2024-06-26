@@ -52,7 +52,9 @@ pub(crate) struct StaticFields {
   /// Limit display to values that are part of extractions?
   extractions_only: bool,
   /// Highlight flagged values?
-  highlight_flagged: bool
+  highlight_flagged: bool,
+  /// Display column metrics when looking at extraction results?
+  show_col_metrics: bool
 }
 
 impl Default for StaticFields {
@@ -61,7 +63,8 @@ impl Default for StaticFields {
       current_deck: None,
       block_ref: None,
       extractions_only: false,
-      highlight_flagged: true
+      highlight_flagged: true,
+      show_col_metrics: false,
     };
   }
 }
@@ -618,6 +621,14 @@ impl Gui {
         } else if ui.button("Change to dark mode").clicked() {
           ctx.set_visuals(Visuals::dark());
         }
+        // enable column metrics
+        if self.static_fields.show_col_metrics {
+          if ui.button("Hide column metrics").clicked() {
+            self.static_fields.show_col_metrics = false;
+          }
+        } else if ui.button("Show column metrics").clicked() {
+          self.static_fields.show_col_metrics = true;
+        }
         // recompute flags
         if ui.button("Recompute flags").clicked() {
           self.state.recompute_all_flagged();
@@ -1096,9 +1107,11 @@ impl Gui {
       let body_height = ui.text_style_height(&TextStyle::Body) + dy;
       let mut cells = Layout::left_to_right(Align::Center);
       let nsolvers = self.state.solvers.len();
-      let snames = self.state.solvers_names()
+      let mut snames = self.state.solvers_names()
         .map(|(s, u)| (s.to_owned(), u))
         .collect::<Vec<_>>();
+      // prevent moving mid-rename
+      snames.sort_by_key(|t| t.1);
       cells.main_wrap = false;
       ui.vertical_centered(|ui| {
         ui.strong("Solvers:");
