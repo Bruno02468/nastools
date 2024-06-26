@@ -149,7 +149,16 @@ impl RunnableSolver {
       let mut upper = d.join(basename);
       upper.set_extension(F06_UPPER);
       let f06path = match (lower.exists(), upper.exists()) {
-        (true, true) => return Err(RunError::ExtensionMixup),
+        (true, true) => {
+          // are we on a stupid system with stupid case-insensitive files?
+          if cfg!(windows) {
+            // sure why not, return the upper-case
+            upper
+          } else {
+            // ehh, if both exist and this isn't windows, something went badly
+            return Err(RunError::ExtensionMixup);
+          }
+        },
         (false, false) => return Err(RunError::MissingF06(d.to_path_buf())),
         (true, false) => lower,
         (false, true) => upper,
