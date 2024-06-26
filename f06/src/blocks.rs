@@ -71,7 +71,7 @@ impl FinalDMat {
     };
   }
 
-  /// Number of Columns.
+  /// Number of columns.
   pub fn ncols(&self) -> usize {
     return match self {
       FinalDMat::Reals(m) => m.ncols(),

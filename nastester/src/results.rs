@@ -1,6 +1,7 @@
 //! This submodule defines structures for testing results.
 
 use std::collections::{BTreeMap, BTreeSet};
+use std::mem;
 
 use f06::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -34,6 +35,204 @@ impl<T: ToString> From<Result<F06File, T>> for RunState {
   }
 }
 
+/// Single-column metrics (such as min, max, mean).
+#[derive(
+  Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord
+)]
+pub(crate) enum SingleColumnMetric {
+  /// Minimum of a column.
+  Mininum,
+  /// Maximum of a column.
+  Maximum,
+  /// Average value of a column.
+  Average,
+  /// Standard deviation of a column.
+  StandardDeviation
+}
+
+impl SingleColumnMetric {
+  /// Returns all the currently-implemented single-column metrics.
+  pub(crate) const fn all() -> &'static [Self] {
+    return &[
+      Self::Mininum,
+      Self::Maximum,
+      Self::Average,
+      Self::StandardDeviation,
+    ];
+  }
+
+  /// Returns a short name for this metric.
+  pub(crate) const fn short_name(&self) -> &'static str {
+    return match self {
+      Self::Mininum => "min",
+      Self::Maximum => "max",
+      Self::Average => "avg",
+      Self::StandardDeviation => "sd",
+    };
+  }
+
+  /// Returns a long name for this metric.
+  pub(crate) const fn long_name(&self) -> &'static str {
+    return match self {
+      Self::Mininum => "minimum",
+      Self::Maximum => "maximum",
+      Self::Average => "average",
+      Self::StandardDeviation => "standard deviation",
+    };
+  }
+
+  /// Computes this metric over a block and columns.
+  pub(crate) fn compute(
+    &self,
+    block: &FinalBlock,
+    col: NasIndex
+  ) -> Option<f64> {
+    let nums = block.row_indexes.keys()
+      .filter_map(|r| block.get(*r, col))
+      .map(f64::from);
+    match self {
+      Self::Mininum => {
+        return nums.min_by(|a, b| a.total_cmp(b));
+      },
+      Self::Maximum => {
+        return nums.max_by(|a, b| a.total_cmp(b));
+      },
+      Self::Average => {
+        let mut count: usize = 0;
+        let mut total: f64 = 0.0;
+        for num in nums {
+          count += 1;
+          total += num;
+        }
+        if count > 0 {
+          return Some(total/count as f64);
+        } else {
+          return None;
+        }
+      },
+      Self::StandardDeviation => {
+        let avg = Self::Average.compute(block, col)?;
+        let mut count: usize = 0;
+        let mut total_qm: f64 = 0.0;
+        for num in nums {
+          count += 1;
+          total_qm += (avg - num).powi(2);
+        }
+        if count > 0 {
+          return Some(f64::sqrt(total_qm/count as f64));
+        } else {
+          return None;
+        }
+      },
+    }
+  }
+}
+
+/// Column-compare metrics (like the RMSD).
+#[derive(
+  Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord
+)]
+pub(crate) enum ColumnCompareMetric {
+  /// Max absolute deviation.
+  MaximumAbsoluteDifference,
+  /// Average absolute deviation.
+  AverageAbsoluteDifference,
+  /// Root mean square deviation.
+  RootMeanSquareDeviation
+}
+
+impl ColumnCompareMetric {
+  /// Returns all the currently-implemented single-column metrics.
+  pub(crate) const fn all() -> &'static [Self] {
+    return &[
+      Self::MaximumAbsoluteDifference,
+      Self::AverageAbsoluteDifference,
+      Self::RootMeanSquareDeviation
+    ];
+  }
+
+  /// Returns a short name for this metric.
+  pub(crate) const fn short_name(&self) -> &'static str {
+    return match self {
+      Self::MaximumAbsoluteDifference => "max-abs-diff",
+      Self::AverageAbsoluteDifference => "avg-abs-diff",
+      Self::RootMeanSquareDeviation => "rmsd"
+    };
+  }
+
+  /// Returns a long name for this metric.
+  pub(crate) const fn long_name(&self) -> &'static str {
+    return match self {
+      Self::MaximumAbsoluteDifference => "maximum absolute deviation",
+      Self::AverageAbsoluteDifference => "average absolute deviation",
+      Self::RootMeanSquareDeviation => "root mean square deviation",
+    };
+  }
+
+  /// Computes this metric over a block and columns.
+  pub(crate) fn compute(
+    &self,
+    ref_block: &FinalBlock,
+    test_block: &FinalBlock,
+    col: NasIndex
+  ) -> Option<f64> {
+    let nums = ref_block.row_indexes.keys().filter_map(|r| {
+      if let Some(rval) = ref_block.get(*r, col) {
+        if let Some(tval) = test_block.get(*r, col) {
+          return Some((f64::from(rval), f64::from(tval)));
+        }
+      }
+      return None;
+    });
+    match self {
+      Self::MaximumAbsoluteDifference => {
+        return nums.map(|(r, t)| (r - t).abs()).max_by(|a, b| a.total_cmp(b));
+      },
+      Self::AverageAbsoluteDifference => {
+        let mut count: usize = 0;
+        let mut total: f64 = 0.0;
+        for (r, t) in nums {
+          count += 1;
+          total += (r - t).abs();
+        }
+        if count > 0 {
+          return Some(total/count as f64);
+        } else {
+          return None;
+        }
+      },
+      Self::RootMeanSquareDeviation => {
+        let mut count: usize = 0;
+        let mut total: f64 = 0.0;
+        for (r, t) in nums {
+          count += 1;
+          total += (r - t).powi(2);
+        }
+        if count > 0 {
+          return Some(f64::sqrt(total/count as f64));
+        } else {
+          return None;
+        }
+      },
+    }
+  }
+}
+
+/// Index to get a single-column metric.
+pub(crate) type SingleColumnMetricIndex = (
+  SolverPick,
+  BlockRef,
+  NasIndex,
+  SingleColumnMetric
+);
+
+/// Index to get a column-compare metric.
+pub(crate) type ColumnCompareMetricIndex = (
+  BlockRef,
+  NasIndex,
+  ColumnCompareMetric
+);
+
 /// This structure holds extraction results: blocks and flagged indexes.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub(crate) struct ExtractionResults {
@@ -46,9 +245,74 @@ pub(crate) struct ExtractionResults {
   /// The flagged indices.
   pub(crate) flagged: Option<BTreeSet<DatumIndex>>,
   /// The extracted indices.
-  pub(crate) extracted: BTreeSet<DatumIndex>
+  pub(crate) extracted: BTreeSet<DatumIndex>,
+  /// Single-column metrics.
+  pub(crate) col_metrics: BTreeMap<SingleColumnMetricIndex, Option<f64>>,
+  /// Column-compare metrics.
+  pub(crate) col_compares: BTreeMap<ColumnCompareMetricIndex, Option<f64>>
 }
 
+impl ExtractionResults {
+  /// Returns the extracted blocks for a solver pick.
+  pub(crate) fn blocks_of(&self, pick: SolverPick) -> &Vec<FinalBlock> {
+    return match pick {
+      SolverPick::Reference => &self.blocks_ref,
+      SolverPick::Testing => &self.blocks_test,
+    };
+  }
+
+  /// Returns the (reference, testing) block pair for a given block ref.
+  pub(crate) fn block_pair(
+    &self,
+    block_ref: BlockRef
+  ) -> (Option<&FinalBlock>, Option<&FinalBlock>) {
+    let r = self.blocks_ref.iter().find(|b| b.block_ref() == block_ref);
+    let t = self.blocks_test.iter().find(|b| b.block_ref() == block_ref);
+    return (r, t);
+  }
+
+  /// Returns an iterator over all block references present in either file.
+  pub(crate) fn block_refs(&self) -> impl Iterator<Item = BlockRef> + '_ {
+    return SolverPick::all().iter()
+      .flat_map(|p| self.blocks_of(*p).iter().map(|b| b.block_ref()));
+  }
+
+  /// Updates the single-column metrics.
+  pub(crate) fn update_single_col_metrics(&mut self) {
+    let indices = SolverPick::all().iter()
+      .flat_map(|p| self.blocks_of(*p).iter().flat_map(
+        move |b| b.col_indexes.keys().map(move |ci| (*p, b, *ci))
+      ))
+      .flat_map(|(p, b, c)|
+        SingleColumnMetric::all().iter().map(move |scm| (p, b, c, *scm))
+      );
+    let mut new_scm: BTreeMap<_, Option<f64>> = BTreeMap::new();
+    for (pick, block, col, metric) in indices {
+      let true_index = (pick, block.block_ref(), col, metric);
+      let value = metric.compute(block, col);
+      new_scm.insert(true_index, value);
+    }
+    mem::swap(&mut self.col_metrics, &mut new_scm);
+  }
+
+  /// Updates the column-compare metrics.
+  pub(crate) fn update_col_compare_metrics(&mut self) {
+    let brs: BTreeSet<_> = self.block_refs().collect();
+    let mut new_ccm: BTreeMap<_, Option<f64>> = BTreeMap::new();
+    for block_ref in brs {
+      if let (Some(r), Some(t)) = self.block_pair(block_ref) {
+        for col in r.col_indexes.keys() {
+          for metric in ColumnCompareMetric::all() {
+            let true_index = (block_ref, *col, *metric);
+            let value = metric.compute(r, t, *col);
+            new_ccm.insert(true_index, value);
+          }
+        }
+      }
+    }
+    mem::swap(&mut self.col_compares, &mut new_ccm);
+  }
+}
 
 /// These are the results for a single deck.
 #[derive(Default, Clone, Debug, Serialize, Deserialize)]
@@ -99,6 +363,8 @@ impl DeckResults {
         SolverPick::Reference => &mut res.blocks_ref,
         SolverPick::Testing => &mut res.blocks_test,
       }.clear();
+      res.col_compares.clear();
+      res.col_metrics.retain(|k, _| k.0 != pick);
     }
   }
 
@@ -117,15 +383,21 @@ impl DeckResults {
           blocks_ref: exn.blockify(r),
           blocks_test: exn.blockify(t),
           flagged: None,
-          extracted: BTreeSet::new()
+          extracted: BTreeSet::new(),
+          col_metrics: BTreeMap::new(),
+          col_compares: BTreeMap::new(),
         };
+        // get extracted indices
         res.extracted.extend(exn.lookup(r));
         res.extracted.extend(exn.lookup(t));
+        // recompute metrics
+        res.update_single_col_metrics();
+        res.update_col_compare_metrics();
         if let Some(critset) = crit_uuid.and_then(|u| crit_sets.get(&u)) {
           let in_ref = exn.lookup(r).collect::<BTreeSet<_>>();
           let in_test = exn.lookup(t).collect::<BTreeSet<_>>();
           let in_either = in_ref
-          .union(&in_test)
+            .union(&in_test)
             .copied()
             .collect::<BTreeSet<_>>();
           let dxn = in_ref
