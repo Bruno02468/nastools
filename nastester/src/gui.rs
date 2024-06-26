@@ -212,6 +212,7 @@ impl Gui {
     let mut dialog = rfd::FileDialog::new()
       .set_title("Choose solver binary...")
       .set_can_create_directories(true);
+    #[allow(clippy::const_is_empty)]
     if !BINARY_EXTENSIONS.is_empty() {
       dialog = dialog.add_filter("Executable file", BINARY_EXTENSIONS);
     }
