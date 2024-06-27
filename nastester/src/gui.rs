@@ -621,14 +621,6 @@ impl Gui {
         } else if ui.button("Change to dark mode").clicked() {
           ctx.set_visuals(Visuals::dark());
         }
-        // enable column metrics
-        if self.static_fields.show_col_metrics {
-          if ui.button("Hide column metrics").clicked() {
-            self.static_fields.show_col_metrics = false;
-          }
-        } else if ui.button("Show column metrics").clicked() {
-          self.static_fields.show_col_metrics = true;
-        }
         // recompute flags
         if ui.button("Recompute flags").clicked() {
           self.state.recompute_all_flagged();
@@ -1327,6 +1319,11 @@ impl Gui {
         ui.checkbox(
           &mut sf.highlight_flagged,
           "Highlight flagged values"
+        );
+        // highlight flagged
+        ui.checkbox(
+          &mut sf.show_col_metrics,
+          "Show column metrics"
         );
       });
       if let Some(bref) = sf.block_ref {
