@@ -215,7 +215,8 @@ impl RunnableSolver {
 
 /// A pick of solver for a job. Sugar.
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord
+  Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord,
+  Hash
 )]
 pub(crate) enum SolverPick {
   /// The reference solver.

@@ -7,10 +7,10 @@ use std::fs::File;
 use std::io::{BufReader, BufWriter, Write};
 use std::path::PathBuf;
 use std::str::FromStr;
+use std::fmt::Write as FmtWrite;
 
 use egui::{
-  Align, Color32, ComboBox, Context, DragValue, FontFamily, Id, Layout,
-  RichText, TextStyle, Ui, Visuals, WidgetText
+  Align, Color32, ComboBox, Context, DragValue, FontFamily, Id, Layout, RichText, ScrollArea, TextStyle, Ui, Visuals, WidgetText
 };
 use egui_extras::{Column, TableBuilder};
 use f06::blocks::types::BlockType;
@@ -37,7 +37,7 @@ pub(crate) enum View {
   /// The criteria sets.
   CriteriaSets,
   /// A specific deck's extractions.
-  Extractions(Uuid),
+  Extractions,
   /// A deck's side-by-side results.
   Results
 }
@@ -52,9 +52,7 @@ pub(crate) struct StaticFields {
   /// Limit display to values that are part of extractions?
   extractions_only: bool,
   /// Highlight flagged values?
-  highlight_flagged: bool,
-  /// Display column metrics when looking at extraction results?
-  show_col_metrics: bool
+  highlight_flagged: bool
 }
 
 impl Default for StaticFields {
@@ -63,8 +61,7 @@ impl Default for StaticFields {
       current_deck: None,
       block_ref: None,
       extractions_only: false,
-      highlight_flagged: true,
-      show_col_metrics: false,
+      highlight_flagged: true
     };
   }
 }
@@ -798,7 +795,8 @@ impl Gui {
               row.col(|ui| {
                 ui.horizontal(|ui| {
                   if ui.button("Edit extractions").clicked() {
-                    self.switch_to(View::Extractions(*uuid));
+                    self.static_fields.current_deck = Some(*uuid);
+                    self.switch_to(View::Extractions);
                   }
                   if ui.button("View results").clicked() {
                     self.static_fields.current_deck = Some(*uuid);
@@ -820,7 +818,8 @@ impl Gui {
   }
 
   /// Render function for a single deck, its extractions, etcetera.
-  fn view_deck_exns(&mut self, ctx: &Context, uuid: Uuid) {
+  fn view_deck_exns(&mut self, ctx: &Context) {
+    let uuid = self.static_fields.current_deck.expect("missing deck UUID");
     if self.state.suite.decks.contains_key(&uuid) {
       let exns_ui = |ui: &mut Ui| {
         self.show_menu(ctx, ui);
@@ -855,12 +854,14 @@ impl Gui {
             .column(Column::remainder().resizable(true))
             .column(Column::remainder().resizable(true))
             .column(Column::remainder().resizable(true))
+            .column(Column::remainder().resizable(true))
             .header(heading_height, |mut header| {
               header.col(|ui| { ui.label("#"); });
               header.col(|ui| { ui.label("blocks"); });
               header.col(|ui| { ui.label("subcases"); });
               header.col(|ui| { ui.label("nodes"); });
               header.col(|ui| { ui.label("elements"); });
+              header.col(|ui| { ui.label("columns"); });
               header.col(|ui| { ui.label("on disjunction"); });
               header.col(|ui| { ui.label("criteria"); });
             })
@@ -909,6 +910,13 @@ impl Gui {
                       .suite.decks.get_mut(&uuid).expect("deck UUID missing!")
                       .extractions.get_mut(i).expect("bad extraction index!")
                       .0.elements
+                    );
+                  });
+                  row.col(|ui| {
+                    self.text_specifier(ui, |s| &mut s.state
+                      .suite.decks.get_mut(&uuid).expect("deck UUID missing!")
+                      .extractions.get_mut(i).expect("bad extraction index!")
+                      .0.raw_cols
                     );
                   });
                   row.col(|ui| {
@@ -1267,6 +1275,7 @@ impl Gui {
           });
         });
     };
+    // column to show a block
     let block_col = |
       ui: &mut Ui,
       rs: &RunState,
@@ -1283,6 +1292,115 @@ impl Gui {
       } else {
         ui.label("F06 absent!");
       }
+    };
+    // show per-extraction metrics
+    let exn_metrics = |ui: &mut Ui, exr: &ExtractionResults| {
+      let heading_height = ui.text_style_height(&TextStyle::Heading);
+      let dy = ui.spacing().item_spacing.y;
+      let body_height = ui.text_style_height(&TextStyle::Body) + dy;
+      let cells = Layout::left_to_right(Align::Center);
+      let formatter = FloatFormat::default();
+      for pick in SolverPick::all() {
+        match pick {
+          SolverPick::Reference => ui.label("  => Reference solver:"),
+          SolverPick::Testing => ui.label("  => Solver under test:"),
+        };
+        let metrics = SingleColumnMetric::all();
+        let mut rows: Vec<(BlockRef, NasIndex)> = exr.col_metrics
+          .keys()
+          .filter_map(
+            |scmi| if scmi.0 == *pick { Some((scmi.1, scmi.2)) } else { None }
+          ).collect();
+        rows.sort();
+        rows.dedup();
+        ui.push_id(pick, |ui| {
+          TableBuilder::new(ui)
+            .vscroll(false)
+            .auto_shrink(true)
+            .striped(true)
+            .cell_layout(cells)
+            .columns(Column::auto(), metrics.len()+1)
+            .header(heading_height, |mut header| {
+              header.col(|ui| { ui.label("Col/Metric"); });
+              for metric in metrics {
+                // column indexes heading
+                header.col(|ui| { ui.strong(metric.short_name()); });
+              }
+            })
+            .body(|body| {
+              body.rows(body_height, rows.len(), |mut row| {
+                let (bref, col) = rows.get(row.index()).unwrap();
+                row.col(|ui| {
+                  ui.strong(format!(
+                    "Subcase {}, {}, {}",
+                    bref.subcase,
+                    bref.block_type,
+                    col
+                  ));
+                });
+                for scm in metrics {
+                  let scmi = (*pick, *bref, *col, *scm);
+                  let mut fbuf = String::new();
+                  if let Some(Some(val)) = exr.col_metrics.get(&scmi) {
+                    formatter.fmt_f64(&mut fbuf, *val).ok();
+                  } else {
+                    write!(&mut fbuf, "N/A").ok();
+                  }
+                  let rt = RichText::new(fbuf).family(FontFamily::Monospace);
+                  row.col(|ui| { ui.label(rt); });
+                }
+              })
+            });
+          });
+        ui.separator();
+      }
+      // column compare metrics
+      ui.label("  => Column-compare metrics:");
+      let mut rows: Vec<(BlockRef, NasIndex)> = exr.col_compares
+        .keys()
+        .map(|ccmi| (ccmi.0, ccmi.1))
+        .collect();
+      rows.sort();
+      rows.dedup();
+      let metrics = ColumnCompareMetric::all();
+      TableBuilder::new(ui)
+        .vscroll(false)
+        .auto_shrink(true)
+        .striped(true)
+        .cell_layout(cells)
+        .columns(Column::auto(), metrics.len()+1)
+        .header(heading_height, |mut header| {
+          header.col(|ui| { ui.label("Col/Metric"); });
+          for metric in metrics {
+            // column indexes heading
+            header.col(|ui| { ui.strong(metric.short_name()); });
+          }
+        })
+        .body(|body| {
+          body.rows(body_height, rows.len(), |mut row| {
+            let (bref, col) = rows.get(row.index()).unwrap();
+            row.col(|ui| {
+              ui.strong(format!(
+                "Subcase {}, {}, {}",
+                bref.subcase,
+                bref.block_type,
+                col
+              ));
+            });
+            for ccm in metrics {
+              let ccmi = (*bref, *col, *ccm);
+              let mut fbuf = String::new();
+              if let Some(Some(val)) = exr.col_compares.get(&ccmi) {
+                formatter.fmt_f64(&mut fbuf, *val).ok();
+              } else {
+                write!(&mut fbuf, "N/A").ok();
+              }
+              let rt = RichText::new(fbuf).family(FontFamily::Monospace);
+              row.col(|ui| { ui.label(rt); });
+            }
+          })
+        });
+      ui.separator();
     };
     egui::CentralPanel::default().show(ctx, |ui| {
       self.show_menu(ctx, ui);
@@ -1320,11 +1438,6 @@ impl Gui {
           &mut sf.highlight_flagged,
           "Highlight flagged values"
         );
-        // highlight flagged
-        ui.checkbox(
-          &mut sf.show_col_metrics,
-          "Show column metrics"
-        );
       });
       if let Some(bref) = sf.block_ref {
         // show chosen block
@@ -1347,7 +1460,15 @@ impl Gui {
             );
           }
         });
-      };
+      } else {
+        // show metrics
+        for (exno, exr) in res.extractions.iter().enumerate() {
+          ui.strong(format!("==> For extraction #{}:", exno));
+          ScrollArea::vertical().show(ui, |ui| {
+            exn_metrics(ui, exr);
+          });
+        }
+      }
     });
   }
 }
@@ -1361,7 +1482,7 @@ impl eframe::App for Gui {
       View::Decks => self.view_decks(ctx),
       View::Solvers => self.view_solvers(ctx),
       View::CriteriaSets => self.view_criteria_sets(ctx),
-      View::Extractions(uuid) => self.view_deck_exns(ctx, uuid),
+      View::Extractions => self.view_deck_exns(ctx),
       View::Results => self.view_results(ctx)
     };
   }

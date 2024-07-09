@@ -1,4 +1,4 @@
-use crate::util::decode_nasfloat;
+use crate::util::{decode_nasfloat, unspace};
 
 #[test]
 fn test_decode_nasfloat() {
@@ -55,4 +55,10 @@ fn test_decode_nasfloat() {
   must_fail("E.");
   must_fail(".e");
   must_fail(".E");
+}
+
+#[test]
+fn test_decode_headers() {
+  let my_displ = "                                  D I S P L A C E M E N T S";
+  assert_ne!(unspace(my_displ), None);
 }
