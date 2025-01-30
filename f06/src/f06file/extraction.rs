@@ -12,7 +12,7 @@ use crate::prelude::*;
 
 /// This specifies a value or sets thereof.
 #[derive(
-  Debug, Clone, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq, Default
+  Debug, Clone, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq, Default,
 )]
 pub enum Specifier<A> {
   /// Use all in the file.
@@ -21,12 +21,12 @@ pub enum Specifier<A> {
   /// Use a list.
   List(Vec<A>),
   /// Use an exclusion list.
-  AllExcept(Vec<A>)
+  AllExcept(Vec<A>),
 }
 
 /// This is a specifier type.
 #[derive(
-  Debug, Copy, Clone, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq
+  Debug, Copy, Clone, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
 )]
 pub enum SpecifierType {
   /// Use all in the file.
@@ -34,7 +34,7 @@ pub enum SpecifierType {
   /// Use a list.
   List,
   /// Use an exclusion list.
-  AllExcept
+  AllExcept,
 }
 
 impl SpecifierType {
@@ -80,12 +80,12 @@ impl<A> Specifier<A> {
   }
 
   /// Returns a reference into the inner vector if there is one.
-  pub fn inner_vec(& self) -> Option<&Vec<A>> {
+  pub fn inner_vec(&self) -> Option<&Vec<A>> {
     return match self {
       Specifier::All => None,
       Specifier::List(ref v) => Some(v),
       Specifier::AllExcept(ref v) => Some(v),
-    }
+    };
   }
 
   /// Returns a mutable reference into the inner vector if there is one.
@@ -94,7 +94,7 @@ impl<A> Specifier<A> {
       Specifier::All => None,
       Specifier::List(ref mut v) => Some(v),
       Specifier::AllExcept(ref mut v) => Some(v),
-    }
+    };
   }
 }
 
@@ -139,7 +139,7 @@ impl<A: PartialEq> Specifier<A> {
 
 /// This is a "full index", it refers to a single datum in an F06 file.
 #[derive(
-  Debug, Copy, Clone, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq
+  Debug, Copy, Clone, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
 )]
 pub struct DatumIndex {
   /// The block reference.
@@ -147,34 +147,40 @@ pub struct DatumIndex {
   /// The row.
   pub row: NasIndex,
   /// The column.
-  pub col: NasIndex
+  pub col: NasIndex,
 }
 
 impl DatumIndex {
   /// Attempts to get the value at this index from a data block.
-  pub fn get_from(
-    &self,
-    file: &F06File
-  ) -> Result<F06Number, ExtractionError> {
-    let block = file.block_search(
-      Some(self.block_ref.block_type),
-      Some(self.block_ref.subcase),
-      true
-    ).nth(0).ok_or(ExtractionError::NoSuchBlock(self.block_ref))?;
-    let ri_ex = block.row_indexes.keys().nth(0)
+  pub fn get_from(&self, file: &F06File) -> Result<F06Number, ExtractionError> {
+    let block = file
+      .block_search(
+        Some(self.block_ref.block_type),
+        Some(self.block_ref.subcase),
+        true,
+      )
+      .nth(0)
+      .ok_or(ExtractionError::NoSuchBlock(self.block_ref))?;
+    let ri_ex = block
+      .row_indexes
+      .keys()
+      .nth(0)
       .ok_or(ExtractionError::BlockIsEmpty)?;
-    let ci_ex = block.col_indexes.keys().nth(0)
+    let ci_ex = block
+      .col_indexes
+      .keys()
+      .nth(0)
       .ok_or(ExtractionError::BlockIsEmpty)?;
     if discriminant(&self.row) != discriminant(ri_ex) {
       return Err(ExtractionError::RowTypeMismatch {
         tried: self.row,
-        against: *ri_ex
+        against: *ri_ex,
       });
     }
     if discriminant(&self.col) != discriminant(ci_ex) {
       return Err(ExtractionError::ColumnTypeMismatch {
         tried: self.col,
-        against: *ci_ex
+        against: *ci_ex,
       });
     }
     if !block.row_indexes.contains_key(&self.row) {
@@ -183,14 +189,16 @@ impl DatumIndex {
     if !block.col_indexes.contains_key(&self.col) {
       return Err(ExtractionError::MissingColumn(self.col));
     }
-    return Ok(block.get(self.row, self.col).expect("row & col check failed!"));
+    return Ok(
+      block
+        .get(self.row, self.col)
+        .expect("row & col check failed!"),
+    );
   }
 }
 
 /// This is the kind of error that can be returned when extracting a datum.
-#[derive(
-  Debug, Copy, Clone, Serialize, Deserialize
-)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub enum ExtractionError {
   /// The F06 file has no block matching a subcase and type.
   NoSuchBlock(BlockRef),
@@ -199,21 +207,21 @@ pub enum ExtractionError {
     /// A row index we tried to use.
     tried: NasIndex,
     /// An example of row index from the block.
-    against: NasIndex
+    against: NasIndex,
   },
   /// The block was found but there was an index type mismatch for the columns.
   ColumnTypeMismatch {
     /// A column index we tried to use.
     tried: NasIndex,
     /// An example of column index from the block.
-    against: NasIndex
+    against: NasIndex,
   },
   /// A row index is the correct type but is not part of the matrix.
   MissingRow(NasIndex),
   /// A column index is the correct type but is not part of the matrix.
   MissingColumn(NasIndex),
   /// The block has no data.
-  BlockIsEmpty
+  BlockIsEmpty,
 }
 
 impl Display for ExtractionError {
@@ -239,7 +247,7 @@ impl Display for ExtractionError {
       ),
       Self::MissingRow(ri) => write!(f, "no such row ({})", ri),
       Self::MissingColumn(ci) => write!(f, "no such column ({})", ci),
-      Self::BlockIsEmpty => write!(f, "block is empty")
+      Self::BlockIsEmpty => write!(f, "block is empty"),
     };
   }
 }
@@ -248,9 +256,7 @@ impl Error for ExtractionError {}
 
 /// This structure represents a way to extract a subset of the data from an F06
 /// so one can apply comparison criteria to it.
-#[derive(
-  Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default
-)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
 pub struct Extraction {
   /// Subcases to get data from.
   pub subcases: Specifier<usize>,
@@ -267,7 +273,7 @@ pub struct Extraction {
   /// Raw column filter (for ease of separation).
   pub raw_cols: Specifier<usize>,
   /// What to do in case of disjunctions.
-  pub dxn: DisjunctionBehaviour
+  pub dxn: DisjunctionBehaviour,
 }
 
 impl Extraction {
@@ -276,55 +282,63 @@ impl Extraction {
   /// sorted and merged.
   pub fn lookup<'f>(
     &'f self,
-    file: &'f F06File
+    file: &'f F06File,
   ) -> impl Iterator<Item = DatumIndex> + 'f {
-    return file.all_blocks(true)
+    return file
+      .all_blocks(true)
       .filter(|b| self.subcases.filter_fn(&b.subcase))
       .filter(|b| self.block_types.filter_fn(&b.block_type))
       .flat_map(|b| {
-        let rows = b.row_indexes.keys()
+        let rows = b
+          .row_indexes
+          .keys()
           .filter(|ri| self.rows.filter_fn(ri))
           .filter(|ri| self.grid_points.lax_filter(&ri.grid_point_id()))
           .filter(|ri| self.elements.lax_filter(&ri.element_id()));
-        let cols = b.col_indexes.keys()
+        let cols = b
+          .col_indexes
+          .keys()
           .filter(|ci| self.cols.filter_fn(ci))
           .filter(|ci| self.grid_points.lax_filter(&ci.grid_point_id()))
           .filter(|ci| self.elements.lax_filter(&ci.element_id()))
-          .filter(
-            |ci| self.raw_cols.filter_fn(b.col_indexes.get(ci).unwrap())
-          );
+          .filter(|ci| self.raw_cols.filter_fn(b.col_indexes.get(ci).unwrap()));
         return rows.cartesian_product(cols).map(|(ri, ci)| DatumIndex {
           block_ref: BlockRef {
             subcase: b.subcase,
-            block_type: b.block_type
+            block_type: b.block_type,
           },
           row: *ri,
-          col: *ci
-        })
-      })
+          col: *ci,
+        });
+      });
   }
 
   /// Produces a series of `FinalBlock`s from extracting data from a file.
   pub fn blockify(&self, file: &F06File) -> Vec<FinalBlock> {
     let mut subs: Vec<FinalBlock> = Vec::new();
-    let compatible_blocks = file.all_blocks(true)
+    let compatible_blocks = file
+      .all_blocks(true)
       .filter(|b| self.subcases.filter_fn(&b.subcase))
       .filter(|b| self.block_types.filter_fn(&b.block_type));
     for block in compatible_blocks {
       let mut clone = block.clone();
-      let rows: Vec<NasIndex> = clone.row_indexes.keys()
+      let rows: Vec<NasIndex> = clone
+        .row_indexes
+        .keys()
         .filter(|ri| self.rows.filter_fn(ri))
         .filter(|ri| self.grid_points.lax_filter(&ri.grid_point_id()))
         .filter(|ri| self.elements.lax_filter(&ri.element_id()))
         .copied()
         .collect();
-      let cols: Vec<NasIndex> = clone.col_indexes.keys()
+      let cols: Vec<NasIndex> = clone
+        .col_indexes
+        .keys()
         .filter(|ci| self.cols.filter_fn(ci))
         .filter(|ci| self.grid_points.lax_filter(&ci.grid_point_id()))
         .filter(|ci| self.elements.lax_filter(&ci.element_id()))
-        .filter(
-          |ci| self.raw_cols.filter_fn(clone.col_indexes.get(ci).unwrap())
-        )
+        .filter(|ci| {
+          self.raw_cols.filter_fn(clone.col_indexes.get(ci).unwrap())
+        })
         .copied()
         .collect();
       clone.row_indexes.retain(|ri, _| rows.contains(ri));

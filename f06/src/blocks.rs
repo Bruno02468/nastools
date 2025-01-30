@@ -1,7 +1,7 @@
 //! This submodule defines the blocks that make up an F06 file.
 
-pub(crate) mod decoders;
 pub mod compare;
+pub(crate) mod decoders;
 pub mod indexing;
 pub mod types;
 
@@ -10,14 +10,14 @@ use std::fmt::Display;
 use std::mem::discriminant;
 
 use log::warn;
-use nalgebra::{Matrix, Const, VecStorage, Dyn, Scalar, DMatrix};
+use nalgebra::{Const, DMatrix, Dyn, Matrix, Scalar, VecStorage};
 use num::Zero;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use indexing::{IndexType, NasIndex};
 use crate::blocks::types::BlockType;
 use crate::flavour::Flavour;
 use crate::prelude::BlockRef;
+use indexing::{IndexType, NasIndex};
 
 /// This trait encapsulates the necessary properties for a scalar that can exist
 /// in the data matrices.
@@ -28,9 +28,8 @@ impl NasScalar for isize {}
 impl NasScalar for usize {}
 
 /// This type encapsulates a dynamic matrix of scalar type S and width W.
-pub type DynMatx<S, const W: usize> = Matrix<
-  S, Dyn, Const<W>, VecStorage<S, Dyn, Const<W>>
->;
+pub type DynMatx<S, const W: usize> =
+  Matrix<S, Dyn, Const<W>, VecStorage<S, Dyn, Const<W>>>;
 
 /// Full-dynamic matrix used in finalised blocks.
 #[derive(Clone, Debug, Serialize, Deserialize, derive_more::From)]
@@ -49,7 +48,7 @@ impl FinalDMat {
     match self {
       FinalDMat::Reals(m) => m.swap_rows(a, b),
       FinalDMat::Integers(m) => m.swap_rows(a, b),
-      FinalDMat::Naturals(m) => m.swap_rows(a, b)
+      FinalDMat::Naturals(m) => m.swap_rows(a, b),
     };
   }
 
@@ -58,7 +57,7 @@ impl FinalDMat {
     match self {
       FinalDMat::Reals(m) => m.swap_columns(a, b),
       FinalDMat::Integers(m) => m.swap_columns(a, b),
-      FinalDMat::Naturals(m) => m.swap_columns(a, b)
+      FinalDMat::Naturals(m) => m.swap_columns(a, b),
     };
   }
 
@@ -67,7 +66,7 @@ impl FinalDMat {
     return match self {
       FinalDMat::Reals(m) => m.nrows(),
       FinalDMat::Integers(m) => m.nrows(),
-      FinalDMat::Naturals(m) => m.nrows()
+      FinalDMat::Naturals(m) => m.nrows(),
     };
   }
 
@@ -76,15 +75,21 @@ impl FinalDMat {
     return match self {
       FinalDMat::Reals(m) => m.ncols(),
       FinalDMat::Integers(m) => m.ncols(),
-      FinalDMat::Naturals(m) => m.ncols()
+      FinalDMat::Naturals(m) => m.ncols(),
     };
   }
 }
 
 /// Value inside a FinalDMat.
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialEq, PartialOrd,
-  derive_more::From
+  Copy,
+  Clone,
+  Debug,
+  Serialize,
+  Deserialize,
+  PartialEq,
+  PartialOrd,
+  derive_more::From,
 )]
 pub enum F06Number {
   /// Real value.
@@ -92,7 +97,7 @@ pub enum F06Number {
   /// Integer value.
   Integer(isize),
   /// Natural value.
-  Natural(usize)
+  Natural(usize),
 }
 
 impl From<F06Number> for f64 {
@@ -101,7 +106,7 @@ impl From<F06Number> for f64 {
       F06Number::Real(x) => x,
       F06Number::Integer(i) => i as f64,
       F06Number::Natural(n) => n as f64,
-    }
+    };
   }
 }
 
@@ -123,29 +128,43 @@ impl Display for F06Number {
 ///   - W: the width of the matrix, a constant.
 #[derive(Clone, Debug)]
 pub(crate) struct RowBlock<
-  S: NasScalar, R: IndexType, C: IndexType, const W: usize
+  S: NasScalar,
+  R: IndexType,
+  C: IndexType,
+  const W: usize,
 > {
   /// The row indexes.
   row_indexes: BTreeMap<R, usize>,
   /// The column indexes.
   col_indexes: BTreeMap<C, usize>,
   /// The data within.
-  data: Option<DynMatx<S, W>>
+  data: Option<DynMatx<S, W>>,
 }
 
 impl<S, R, C, const W: usize> RowBlock<S, R, C, W>
-  where S: NasScalar, R: IndexType, C: IndexType {
+where
+  S: NasScalar,
+  R: IndexType,
+  C: IndexType,
+{
   /// Creates a new RowBlock with a set width and a pre-allocated size.
   pub(crate) fn new(col_indexes: BTreeMap<C, usize>) -> Self {
     let row_indexes: BTreeMap<R, usize> = BTreeMap::new();
-    return Self { row_indexes, col_indexes, data: None }
+    return Self {
+      row_indexes,
+      col_indexes,
+      data: None,
+    };
   }
 
   /// Inserts a line raw into the data matrix, without fixing indexes. Returns
   /// the row within the underlying matrixes this was put in.
   pub(crate) fn insert_raw(&mut self, row_index: R, row: &[S; W]) -> usize {
     if self.row_indexes.contains_key(&row_index) {
-      warn!("tried to insert the same line twice! index: {:?}", row_index);
+      warn!(
+        "tried to insert the same line twice! index: {:?}",
+        row_index
+      );
     }
     let irow: usize;
     if let Some(mut mat) = self.data.take() {
@@ -183,7 +202,7 @@ impl<S, R, C, const W: usize> RowBlock<S, R, C, W>
   pub(crate) fn insert_row(
     &mut self,
     row_index: R,
-    data: &BTreeMap<C, S>
+    data: &BTreeMap<C, S>,
   ) -> usize {
     let mut raw_data = [S::zero(); W];
     data.iter().for_each(|(c, s)| {
@@ -195,19 +214,28 @@ impl<S, R, C, const W: usize> RowBlock<S, R, C, W>
 }
 
 impl<S, R, C, const W: usize> RowBlock<S, R, C, W>
-  where S: NasScalar, R: IndexType, C: IndexType, FinalDMat: From<DMatrix<S>> {
+where
+  S: NasScalar,
+  R: IndexType,
+  C: IndexType,
+  FinalDMat: From<DMatrix<S>>,
+{
   /// Consumes this data structure and unwraps the matrix within. This is to
   /// avoid inconsistent data ever residing within this block.
   pub(crate) fn finalise(
     self,
     block_type: BlockType,
     subcase: usize,
-    line_range: Option<(usize, usize)>
+    line_range: Option<(usize, usize)>,
   ) -> FinalBlock {
-    let row_indexes: BTreeMap<NasIndex, usize> = self.row_indexes.into_iter()
+    let row_indexes: BTreeMap<NasIndex, usize> = self
+      .row_indexes
+      .into_iter()
       .map(|(k, v)| (k.into(), v))
       .collect();
-    let col_indexes: BTreeMap<NasIndex, usize> = self.col_indexes.into_iter()
+    let col_indexes: BTreeMap<NasIndex, usize> = self
+      .col_indexes
+      .into_iter()
       .map(|(k, v)| (k.into(), v))
       .collect();
     let data: Option<FinalDMat> = self.data.map(|m| {
@@ -221,7 +249,7 @@ impl<S, R, C, const W: usize> RowBlock<S, R, C, W>
       subcase,
       row_indexes,
       col_indexes,
-      data
+      data,
     };
   }
 }
@@ -241,8 +269,8 @@ pub enum MergeResult {
     /// The block with the remaining data.
     residue: FinalBlock,
     /// The rows skipped due to their already being in the primary.
-    skipped: BTreeSet<NasIndex>
-  }
+    skipped: BTreeSet<NasIndex>,
+  },
 }
 
 /// The incompatibilities that can happen when attempting to merge two
@@ -254,14 +282,14 @@ pub enum MergeIncompatible {
     /// Columns missing in the primary.
     missing_in_primary: BTreeSet<NasIndex>,
     /// Columns missing in the secondary.
-    missing_in_secondary: BTreeSet<NasIndex>
+    missing_in_secondary: BTreeSet<NasIndex>,
   },
   /// Blocks were not the same type.
   BlockTypeMismatch,
   /// Matrices did not have the same type of scalar.
   ScalarMismatch,
   /// Subcases don't match.
-  SubcaseMismatch
+  SubcaseMismatch,
 }
 
 /// Immutable view into a result block once it's finalised.
@@ -278,28 +306,27 @@ pub struct FinalBlock {
   /// The column indexes.
   pub col_indexes: BTreeMap<NasIndex, usize>,
   /// The data within.
-  pub data: Option<FinalDMat>
+  pub data: Option<FinalDMat>,
 }
 
 impl FinalBlock {
   /// Returns the data at a certain location.
   pub fn get<R: Into<NasIndex>, C: Into<NasIndex>>(
-    &self, row: R,
-    col: C
+    &self,
+    row: R,
+    col: C,
   ) -> Option<F06Number> {
     let ri = self.row_indexes.get(&row.into())?;
     let ci = self.col_indexes.get(&col.into())?;
     return Some(match self.data {
-      Some(FinalDMat::Reals(ref m)) => F06Number::Real(
-        *m.get((*ri, *ci))?
-      ),
-      Some(FinalDMat::Integers(ref m)) => F06Number::Integer(
-        *m.get((*ri, *ci))?
-      ),
-      Some(FinalDMat::Naturals(ref m)) => F06Number::Natural(
-        *m.get((*ri, *ci))?
-      ),
-      None => return None
+      Some(FinalDMat::Reals(ref m)) => F06Number::Real(*m.get((*ri, *ci))?),
+      Some(FinalDMat::Integers(ref m)) => {
+        F06Number::Integer(*m.get((*ri, *ci))?)
+      }
+      Some(FinalDMat::Naturals(ref m)) => {
+        F06Number::Natural(*m.get((*ri, *ci))?)
+      }
+      None => return None,
     });
   }
 
@@ -307,7 +334,7 @@ impl FinalBlock {
   pub fn block_ref(&self) -> BlockRef {
     return BlockRef {
       subcase: self.subcase,
-      block_type: self.block_type
+      block_type: self.block_type,
     };
   }
 
@@ -321,7 +348,7 @@ impl FinalBlock {
         self.col_indexes.insert(a, bi);
         self.col_indexes.insert(b, ai);
       }
-      _ => return
+      _ => return,
     };
   }
 
@@ -335,7 +362,7 @@ impl FinalBlock {
         self.row_indexes.insert(a, bi);
         self.row_indexes.insert(b, ai);
       }
-      _ => return
+      _ => return,
     };
   }
 
@@ -347,7 +374,9 @@ impl FinalBlock {
     let mut ns: Vec<usize> = self.col_indexes.values().copied().collect();
     ns.sort();
     for (nix, i) in nixes.into_iter().zip(ns.into_iter()) {
-      let nswap = self.col_indexes.iter()
+      let nswap = self
+        .col_indexes
+        .iter()
         .find(|p| p.1 == &i)
         .map(|p| *(p.0))
         .expect("couldn't reverse index when sorting columns");
@@ -363,7 +392,9 @@ impl FinalBlock {
     let mut ns: Vec<usize> = self.row_indexes.values().copied().collect();
     ns.sort();
     for (nix, i) in nixes.into_iter().zip(ns.into_iter()) {
-      let nswap = self.row_indexes.iter()
+      let nswap = self
+        .row_indexes
+        .iter()
         .find(|p| p.1 == &i)
         .map(|p| *(p.0))
         .expect("couldn't reverse index when sorting rows");
@@ -382,35 +413,34 @@ impl FinalBlock {
       return Err(MergeIncompatible::SubcaseMismatch);
     }
     // check for same columns
-    let primary_col_set: BTreeSet<NasIndex> = self.col_indexes.keys()
-      .copied()
-      .collect();
-    let secondary_col_set: BTreeSet<NasIndex> = other.col_indexes.keys()
-      .copied()
-      .collect();
+    let primary_col_set: BTreeSet<NasIndex> =
+      self.col_indexes.keys().copied().collect();
+    let secondary_col_set: BTreeSet<NasIndex> =
+      other.col_indexes.keys().copied().collect();
     let missing_in_primary = &secondary_col_set - &primary_col_set;
     let missing_in_secondary = &primary_col_set - &secondary_col_set;
     if !missing_in_primary.is_empty() || !missing_in_secondary.is_empty() {
       return Err(MergeIncompatible::ColumnConflict {
         missing_in_primary,
-        missing_in_secondary
+        missing_in_secondary,
       });
     }
     match (&self.data, &other.data) {
       (Some(ms), Some(mo)) if discriminant(ms) != discriminant(mo) => {
         return Err(MergeIncompatible::ScalarMismatch);
       }
-      _ => return Ok(())
+      _ => return Ok(()),
     };
   }
 
   /// Returns the row indexes this has in common with another.
   pub fn row_conflicts(&self, other: &Self) -> BTreeSet<NasIndex> {
-    let primary_row_set: BTreeSet<&NasIndex> = self.row_indexes.keys()
-      .collect();
-    let secondary_row_set: BTreeSet<&NasIndex> = other.row_indexes.keys()
-      .collect();
-    return primary_row_set.intersection(&secondary_row_set)
+    let primary_row_set: BTreeSet<&NasIndex> =
+      self.row_indexes.keys().collect();
+    let secondary_row_set: BTreeSet<&NasIndex> =
+      other.row_indexes.keys().collect();
+    return primary_row_set
+      .intersection(&secondary_row_set)
       .copied()
       .copied()
       .collect();
@@ -419,7 +449,7 @@ impl FinalBlock {
   /// Copies lines from another block into this one.
   pub fn try_merge(
     mut self,
-    mut other: FinalBlock
+    mut other: FinalBlock,
   ) -> Result<MergeResult, MergeIncompatible> {
     // check for compatibility
     self.can_merge(&other)?;
@@ -430,7 +460,7 @@ impl FinalBlock {
     fn row_copy<S: NasScalar>(
       mut p: DMatrix<S>,
       s: &DMatrix<S>,
-      si: usize
+      si: usize,
     ) -> DMatrix<S> {
       let pi = p.nrows();
       p = p.insert_row(pi, S::zero());
@@ -442,54 +472,52 @@ impl FinalBlock {
         // both empty. return whichever (primary)
         self.data = None;
         return Ok(MergeResult::Success { merged: self });
-      },
+      }
       (None, Some(od)) => {
         // only secondary is nonempty. return secondary.
         other.data = Some(od);
         return Ok(MergeResult::Success { merged: other });
-      },
+      }
       (Some(sd), None) => {
         // only primary is nonempty. return primary.
         self.data = Some(sd);
         return Ok(MergeResult::Success { merged: self });
-      },
+      }
       (Some(dp), Some(ds)) => {
         // both nonempty. copy data from primary to secondary.
         // check for which indexes we're gonna copy
-        let primary_row_set: BTreeSet<NasIndex> = self.row_indexes.keys()
-          .copied()
-          .collect();
-        let secondary_row_set: BTreeSet<NasIndex> = other.row_indexes.keys()
-          .copied()
-          .collect();
+        let primary_row_set: BTreeSet<NasIndex> =
+          self.row_indexes.keys().copied().collect();
+        let secondary_row_set: BTreeSet<NasIndex> =
+          other.row_indexes.keys().copied().collect();
         let copied = &secondary_row_set - &primary_row_set;
         let skipped = &secondary_row_set - &copied;
-        let to_copy = copied.iter()
-          .map(|ci| other.row_indexes.get(ci).unwrap());
+        let to_copy =
+          copied.iter().map(|ci| other.row_indexes.get(ci).unwrap());
         // copy data
         let (ndp, nds) = match (dp, ds) {
           (FinalDMat::Reals(mut p), FinalDMat::Reals(s)) => {
             for (si, ci) in to_copy.zip(copied.iter()) {
               self.row_indexes.insert(*ci, p.nrows());
               p = row_copy(p, &s, *si)
-            };
+            }
             (FinalDMat::Reals(p), FinalDMat::Reals(s))
-          },
+          }
           (FinalDMat::Integers(mut p), FinalDMat::Integers(s)) => {
             for (si, ci) in to_copy.zip(copied.iter()) {
               self.row_indexes.insert(*ci, p.nrows());
               p = row_copy(p, &s, *si)
-            };
+            }
             (FinalDMat::Integers(p), FinalDMat::Integers(s))
-          },
+          }
           (FinalDMat::Naturals(mut p), FinalDMat::Naturals(s)) => {
             for (si, ci) in to_copy.zip(copied.iter()) {
               self.row_indexes.insert(*ci, p.nrows());
               p = row_copy(p, &s, *si)
-            };
+            }
             (FinalDMat::Naturals(p), FinalDMat::Naturals(s))
-          },
-          _ => return Err(MergeIncompatible::ScalarMismatch)
+          }
+          _ => return Err(MergeIncompatible::ScalarMismatch),
         };
         // un-move stuff (this is stupid)
         self.data = Some(ndp);
@@ -503,10 +531,10 @@ impl FinalBlock {
           return Ok(MergeResult::Partial {
             merged: self,
             residue: other,
-            skipped
+            skipped,
           });
         }
-      },
+      }
     }
   }
 }
@@ -534,7 +562,7 @@ pub enum LineResponse {
   /// Unsupported data format.
   Unsupported,
   /// Something's done terribly wrong.
-  Abort
+  Abort,
 }
 
 impl LineResponse {
@@ -568,18 +596,22 @@ pub(crate) trait BlockDecoder {
   fn unwrap(
     self,
     subcase: usize,
-    line_range: Option<(usize, usize)>
+    line_range: Option<(usize, usize)>,
   ) -> FinalBlock;
 
   /// Called to hint to you what the header is, maybe it'll be useful.
   /// It can also tell you to drop it immediately by returning false.
-  fn good_header(&mut self, _header: &str) -> bool { return true; }
+  fn good_header(&mut self, _header: &str) -> bool {
+    return true;
+  }
 
   /// Called to hint about the last used index. Useful for catching paging.
   fn hint_last(&mut self, _last: NasIndex) {}
 
   /// Returns the last inserted index. Useful for stateful decoders.
-  fn last_row_index(&self) -> Option<NasIndex> { return None; }
+  fn last_row_index(&self) -> Option<NasIndex> {
+    return None;
+  }
 
   /// Consumes a line into the underlying data.
   fn consume(&mut self, line: &str) -> LineResponse;
@@ -606,12 +638,15 @@ pub trait OpaqueDecoder {
   fn finalise(
     self: Box<Self>,
     subcase: usize,
-    line_range: Option<(usize, usize)>
+    line_range: Option<(usize, usize)>,
   ) -> FinalBlock;
 }
 
 impl<T> OpaqueDecoder for T
-  where T: BlockDecoder, FinalDMat: From<DMatrix<T::MatScalar>> {
+where
+  T: BlockDecoder,
+  FinalDMat: From<DMatrix<T::MatScalar>>,
+{
   fn block_type(&self) -> BlockType {
     return Self::BLOCK_TYPE;
   }
@@ -627,7 +662,7 @@ impl<T> OpaqueDecoder for T
   fn finalise(
     self: Box<Self>,
     subcase: usize,
-    line_range: Option<(usize, usize)>
+    line_range: Option<(usize, usize)>,
   ) -> FinalBlock {
     return self.unwrap(subcase, line_range);
   }
@@ -636,10 +671,7 @@ impl<T> OpaqueDecoder for T
     return BlockDecoder::good_header(self, header);
   }
 
-  fn consume(
-    &mut self,
-    line: &str
-  ) -> LineResponse {
+  fn consume(&mut self, line: &str) -> LineResponse {
     return BlockDecoder::consume(self, line);
   }
 }

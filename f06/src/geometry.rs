@@ -1,41 +1,57 @@
 //! This module defines basic geometric concepts to understand Nastran output.
 
-use std::fmt::Display;
-use nalgebra::{Vector3, Scalar};
+use nalgebra::{Scalar, Vector3};
 use serde::{Deserialize, Serialize};
+use std::fmt::Display;
 
 /// Stupid constant so the code is more readable.
 pub const SIXDOF: usize = 6;
 
 /// X-translation DOF for short.
-pub const DOF_TX: Dof = Dof{ dof_type: DofType::Translational, axis: Axis::X };
+pub const DOF_TX: Dof = Dof {
+  dof_type: DofType::Translational,
+  axis: Axis::X,
+};
 
 /// Y-translation DOF for short.
-pub const DOF_TY: Dof = Dof{ dof_type: DofType::Translational, axis: Axis::Y };
+pub const DOF_TY: Dof = Dof {
+  dof_type: DofType::Translational,
+  axis: Axis::Y,
+};
 
 /// Z-translation DOF for short.
-pub const DOF_TZ: Dof = Dof{ dof_type: DofType::Translational, axis: Axis::Z };
+pub const DOF_TZ: Dof = Dof {
+  dof_type: DofType::Translational,
+  axis: Axis::Z,
+};
 
 /// X-translation DOF for short.
-pub const DOF_RX: Dof = Dof{ dof_type: DofType::Rotational, axis: Axis::X };
+pub const DOF_RX: Dof = Dof {
+  dof_type: DofType::Rotational,
+  axis: Axis::X,
+};
 
 /// Y-translation DOF for short.
-pub const DOF_RY: Dof = Dof{ dof_type: DofType::Rotational, axis: Axis::Y };
+pub const DOF_RY: Dof = Dof {
+  dof_type: DofType::Rotational,
+  axis: Axis::Y,
+};
 
 /// Z-translation DOF for short.
-pub const DOF_RZ: Dof = Dof{ dof_type: DofType::Rotational, axis: Axis::Z };
-
-
+pub const DOF_RZ: Dof = Dof {
+  dof_type: DofType::Rotational,
+  axis: Axis::Z,
+};
 
 /// The two type of degree of freedom.
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq
+  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
 )]
 pub enum DofType {
   /// Translational DOF.
   Translational,
   /// Rotational DOF.
-  Rotational
+  Rotational,
 }
 
 impl From<DofType> for char {
@@ -51,7 +67,7 @@ impl TryFrom<char> for DofType {
     return Ok(match value {
       'T' | 't' => Self::Translational,
       'R' | 'r' => Self::Rotational,
-      _ => return Err(())
+      _ => return Err(()),
     });
   }
 }
@@ -74,7 +90,7 @@ impl DofType {
 
 /// The three axes.
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq
+  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
 )]
 pub enum Axis {
   /// The X axis.
@@ -105,7 +121,7 @@ impl TryFrom<usize> for Axis {
       1 => Self::X,
       2 => Self::Y,
       3 => Self::Z,
-      _ => return Err(())
+      _ => return Err(()),
     });
   }
 }
@@ -138,13 +154,13 @@ impl Axis {
 
 /// The six degrees of freedom.
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq
+  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
 )]
 pub struct Dof {
   /// The type of DOF (translational or rotational).
   pub dof_type: DofType,
   /// The axis of the DOF (X/Y/Z).
-  pub axis: Axis
+  pub axis: Axis,
 }
 
 impl AsRef<DofType> for Dof {
@@ -161,7 +177,11 @@ impl AsRef<Axis> for Dof {
 
 impl From<Dof> for usize {
   fn from(value: Dof) -> Self {
-    let added = if value.dof_type == DofType::Rotational { 3 } else { 0 };
+    let added = if value.dof_type == DofType::Rotational {
+      3
+    } else {
+      0
+    };
     return usize::from(value.axis) + added;
   }
 }
@@ -177,7 +197,7 @@ impl TryFrom<usize> for Dof {
       4 => (DofType::Rotational, Axis::X),
       5 => (DofType::Rotational, Axis::Y),
       6 => (DofType::Rotational, Axis::Z),
-      _ => return Err(())
+      _ => return Err(()),
     };
     return Ok(Self { dof_type, axis });
   }
@@ -193,12 +213,30 @@ impl Dof {
   /// Returns all DOF in order.
   pub const fn all() -> &'static [Self; SIXDOF] {
     return &[
-      Self { dof_type: DofType::Translational, axis: Axis::X },
-      Self { dof_type: DofType::Translational, axis: Axis::Y },
-      Self { dof_type: DofType::Translational, axis: Axis::Z },
-      Self { dof_type: DofType::Rotational, axis: Axis::X },
-      Self { dof_type: DofType::Rotational, axis: Axis::Y },
-      Self { dof_type: DofType::Rotational, axis: Axis::Z },
+      Self {
+        dof_type: DofType::Translational,
+        axis: Axis::X,
+      },
+      Self {
+        dof_type: DofType::Translational,
+        axis: Axis::Y,
+      },
+      Self {
+        dof_type: DofType::Translational,
+        axis: Axis::Z,
+      },
+      Self {
+        dof_type: DofType::Rotational,
+        axis: Axis::X,
+      },
+      Self {
+        dof_type: DofType::Rotational,
+        axis: Axis::Y,
+      },
+      Self {
+        dof_type: DofType::Rotational,
+        axis: Axis::Z,
+      },
     ];
   }
 
@@ -214,7 +252,7 @@ pub struct PerDof<T: Scalar> {
   /// The data for the three translational degrees of freedom.
   t: Vector3<T>,
   /// The data for the three rotational degrees of freedom.
-  r: Vector3<T>
+  r: Vector3<T>,
 }
 
 impl<T: Scalar> PerDof<T> {

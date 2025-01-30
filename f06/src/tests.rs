@@ -26,7 +26,9 @@ fn test_decode_nasfloat() {
       for sep in seps.iter() {
         for e in exponents.iter() {
           for esign in signs.iter() {
-            if sep.is_empty() && esign.is_empty() { continue; }
+            if sep.is_empty() && esign.is_empty() {
+              continue;
+            }
             let nf = format!("{}{}{}{}{}", msign, m, sep, esign, e);
             let rf = format!("{}{}e{}{}", msign, m, esign, e);
             direct(&nf, rf.parse().unwrap());

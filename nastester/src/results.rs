@@ -23,7 +23,7 @@ pub(crate) enum RunState {
   /// Finished, F06 file present.
   Finished(F06File),
   /// Run failed, contains error.
-  Error(String)
+  Error(String),
 }
 
 impl<T: ToString> From<Result<F06File, T>> for RunState {
@@ -31,13 +31,13 @@ impl<T: ToString> From<Result<F06File, T>> for RunState {
     return match value {
       Ok(f) => Self::Finished(f),
       Err(e) => Self::Error(e.to_string()),
-    }
+    };
   }
 }
 
 /// Single-column metrics (such as min, max, mean).
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord
+  Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord,
 )]
 pub(crate) enum SingleColumnMetric {
   /// Minimum of a column.
@@ -47,7 +47,7 @@ pub(crate) enum SingleColumnMetric {
   /// Average value of a column.
   Average,
   /// Standard deviation of a column.
-  StandardDeviation
+  StandardDeviation,
 }
 
 impl SingleColumnMetric {
@@ -85,18 +85,20 @@ impl SingleColumnMetric {
   pub(crate) fn compute(
     &self,
     block: &FinalBlock,
-    col: NasIndex
+    col: NasIndex,
   ) -> Option<f64> {
-    let nums = block.row_indexes.keys()
+    let nums = block
+      .row_indexes
+      .keys()
       .filter_map(|r| block.get(*r, col))
       .map(f64::from);
     match self {
       Self::Mininum => {
         return nums.min_by(|a, b| a.total_cmp(b));
-      },
+      }
       Self::Maximum => {
         return nums.max_by(|a, b| a.total_cmp(b));
-      },
+      }
       Self::Average => {
         let mut count: usize = 0;
         let mut total: f64 = 0.0;
@@ -105,11 +107,11 @@ impl SingleColumnMetric {
           total += num;
         }
         if count > 0 {
-          return Some(total/count as f64);
+          return Some(total / count as f64);
         } else {
           return None;
         }
-      },
+      }
       Self::StandardDeviation => {
         let avg = Self::Average.compute(block, col)?;
         let mut count: usize = 0;
@@ -119,18 +121,18 @@ impl SingleColumnMetric {
           total_qm += (avg - num).powi(2);
         }
         if count > 0 {
-          return Some(f64::sqrt(total_qm/count as f64));
+          return Some(f64::sqrt(total_qm / count as f64));
         } else {
           return None;
         }
-      },
+      }
     }
   }
 }
 
 /// Column-compare metrics (like the RMSD).
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord
+  Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord,
 )]
 pub(crate) enum ColumnCompareMetric {
   /// Max absolute deviation.
@@ -138,7 +140,7 @@ pub(crate) enum ColumnCompareMetric {
   /// Average absolute deviation.
   AverageAbsoluteDifference,
   /// Root mean square deviation.
-  RootMeanSquareDeviation
+  RootMeanSquareDeviation,
 }
 
 impl ColumnCompareMetric {
@@ -147,7 +149,7 @@ impl ColumnCompareMetric {
     return &[
       Self::MaximumAbsoluteDifference,
       Self::AverageAbsoluteDifference,
-      Self::RootMeanSquareDeviation
+      Self::RootMeanSquareDeviation,
     ];
   }
 
@@ -156,7 +158,7 @@ impl ColumnCompareMetric {
     return match self {
       Self::MaximumAbsoluteDifference => "max-abs-diff",
       Self::AverageAbsoluteDifference => "avg-abs-diff",
-      Self::RootMeanSquareDeviation => "rmsd"
+      Self::RootMeanSquareDeviation => "rmsd",
     };
   }
 
@@ -174,7 +176,7 @@ impl ColumnCompareMetric {
     &self,
     ref_block: &FinalBlock,
     test_block: &FinalBlock,
-    col: NasIndex
+    col: NasIndex,
   ) -> Option<f64> {
     let nums = ref_block.row_indexes.keys().filter_map(|r| {
       if let Some(rval) = ref_block.get(*r, col) {
@@ -186,8 +188,10 @@ impl ColumnCompareMetric {
     });
     match self {
       Self::MaximumAbsoluteDifference => {
-        return nums.map(|(r, t)| (r - t).abs()).max_by(|a, b| a.total_cmp(b));
-      },
+        return nums
+          .map(|(r, t)| (r - t).abs())
+          .max_by(|a, b| a.total_cmp(b));
+      }
       Self::AverageAbsoluteDifference => {
         let mut count: usize = 0;
         let mut total: f64 = 0.0;
@@ -196,11 +200,11 @@ impl ColumnCompareMetric {
           total += (r - t).abs();
         }
         if count > 0 {
-          return Some(total/count as f64);
+          return Some(total / count as f64);
         } else {
           return None;
         }
-      },
+      }
       Self::RootMeanSquareDeviation => {
         let mut count: usize = 0;
         let mut total: f64 = 0.0;
@@ -209,29 +213,22 @@ impl ColumnCompareMetric {
           total += (r - t).powi(2);
         }
         if count > 0 {
-          return Some(f64::sqrt(total/count as f64));
+          return Some(f64::sqrt(total / count as f64));
         } else {
           return None;
         }
-      },
+      }
     }
   }
 }
 
 /// Index to get a single-column metric.
-pub(crate) type SingleColumnMetricIndex = (
-  SolverPick,
-  BlockRef,
-  NasIndex,
-  SingleColumnMetric
-);
+pub(crate) type SingleColumnMetricIndex =
+  (SolverPick, BlockRef, NasIndex, SingleColumnMetric);
 
 /// Index to get a column-compare metric.
-pub(crate) type ColumnCompareMetricIndex = (
-  BlockRef,
-  NasIndex,
-  ColumnCompareMetric
-);
+pub(crate) type ColumnCompareMetricIndex =
+  (BlockRef, NasIndex, ColumnCompareMetric);
 
 /// This structure holds extraction results: blocks and flagged indexes.
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -249,7 +246,7 @@ pub(crate) struct ExtractionResults {
   /// Single-column metrics.
   pub(crate) col_metrics: BTreeMap<SingleColumnMetricIndex, Option<f64>>,
   /// Column-compare metrics.
-  pub(crate) col_compares: BTreeMap<ColumnCompareMetricIndex, Option<f64>>
+  pub(crate) col_compares: BTreeMap<ColumnCompareMetricIndex, Option<f64>>,
 }
 
 impl ExtractionResults {
@@ -264,7 +261,7 @@ impl ExtractionResults {
   /// Returns the (reference, testing) block pair for a given block ref.
   pub(crate) fn block_pair(
     &self,
-    block_ref: BlockRef
+    block_ref: BlockRef,
   ) -> (Option<&FinalBlock>, Option<&FinalBlock>) {
     let r = self.blocks_ref.iter().find(|b| b.block_ref() == block_ref);
     let t = self.blocks_test.iter().find(|b| b.block_ref() == block_ref);
@@ -273,19 +270,26 @@ impl ExtractionResults {
 
   /// Returns an iterator over all block references present in either file.
   pub(crate) fn block_refs(&self) -> impl Iterator<Item = BlockRef> + '_ {
-    return SolverPick::all().iter()
+    return SolverPick::all()
+      .iter()
       .flat_map(|p| self.blocks_of(*p).iter().map(|b| b.block_ref()));
   }
 
   /// Updates the single-column metrics.
   pub(crate) fn update_single_col_metrics(&mut self) {
-    let indices = SolverPick::all().iter()
-      .flat_map(|p| self.blocks_of(*p).iter().flat_map(
-        move |b| b.col_indexes.keys().map(move |ci| (*p, b, *ci))
-      ))
-      .flat_map(|(p, b, c)|
-        SingleColumnMetric::all().iter().map(move |scm| (p, b, c, *scm))
-      );
+    let indices = SolverPick::all()
+      .iter()
+      .flat_map(|p| {
+        self
+          .blocks_of(*p)
+          .iter()
+          .flat_map(move |b| b.col_indexes.keys().map(move |ci| (*p, b, *ci)))
+      })
+      .flat_map(|(p, b, c)| {
+        SingleColumnMetric::all()
+          .iter()
+          .map(move |scm| (p, b, c, *scm))
+      });
     let mut new_scm: BTreeMap<_, Option<f64>> = BTreeMap::new();
     for (pick, block, col, metric) in indices {
       let true_index = (pick, block.block_ref(), col, metric);
@@ -326,7 +330,7 @@ pub(crate) struct DeckResults {
   /// Contains all flagged indices.
   pub(crate) flagged: BTreeSet<DatumIndex>,
   /// Contains all extracted indices.
-  pub(crate) extracted: BTreeSet<DatumIndex>
+  pub(crate) extracted: BTreeSet<DatumIndex>,
 }
 
 impl DeckResults {
@@ -362,7 +366,8 @@ impl DeckResults {
       match pick {
         SolverPick::Reference => &mut res.blocks_ref,
         SolverPick::Testing => &mut res.blocks_test,
-      }.clear();
+      }
+      .clear();
       res.col_compares.clear();
       res.col_metrics.retain(|k, _| k.0 != pick);
     }
@@ -372,7 +377,7 @@ impl DeckResults {
   pub(crate) fn recompute_extractions(
     &mut self,
     deck: &Deck,
-    crit_sets: &BTreeMap<Uuid, NamedCriteria>
+    crit_sets: &BTreeMap<Uuid, NamedCriteria>,
   ) {
     self.extractions.clear();
     let pair = (&self.ref_f06, &self.test_f06);
@@ -396,10 +401,8 @@ impl DeckResults {
         if let Some(critset) = crit_uuid.and_then(|u| crit_sets.get(&u)) {
           let in_ref = exn.lookup(r).collect::<BTreeSet<_>>();
           let in_test = exn.lookup(t).collect::<BTreeSet<_>>();
-          let in_either = in_ref
-            .union(&in_test)
-            .copied()
-            .collect::<BTreeSet<_>>();
+          let in_either =
+            in_ref.union(&in_test).copied().collect::<BTreeSet<_>>();
           let dxn = in_ref
             .symmetric_difference(&in_test)
             .copied()
@@ -449,7 +452,9 @@ impl DeckResults {
 
   /// Returns the total number of flagged values.
   pub(crate) fn num_flagged(&self) -> usize {
-    return self.extractions.iter()
+    return self
+      .extractions
+      .iter()
       .filter_map(|er| er.flagged.as_ref().map(|v| v.len()))
       .sum();
   }

@@ -1,8 +1,8 @@
 //! This submodule implements several indexing types used to acces values in an
 //! output block.
 
-use std::fmt::{Display, Debug as DebugTrait};
 use std::collections::BTreeMap;
+use std::fmt::{Debug as DebugTrait, Display};
 use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
@@ -138,22 +138,18 @@ impl NasIndex {
   pub fn grid_point_id(&self) -> Option<GridPointRef> {
     return Some(match self {
       NasIndex::GridPointRef(g) => *g,
-      NasIndex::PointInElement(pie) => {
-        match pie.point {
-          ElementPoint::Corner(g) => g,
-          ElementPoint::Midpoint(g) => g,
-          _ => return None
-        }
+      NasIndex::PointInElement(pie) => match pie.point {
+        ElementPoint::Corner(g) => g,
+        ElementPoint::Midpoint(g) => g,
+        _ => return None,
       },
       NasIndex::GridPointForceOrigin(gpfo) => gpfo.grid_point,
-      NasIndex::ElementSidedPoint(esp) => {
-        match esp.point {
-          ElementPoint::Corner(g) => g,
-          ElementPoint::Midpoint(g) => g,
-          _ => return None
-        }
+      NasIndex::ElementSidedPoint(esp) => match esp.point {
+        ElementPoint::Corner(g) => g,
+        ElementPoint::Midpoint(g) => g,
+        _ => return None,
       },
-      _ => return None
+      _ => return None,
     });
   }
 
@@ -162,14 +158,12 @@ impl NasIndex {
     return Some(match self {
       NasIndex::ElementRef(e) => *e,
       NasIndex::PointInElement(pie) => pie.element,
-      NasIndex::GridPointForceOrigin(gpfo) => {
-        match gpfo.force_origin {
-          ForceOrigin::Element { elem } => elem,
-          _ => return None
-        }
+      NasIndex::GridPointForceOrigin(gpfo) => match gpfo.force_origin {
+        ForceOrigin::Element { elem } => elem,
+        _ => return None,
       },
       NasIndex::ElementSidedPoint(esp) => esp.element,
-      _ => return None
+      _ => return None,
     });
   }
 }
@@ -196,7 +190,9 @@ gen_nasindex!(
 );
 
 /// All field indexing types must implement this trait.
-pub trait IndexType: Copy + Ord + Eq + Into<NasIndex> + Display + DebugTrait {
+pub trait IndexType:
+  Copy + Ord + Eq + Into<NasIndex> + Display + DebugTrait
+{
   /// The name of this type of index, all caps.
   const INDEX_NAME: &'static str;
 }
@@ -207,8 +203,16 @@ impl IndexType for Dof {
 
 /// The possible origins for a force.
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
-  derive_more::From
+  Copy,
+  Clone,
+  Debug,
+  Serialize,
+  Deserialize,
+  PartialOrd,
+  Ord,
+  PartialEq,
+  Eq,
+  derive_more::From,
 )]
 pub enum ForceOrigin {
   /// The force was applied by a load.
@@ -216,12 +220,12 @@ pub enum ForceOrigin {
   /// The force was applied by another element.
   Element {
     /// A reference to the element.
-    elem: ElementRef
+    elem: ElementRef,
   },
   /// The force was applied by a single-point constraint.
   SinglePointConstraint,
   /// The force was applied by a multi-point constraint.
-  MultiPointConstraint
+  MultiPointConstraint,
 }
 
 impl Display for ForceOrigin {
@@ -237,12 +241,21 @@ impl Display for ForceOrigin {
 
 /// A grid point, referenced by its ID.
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
-  derive_more::From, derive_more::FromStr
+  Copy,
+  Clone,
+  Debug,
+  Serialize,
+  Deserialize,
+  PartialOrd,
+  Ord,
+  PartialEq,
+  Eq,
+  derive_more::From,
+  derive_more::FromStr,
 )]
 pub struct GridPointRef {
   /// The ID of the grid point.
-  pub gid: usize
+  pub gid: usize,
 }
 
 impl Display for GridPointRef {
@@ -257,14 +270,22 @@ impl IndexType for GridPointRef {
 
 /// An element, referenced by its ID.
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
-  derive_more::From
+  Copy,
+  Clone,
+  Debug,
+  Serialize,
+  Deserialize,
+  PartialOrd,
+  Ord,
+  PartialEq,
+  Eq,
+  derive_more::From,
 )]
 pub struct ElementRef {
   /// The ID of the element.
   pub eid: usize,
   /// The type of element, if known.
-  pub etype: Option<ElementType>
+  pub etype: Option<ElementType>,
 }
 
 impl FromStr for ElementRef {
@@ -290,12 +311,20 @@ impl IndexType for ElementRef {
 
 /// A coordinate system, referenced by its ID.
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
-  derive_more::From
+  Copy,
+  Clone,
+  Debug,
+  Serialize,
+  Deserialize,
+  PartialOrd,
+  Ord,
+  PartialEq,
+  Eq,
+  derive_more::From,
 )]
 pub struct CsysRef {
   /// The ID of the coordinate system.
-  pub cid: usize
+  pub cid: usize,
 }
 
 impl Display for CsysRef {
@@ -306,14 +335,22 @@ impl Display for CsysRef {
 
 /// A combination of a grid point reference and a force origin.
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
-  derive_more::From
+  Copy,
+  Clone,
+  Debug,
+  Serialize,
+  Deserialize,
+  PartialOrd,
+  Ord,
+  PartialEq,
+  Eq,
+  derive_more::From,
 )]
 pub struct GridPointForceOrigin {
   /// A reference to the grid point.
   pub grid_point: GridPointRef,
   /// The origin of the force.
-  pub force_origin: ForceOrigin
+  pub force_origin: ForceOrigin,
 }
 
 impl Display for GridPointForceOrigin {
@@ -328,7 +365,7 @@ impl IndexType for GridPointForceOrigin {
 
 /// A point within an element.
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq
+  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
 )]
 pub enum ElementPoint {
   /// The element's center.
@@ -338,7 +375,7 @@ pub enum ElementPoint {
   /// A midpoint.
   Midpoint(GridPointRef),
   /// Anywhere in the element.
-  Anywhere
+  Anywhere,
 }
 
 impl Display for ElementPoint {
@@ -347,33 +384,45 @@ impl Display for ElementPoint {
       Self::Centroid => write!(f, "CENTROID"),
       Self::Corner(GridPointRef { gid }) => {
         write!(f, "CORNER AT GRID {}", gid)
-      },
+      }
       Self::Midpoint(GridPointRef { gid }) => {
         write!(f, "MIDPOINT AT GRID {}", gid)
-      },
-      Self::Anywhere => write!(f, "ANYWHERE IN THE ELEMENT")
+      }
+      Self::Anywhere => write!(f, "ANYWHERE IN THE ELEMENT"),
     };
   }
 }
 
 /// An element side.
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
-  derive_more::From
+  Copy,
+  Clone,
+  Debug,
+  Serialize,
+  Deserialize,
+  PartialOrd,
+  Ord,
+  PartialEq,
+  Eq,
+  derive_more::From,
 )]
 pub enum ElementSide {
   /// The bottom (Z1) side of the element.
   Bottom,
   /// The top (Z2) side of the element.
-  Top
+  Top,
 }
 
 impl Display for ElementSide {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    return write!(f, "{} SIDE", match self {
-      Self::Bottom => "BOTTOM",
-      Self::Top => "TOP",
-    });
+    return write!(
+      f,
+      "{} SIDE",
+      match self {
+        Self::Bottom => "BOTTOM",
+        Self::Top => "TOP",
+      }
+    );
   }
 }
 
@@ -389,14 +438,22 @@ impl ElementSide {
 
 /// An element and a point within it.
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
-  derive_more::From
+  Copy,
+  Clone,
+  Debug,
+  Serialize,
+  Deserialize,
+  PartialOrd,
+  Ord,
+  PartialEq,
+  Eq,
+  derive_more::From,
 )]
 pub struct PointInElement {
   /// A reference to the element.
   pub element: ElementRef,
   /// The point within the element.
-  pub point: ElementPoint
+  pub point: ElementPoint,
 }
 
 impl Display for PointInElement {
@@ -411,8 +468,16 @@ impl IndexType for PointInElement {
 
 /// An element and a point within it, plus a side.
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
-  derive_more::From
+  Copy,
+  Clone,
+  Debug,
+  Serialize,
+  Deserialize,
+  PartialOrd,
+  Ord,
+  PartialEq,
+  Eq,
+  derive_more::From,
 )]
 pub struct ElementSidedPoint {
   /// A reference to the element.
@@ -420,7 +485,7 @@ pub struct ElementSidedPoint {
   /// The point within the element.
   pub point: ElementPoint,
   /// The side.
-  pub side: ElementSide
+  pub side: ElementSide,
 }
 
 impl Display for ElementSidedPoint {
@@ -488,10 +553,7 @@ impl IndexType for PlateForceField {
 from_enum!(
   "Engineering forces for ROD elements.",
   RodForceField,
-  [
-    (AxialForce, "AXIAL FORCE"),
-    (Torque, "TORQUE"),
-  ]
+  [(AxialForce, "AXIAL FORCE"), (Torque, "TORQUE"),]
 );
 
 impl IndexType for RodForceField {
@@ -501,10 +563,7 @@ impl IndexType for RodForceField {
 from_enum!(
   "An end of a BAR element.",
   BarEnd,
-  [
-    (EndA, "END-A"),
-    (EndB, "END-B"),
-  ]
+  [(EndA, "END-A"), (EndB, "END-B"),]
 );
 
 impl BarEnd {
@@ -520,16 +579,21 @@ impl BarEnd {
 from_enum!(
   "A plane of a BAR element.",
   BarPlane,
-  [
-    (Plane1, "PLANE 1"),
-    (Plane2, "PLANE 2"),
-  ]
+  [(Plane1, "PLANE 1"), (Plane2, "PLANE 2"),]
 );
 
 /// A column of a BAR engineering force table.
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
-  derive_more::From
+  Copy,
+  Clone,
+  Debug,
+  Serialize,
+  Deserialize,
+  PartialOrd,
+  Ord,
+  PartialEq,
+  Eq,
+  derive_more::From,
 )]
 pub enum BarForceField {
   /// Bend moments.
@@ -537,17 +601,17 @@ pub enum BarForceField {
     /// The end of the bar.
     end: BarEnd,
     /// The plane.
-    plane: BarPlane
+    plane: BarPlane,
   },
   /// Shear forces.
   Shear {
     /// The plane.
-    plane: BarPlane
+    plane: BarPlane,
   },
   /// Axial force.
   AxialForce,
   /// Torque.
-  Torque
+  Torque,
 }
 
 impl Display for BarForceField {
@@ -555,10 +619,10 @@ impl Display for BarForceField {
     return match self {
       BarForceField::BendMoment { end, plane } => {
         write!(f, "BEND-MOMENT {}, {}", end, plane)
-      },
+      }
       BarForceField::Shear { plane } => write!(f, "SHEAR {}", plane),
       BarForceField::AxialForce => write!(f, "AXIAL FORCE"),
-      BarForceField::Torque => write!(f, "TORQUE")
+      BarForceField::Torque => write!(f, "TORQUE"),
     };
   }
 }
@@ -571,14 +635,30 @@ impl BarForceField {
   /// Returns the fields in the most commonly seen order.
   pub const fn all() -> &'static [Self] {
     return &[
-      Self::BendMoment { end: BarEnd::EndA, plane: BarPlane::Plane1 },
-      Self::BendMoment { end: BarEnd::EndA, plane: BarPlane::Plane2 },
-      Self::BendMoment { end: BarEnd::EndB, plane: BarPlane::Plane1 },
-      Self::BendMoment { end: BarEnd::EndB, plane: BarPlane::Plane2 },
-      Self::Shear { plane: BarPlane::Plane1 },
-      Self::Shear { plane: BarPlane::Plane2 },
+      Self::BendMoment {
+        end: BarEnd::EndA,
+        plane: BarPlane::Plane1,
+      },
+      Self::BendMoment {
+        end: BarEnd::EndA,
+        plane: BarPlane::Plane2,
+      },
+      Self::BendMoment {
+        end: BarEnd::EndB,
+        plane: BarPlane::Plane1,
+      },
+      Self::BendMoment {
+        end: BarEnd::EndB,
+        plane: BarPlane::Plane2,
+      },
+      Self::Shear {
+        plane: BarPlane::Plane1,
+      },
+      Self::Shear {
+        plane: BarPlane::Plane2,
+      },
       Self::AxialForce,
-      Self::Torque
+      Self::Torque,
     ];
   }
 
@@ -596,25 +676,19 @@ impl BarForceField {
 from_enum!(
   "Generic single-force field.",
   SingleForce,
-  [
-    (Force, "FORCE"),
-  ]
+  [(Force, "FORCE"),]
 );
 
 from_enum!(
   "Generic single-stress field.",
   SingleStress,
-  [
-    (Stress, "STRESS"),
-  ]
+  [(Stress, "STRESS"),]
 );
 
 from_enum!(
   "Generic single-strain field.",
   SingleStrain,
-  [
-    (Strain, "STRAIN"),
-  ]
+  [(Strain, "STRAIN"),]
 );
 
 impl IndexType for SingleForce {
@@ -624,7 +698,6 @@ impl IndexType for SingleForce {
 impl IndexType for SingleStress {
   const INDEX_NAME: &'static str = "STRESS";
 }
-
 
 impl IndexType for SingleStrain {
   const INDEX_NAME: &'static str = "STRAIN";
@@ -660,28 +733,40 @@ gen_with_inner!(
 
 /// Type of normal stress.
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
-  derive_more::From
+  Copy,
+  Clone,
+  Debug,
+  Serialize,
+  Deserialize,
+  PartialOrd,
+  Ord,
+  PartialEq,
+  Eq,
+  derive_more::From,
 )]
 pub enum NormalStressDirection {
   /// Tension stress.
   Tension,
   /// Compression stress.
-  Compression
+  Compression,
 }
 
 impl Display for NormalStressDirection {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    return write!(f, "{}", match self {
-      Self::Tension => "TENSION",
-      Self::Compression => "COMPRESSION",
-    });
+    return write!(
+      f,
+      "{}",
+      match self {
+        Self::Tension => "TENSION",
+        Self::Compression => "COMPRESSION",
+      }
+    );
   }
 }
 
 /// The columns of a bar stress/strain table are indexed by this type.
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq
+  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
 )]
 pub enum BarStressField {
   /// Stress calculated at a specific recovery point.
@@ -698,7 +783,7 @@ pub enum BarStressField {
   /// Minimum stress at one end.
   MinAt(BarEnd),
   /// Margin of safety.
-  SafetyMargin(NormalStressDirection)
+  SafetyMargin(NormalStressDirection),
 }
 
 impl Display for BarStressField {
@@ -706,7 +791,7 @@ impl Display for BarStressField {
     return match self {
       Self::AtRecoveryPoint { end, point } => {
         write!(f, "{}, RECOVERY POINT {}", end, point)
-      },
+      }
       Self::Axial => write!(f, "AXIAL"),
       Self::MaxAt(end) => write!(f, "MAX AT {}", end),
       Self::MinAt(end) => write!(f, "MIN AT {}", end),
@@ -723,22 +808,46 @@ impl BarStressField {
   /// Returns all variants.
   pub const fn all() -> &'static [Self] {
     return &[
-      Self::AtRecoveryPoint { end: BarEnd::EndA, point: 1 },
-      Self::AtRecoveryPoint { end: BarEnd::EndA, point: 2 },
-      Self::AtRecoveryPoint { end: BarEnd::EndA, point: 3 },
-      Self::AtRecoveryPoint { end: BarEnd::EndA, point: 4 },
+      Self::AtRecoveryPoint {
+        end: BarEnd::EndA,
+        point: 1,
+      },
+      Self::AtRecoveryPoint {
+        end: BarEnd::EndA,
+        point: 2,
+      },
+      Self::AtRecoveryPoint {
+        end: BarEnd::EndA,
+        point: 3,
+      },
+      Self::AtRecoveryPoint {
+        end: BarEnd::EndA,
+        point: 4,
+      },
       Self::MaxAt(BarEnd::EndA),
       Self::MinAt(BarEnd::EndA),
-      Self::AtRecoveryPoint { end: BarEnd::EndB, point: 1 },
-      Self::AtRecoveryPoint { end: BarEnd::EndB, point: 2 },
-      Self::AtRecoveryPoint { end: BarEnd::EndB, point: 3 },
-      Self::AtRecoveryPoint { end: BarEnd::EndB, point: 4 },
+      Self::AtRecoveryPoint {
+        end: BarEnd::EndB,
+        point: 1,
+      },
+      Self::AtRecoveryPoint {
+        end: BarEnd::EndB,
+        point: 2,
+      },
+      Self::AtRecoveryPoint {
+        end: BarEnd::EndB,
+        point: 3,
+      },
+      Self::AtRecoveryPoint {
+        end: BarEnd::EndB,
+        point: 4,
+      },
       Self::MaxAt(BarEnd::EndB),
       Self::MinAt(BarEnd::EndB),
       Self::Axial,
       Self::SafetyMargin(NormalStressDirection::Tension),
       Self::SafetyMargin(NormalStressDirection::Compression),
-    ]
+    ];
   }
 
   /// Returns a map with all variants in the canonical order, useful for making

@@ -10,7 +10,7 @@ use std::path::PathBuf;
 use clap::Parser;
 use f06::prelude::*;
 use f06::util::PotentialHeader;
-use log::{LevelFilter, info, error};
+use log::{error, info, LevelFilter};
 
 #[derive(Parser)]
 #[command(author, version)]
@@ -22,7 +22,7 @@ struct Cli {
   #[arg(short, long)]
   verbose: bool,
   /// File path (set to "-" to read from standard input).
-  file: PathBuf
+  file: PathBuf,
 }
 
 const INDENT: &str = "  ";
@@ -80,7 +80,9 @@ fn main() -> io::Result<()> {
   if f06.blocks.is_empty() {
     info!("No supported blocks were found.");
   } else {
-    let nmerges = if args.no_merge { 0 } else {
+    let nmerges = if args.no_merge {
+      0
+    } else {
       info!("Merging blocks...");
       f06.merge_blocks(true)
     };
@@ -113,14 +115,16 @@ fn main() -> io::Result<()> {
   } else {
     f06.merge_potential_headers();
     info!("Some potential headers for unsupported blocks were found:");
-    let mut headers = f06.potential_headers
+    let mut headers = f06
+      .potential_headers
       .iter()
       .map(|ph| (ph.text.as_str(), Vec::new()))
       .collect::<BTreeMap<&str, Vec<&PotentialHeader>>>();
-    f06.potential_headers.iter()
-      .for_each(|ph| {
-        if let Some(v) = headers.get_mut(ph.text.as_str()) { v.push(ph) }
-      });
+    f06.potential_headers.iter().for_each(|ph| {
+      if let Some(v) = headers.get_mut(ph.text.as_str()) {
+        v.push(ph)
+      }
+    });
     for (txt, occurrences) in headers {
       let ntimes = occurrences.len();
       let ph = occurrences.first().unwrap();
@@ -132,7 +136,12 @@ fn main() -> io::Result<()> {
       };
       info!("{}- L{}: \"{}\"", INDENT, countlines, txt);
       if ntimes > 1 {
-        info!("{}{}- (other {} occurences omitted)", INDENT, INDENT, ntimes-1);
+        info!(
+          "{}{}- (other {} occurences omitted)",
+          INDENT,
+          INDENT,
+          ntimes - 1
+        );
       }
     }
   }

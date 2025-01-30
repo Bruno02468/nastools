@@ -1,8 +1,8 @@
 //! This defines subroutines to run decks and do test runs.
 
+use core::fmt::Display;
 use std::collections::{BTreeMap, VecDeque};
 use std::error::Error;
-use core::fmt::Display;
 use std::ffi::OsStr;
 use std::fs::File;
 use std::path::{Path, PathBuf};
@@ -41,7 +41,7 @@ pub(crate) enum RunMethod {
   ImportFromDir(PathBuf),
   /// A solver is run passing the deck as an argument, and the F06 is got from
   /// reading the same
-  RunSolver(PathBuf)
+  RunSolver(PathBuf),
 }
 
 /// These are the errors that can come up when running a solver to get the F06
@@ -67,34 +67,27 @@ pub(crate) enum RunError {
   TempdirCreationFailed,
   /// Coulndn't spawn a subprocess.
   #[from]
-  SubprocessFailed(PopenError)
+  SubprocessFailed(PopenError),
 }
 
 impl Display for RunError {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     return match self {
-      RunError::MissingF06(p) => write!(
-        f,
-        "missing F06 file at {}",
-        p.display()
-      ),
+      RunError::MissingF06(p) => {
+        write!(f, "missing F06 file at {}", p.display())
+      }
       RunError::UnreadableF06(p, e) => write!(
         f,
         "could not read F06 file at {}, reason: {}",
         p.display(),
         e
       ),
-      RunError::MissingSolver(p) => write!(
-        f,
-        "missing solver binary at {}",
-        p.display()
-      ),
-      RunError::SolverFailed(s, Some(c)) => write!(
-        f,
-        "solver \"{}\" finished with non-zero exit code {}",
-        s,
-        c
-      ),
+      RunError::MissingSolver(p) => {
+        write!(f, "missing solver binary at {}", p.display())
+      }
+      RunError::SolverFailed(s, Some(c)) => {
+        write!(f, "solver \"{}\" finished with non-zero exit code {}", s, c)
+      }
       RunError::SolverFailed(s, None) => write!(
         f,
         "solver \"{}\" failed to run and didn't even return a code",
@@ -135,7 +128,7 @@ pub(crate) struct RunnableSolver {
   /// The "nickname" for this solver, so you can tell versions apart.
   pub(crate) nickname: String,
   /// The method through which we actually get an F06.
-  pub(crate) method: RunMethod
+  pub(crate) method: RunMethod,
 }
 
 impl RunnableSolver {
@@ -158,7 +151,7 @@ impl RunnableSolver {
             // ehh, if both exist and this isn't windows, something went badly
             return Err(RunError::ExtensionMixup);
           }
-        },
+        }
         (false, false) => return Err(RunError::MissingF06(d.to_path_buf())),
         (true, false) => lower,
         (false, true) => upper,
@@ -195,34 +188,40 @@ impl RunnableSolver {
         //let code = proc.wait_timeout(Duration::from_secs(60));
         let code = proc.wait();
         let res = match code {
-          Ok(ExitStatus::Exited(0)) => {
-            do_dir(tmp.path(), basename)
-          },
-          Ok(ExitStatus::Exited(i)) => return Err(
-            RunError::SolverFailed(self.nickname.clone(), Some(i))
-          ),
-          _ => return Err(RunError::SolverFailed(self.nickname.clone(), None))
+          Ok(ExitStatus::Exited(0)) => do_dir(tmp.path(), basename),
+          Ok(ExitStatus::Exited(i)) => {
+            return Err(RunError::SolverFailed(self.nickname.clone(), Some(i)))
+          }
+          _ => return Err(RunError::SolverFailed(self.nickname.clone(), None)),
         };
         if res.is_err() {
           dbg!(&res);
         }
         std::mem::drop(tmp);
         return res;
-      },
+      }
     };
   }
 }
 
 /// A pick of solver for a job. Sugar.
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord,
-  Hash
+  Copy,
+  Clone,
+  Debug,
+  Serialize,
+  Deserialize,
+  PartialEq,
+  Eq,
+  PartialOrd,
+  Ord,
+  Hash,
 )]
 pub(crate) enum SolverPick {
   /// The reference solver.
   Reference,
   /// The solver under test.
-  Testing
+  Testing,
 }
 
 impl SolverPick {
@@ -244,7 +243,7 @@ pub(crate) struct Job {
   /// The target to write results to.
   pub(crate) target: Arc<Mutex<DeckResults>>,
   /// A copy of the crit-sets at the instant of job creation.
-  pub(crate) crit_sets: BTreeMap<Uuid, NamedCriteria>
+  pub(crate) crit_sets: BTreeMap<Uuid, NamedCriteria>,
 }
 
 impl Job {
@@ -272,7 +271,7 @@ pub(crate) struct Runner {
   /// Max concurrent jobs. If zero, auto-detect.
   pub(crate) max_jobs: usize,
   /// Current number of jobs running.
-  pub(crate) current_jobs: Arc<AtomicUsize>
+  pub(crate) current_jobs: Arc<AtomicUsize>,
 }
 
 impl Runner {

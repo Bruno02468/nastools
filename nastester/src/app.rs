@@ -28,7 +28,7 @@ pub(crate) struct AppState {
   /// The current test suite.
   pub(crate) suite: Suite,
   /// The runner.
-  pub(crate) runner: Runner
+  pub(crate) runner: Runner,
 }
 
 impl AppState {
@@ -53,7 +53,7 @@ impl AppState {
     let solver = RunnableSolver {
       kind: Solver::Mystran,
       nickname,
-      method: RunMethod::RunSolver(binary)
+      method: RunMethod::RunSolver(binary),
     };
     let uuid = Uuid::new_v4();
     self.solvers.insert(uuid, solver);
@@ -63,14 +63,14 @@ impl AppState {
   /// Adds a solver from an F06 directory.
   pub(crate) fn add_solver_dir(&mut self, dir: PathBuf) -> Uuid {
     let nickname = dir
-    .file_name()
-    .and_then(|s| s.to_str())
-    .unwrap_or("<unnamed>")
-    .to_string();
+      .file_name()
+      .and_then(|s| s.to_str())
+      .unwrap_or("<unnamed>")
+      .to_string();
     let solver = RunnableSolver {
       kind: Solver::Simcenter,
       nickname,
-      method: RunMethod::ImportFromDir(dir)
+      method: RunMethod::ImportFromDir(dir),
     };
     let uuid = Uuid::new_v4();
     self.solvers.insert(uuid, solver);
@@ -82,7 +82,7 @@ impl AppState {
     let uuid = Uuid::new_v4();
     let critset = NamedCriteria {
       name: format!("critset_{}", self.suite.criteria_sets.len() + 1),
-      criteria: Criteria::default()
+      criteria: Criteria::default(),
     };
     self.suite.criteria_sets.insert(uuid, critset);
     return uuid;
@@ -90,7 +90,10 @@ impl AppState {
 
   /// Returns decks in order of name with their UUIDs.
   pub(crate) fn decks_names(&self) -> impl Iterator<Item = (&str, Uuid)> {
-    let ordering: BTreeMap<&str, Uuid> = self.suite.decks.iter()
+    let ordering: BTreeMap<&str, Uuid> = self
+      .suite
+      .decks
+      .iter()
       .map(|(u, d)| (d.name(), *u))
       .collect();
     return ordering.into_iter();
@@ -98,18 +101,22 @@ impl AppState {
 
   /// Iterates over decks and their results, sorted by name.
   pub(crate) fn decks_by_name(
-    &self
+    &self,
   ) -> impl Iterator<Item = (Uuid, &Deck, Option<Arc<Mutex<DeckResults>>>)> {
-    return self.decks_names().map(|(_, u)| (
-      u,
-      self.suite.decks.get(&u).expect("invalid deck UUID"),
-      self.runner.results.get(&u).cloned()
-    ))
+    return self.decks_names().map(|(_, u)| {
+      (
+        u,
+        self.suite.decks.get(&u).expect("invalid deck UUID"),
+        self.runner.results.get(&u).cloned(),
+      )
+    });
   }
 
   /// Returns the names of solvers, in order.
   pub(crate) fn solvers_names(&self) -> impl Iterator<Item = (&str, Uuid)> {
-    let ordering: BTreeMap<&str, Uuid> = self.solvers.iter()
+    let ordering: BTreeMap<&str, Uuid> = self
+      .solvers
+      .iter()
       .map(|(u, d)| (d.nickname.as_str(), *u))
       .collect();
     return ordering.into_iter();
@@ -117,23 +124,22 @@ impl AppState {
 
   /// Iterates over solvers by name.
   pub(crate) fn solvers_by_name(
-    &self
+    &self,
   ) -> impl Iterator<Item = (Uuid, &RunnableSolver)> {
-    return self.solvers_names().map(|(_, u)| (
-      u,
-      self.solvers.get(&u).expect("invalid solver UUID")
-    ))
+    return self
+      .solvers_names()
+      .map(|(_, u)| (u, self.solvers.get(&u).expect("invalid solver UUID")));
   }
 
   /// Returns a deck and its results.
   pub(crate) fn get_deck(
     &mut self,
-    uuid: Uuid
+    uuid: Uuid,
   ) -> Option<(&Deck, Arc<Mutex<DeckResults>>)> {
     if let Some(deck) = self.suite.decks.get(&uuid) {
       return Some((
         deck,
-        self.runner.results.entry(uuid).or_default().clone()
+        self.runner.results.entry(uuid).or_default().clone(),
       ));
     } else {
       return None;
@@ -143,13 +149,10 @@ impl AppState {
   /// Returns a mutable reference into a deck and its results.
   pub(crate) fn get_deck_mut(
     &mut self,
-    uuid: Uuid
+    uuid: Uuid,
   ) -> Option<(&mut Deck, Option<Arc<Mutex<DeckResults>>>)> {
     if let Some(deck) = self.suite.decks.get_mut(&uuid) {
-      return Some((
-        deck,
-        self.runner.results.get(&uuid).cloned()
-      ));
+      return Some((deck, self.runner.results.get(&uuid).cloned()));
     } else {
       return None;
     }
@@ -158,10 +161,13 @@ impl AppState {
   /// Deletes a criteria set and removes it from decks.
   pub(crate) fn delete_crit_set(&mut self, uuid: Uuid) {
     self.suite.criteria_sets.remove(&uuid);
-    self.suite.decks.values_mut()
-      .for_each(|d| d.extractions.iter_mut().for_each(
-        |(_, u)| if u == &Some(uuid) { *u = None }
-      ))
+    self.suite.decks.values_mut().for_each(|d| {
+      d.extractions.iter_mut().for_each(|(_, u)| {
+        if u == &Some(uuid) {
+          *u = None
+        }
+      })
+    })
   }
 
   /// Clears results for a specific solver pick. Might lock.
@@ -182,9 +188,11 @@ impl AppState {
   /// Gets a handle into a run state.
   pub(crate) fn get_run_state(
     &mut self,
-    deck: Uuid
+    deck: Uuid,
   ) -> Arc<Mutex<DeckResults>> {
-    let tgt = self.runner.results
+    let tgt = self
+      .runner
+      .results
       .entry(deck)
       .or_insert(Arc::new(Mutex::new(DeckResults::default())));
     return tgt.clone();
@@ -195,7 +203,7 @@ impl AppState {
     &mut self,
     deck: Uuid,
     pick: SolverPick,
-    state: RunState
+    state: RunState,
   ) {
     let handle = self.get_run_state(deck);
     *handle.lock().expect("mutex poisoned").get_mut(pick) = state;
@@ -210,7 +218,7 @@ impl AppState {
   pub(crate) fn gen_job(
     &mut self,
     deck_uuid: Uuid,
-    pick: SolverPick
+    pick: SolverPick,
   ) -> Option<Job> {
     if let Some(solver) = self.get_solver(pick).cloned() {
       if let Some((deck, res)) = self.get_deck(deck_uuid) {
@@ -219,7 +227,7 @@ impl AppState {
           pick,
           target: res,
           solver: solver.clone(),
-          crit_sets: self.suite.criteria_sets.clone()
+          crit_sets: self.suite.criteria_sets.clone(),
         });
       }
     }
@@ -230,7 +238,12 @@ impl AppState {
   /// picked yet. This might lock, use enqueue_deck safe if in doubt.
   pub(crate) fn enqueue_deck(&mut self, deck_uuid: Uuid, pick: SolverPick) {
     if let Some(job) = self.gen_job(deck_uuid, pick) {
-      self.runner.job_queue.lock().expect("mutex poisoned").push_back(job);
+      self
+        .runner
+        .job_queue
+        .lock()
+        .expect("mutex poisoned")
+        .push_back(job);
       self.set_run_state(deck_uuid, pick, RunState::Enqueued);
     }
   }
@@ -295,7 +308,7 @@ impl AppState {
         let queue = self.runner.job_queue.clone();
         let job_count = self.runner.current_jobs.clone();
         thread::Builder::new()
-          .name(format!("job_runner_{}", jn+1))
+          .name(format!("job_runner_{}", jn + 1))
           .spawn(move || runner(queue, job_count))
           .expect("failed to spawn runner thread");
       }

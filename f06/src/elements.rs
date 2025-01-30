@@ -2,11 +2,11 @@
 //! Nastran output so that output fields can be taken generically over elements
 //! and so the code is easier to expand.
 
-use std::fmt::Display;
 use core::str::FromStr;
+use std::fmt::Display;
 
-use serde::{Serialize, Deserialize};
 use clap::ValueEnum;
+use serde::{Deserialize, Serialize};
 
 /// Broadly-defined element categories.
 #[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
@@ -24,7 +24,7 @@ pub enum ElementCategory {
   /// Two-dimensional elastic elements, like QUAD4.
   TwoDimensionalElastic,
   /// Three-dimensional elastic elements, like HEXA.
-  ThreeDimensionalElastic
+  ThreeDimensionalElastic,
 }
 
 /// Generates the ElementType enum.

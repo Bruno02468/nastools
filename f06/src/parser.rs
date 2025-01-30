@@ -1,13 +1,13 @@
 //! This module implements the generic parser for F06 files, and associated
 //! structures and enums.
 
-use std::collections::{BTreeSet, BTreeMap};
+use std::collections::{BTreeMap, BTreeSet};
 use std::fs::File;
-use std::io::{self, BufReader, BufRead};
+use std::io::{self, BufRead, BufReader};
 use std::path::Path;
 
 use log::{debug, error, warn};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::prelude::*;
 use crate::util::*;
@@ -39,7 +39,7 @@ pub enum ParserResponse {
   /// because we don't even know the solver yet!
   BeginningWithoutSolver,
   /// This line indicates the beginning of a block we don't even know yet.
-  PotentialHeader
+  PotentialHeader,
 }
 
 /// This is the F06 parser -- it doesn't care how lines are fed into it.
@@ -58,7 +58,7 @@ pub struct OnePassParser {
   /// Accumulator of block header strings.
   header_accumulator: Vec<String>,
   /// Stores last indexes per block type.
-  last_indexes: BTreeMap<BlockType, NasIndex>
+  last_indexes: BTreeMap<BlockType, NasIndex>,
 }
 
 impl Default for OnePassParser {
@@ -77,7 +77,7 @@ impl OnePassParser {
       total_lines: 0,
       last_block_start: 0,
       header_accumulator: Vec::new(),
-      last_indexes: BTreeMap::new()
+      last_indexes: BTreeMap::new(),
     };
   }
 
@@ -103,14 +103,16 @@ impl OnePassParser {
   fn detect_subcase(&self, line: &str) -> Option<usize> {
     let bd: Vec<_> = line_breakdown(line).collect();
     if line.contains("OUTPUT FOR SUBCASE") {
-      return bd.into_iter()
+      return bd
+        .into_iter()
         .filter_map(|field| {
           if let LineField::Integer(x) = field {
-            return Some(x as usize)
+            return Some(x as usize);
           } else {
             None
           }
-      }).nth(0);
+        })
+        .nth(0);
     }
     if let Some(LineField::Integer(sc)) = bd.last() {
       if let Some(LineField::NoIdea("SUBCASE")) = bd.iter().rev().nth(1) {
@@ -128,7 +130,7 @@ impl OnePassParser {
         dec.block_type(),
         self.total_lines
       );
-      let line_range = Some((self.last_block_start, self.total_lines+1));
+      let line_range = Some((self.last_block_start, self.total_lines + 1));
       if let Some(li) = dec.last_index() {
         self.last_indexes.insert(dec.block_type(), li);
       }
@@ -157,7 +159,10 @@ impl OnePassParser {
     // first, try and enhance our knowledge of the flavour from the line.
     if let Some(solver) = self.detect_solver(line) {
       self.file.flavour.solver = Some(solver);
-      debug!("Line {} told us the solver is {}!", self.total_lines, solver);
+      debug!(
+        "Line {} told us the solver is {}!",
+        self.total_lines, solver
+      );
       return ParserResponse::Solver(solver);
     }
     // check for a subcase change
@@ -167,9 +172,7 @@ impl OnePassParser {
         self.flush_decoder();
         debug!(
           "Switched from subcase {} to {} on line {}!",
-          self.subcase,
-          subcase,
-          self.total_lines
+          self.subcase, subcase, self.total_lines
         );
         self.subcase = subcase;
       }
@@ -179,14 +182,20 @@ impl OnePassParser {
     // check for warning
     if line.contains("WARNING") {
       debug!("Found warning on line {}: {}", self.total_lines, line);
-      self.file.warnings.insert(self.total_lines, line.to_string());
+      self
+        .file
+        .warnings
+        .insert(self.total_lines, line.to_string());
       self.flush_header();
       return ParserResponse::Warning;
     }
     // check for fatal
     if line.contains("FATAL") {
       debug!("Found fatal on line {}: {}", self.total_lines, line);
-      self.file.fatal_errors.insert(self.total_lines, line.to_string());
+      self
+        .file
+        .fatal_errors
+        .insert(self.total_lines, line.to_string());
       self.flush_header();
       return ParserResponse::Fatal;
     }
@@ -212,7 +221,7 @@ impl OnePassParser {
             return ParserResponse::Useless;
           }
           self.file.potential_headers.insert(PotentialHeader {
-            start: self.total_lines-num_lines,
+            start: self.total_lines - num_lines,
             span: num_lines,
             text: full_name,
           });
@@ -221,7 +230,7 @@ impl OnePassParser {
             self.total_lines
           );
           return ParserResponse::PotentialHeader;
-        },
+        }
         1 => {
           let bt = candidates.pop_first().unwrap();
           // do we know the solver?
@@ -236,7 +245,10 @@ impl OnePassParser {
             // ok, begin the block then.
             let mut dec = bt.init_decoder(self.file.flavour);
             if dec.good_header(&full_name) {
-              debug!("Started a \"{}\" block on line {}!", bt, self.total_lines);
+              debug!(
+                "Started a \"{}\" block on line {}!",
+                bt, self.total_lines
+              );
               if let Some(li) = self.last_indexes.remove(&dec.block_type()) {
                 dec.hint_last(li);
               }
@@ -245,7 +257,7 @@ impl OnePassParser {
             } else if !BAD_WORDS.iter().any(|w| full_name.contains(w)) {
               // bad header, whoops.
               self.file.potential_headers.insert(PotentialHeader {
-                start: self.total_lines-num_lines,
+                start: self.total_lines - num_lines,
                 span: num_lines,
                 text: full_name,
               });
@@ -256,11 +268,11 @@ impl OnePassParser {
               return ParserResponse::PotentialHeader;
             }
           }
-        },
+        }
         _ => warn!(
           "Line {} matches more than one block type!",
           self.total_lines
-        )
+        ),
       }
     }
     // if we got here, the line NOT a block header, and if there was a header
@@ -270,7 +282,8 @@ impl OnePassParser {
       // check for a block-ender
       let resp = if let Some(solver) = self.file.flavour.solver {
         if solver.block_enders().iter().any(|s| line.contains(s))
-          && !solver.ender_exceptions().contains(&dec.block_type()){
+          && !solver.ender_exceptions().contains(&dec.block_type())
+        {
           // line has block ender and block is not exempt from ender
           LineResponse::Done
         } else {
@@ -315,9 +328,7 @@ impl OnePassParser {
       match res {
         ParserResponse::PassedToDecoder(bt, lr) if lr.abnormal() => warn!(
           "Got abnormal response {:?} from {} while parsing line {}!",
-          lr,
-          bt,
-          parser.total_lines
+          lr, bt, parser.total_lines
         ),
         ParserResponse::BeginningWithoutSolver => warn!(
           "Found block beginning in line {} before detecting the solver!",
@@ -334,7 +345,9 @@ impl OnePassParser {
   pub fn parse_file<S: AsRef<Path>>(p: S) -> io::Result<F06File> {
     let file = File::open(p.as_ref())?;
     let mut f06 = Self::parse_bufread(BufReader::new(file))?;
-    f06.filename = p.as_ref().file_name()
+    f06.filename = p
+      .as_ref()
+      .file_name()
       .and_then(|s| s.to_str())
       .map(String::from);
     return Ok(f06);

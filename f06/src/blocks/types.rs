@@ -3,11 +3,11 @@
 
 use std::fmt::Display;
 
-use serde::{Serialize, Deserialize};
 use convert_case::{Case, Casing};
+use serde::{Deserialize, Serialize};
 
-use crate::prelude::*;
 use crate::blocks::decoders::*;
+use crate::prelude::*;
 
 /// Generates the BlockType enum and calls the init functions for them.
 macro_rules! gen_block_types {

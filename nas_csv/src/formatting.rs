@@ -33,7 +33,7 @@ impl Default for FloatFormat {
       dec_places: Some(6),
       no_scientific: false,
       no_superfluous_plus: false,
-      small_e: false
+      small_e: false,
     };
   }
 }
@@ -45,8 +45,8 @@ impl FloatFormat {
       return match (self.dec_places, self.no_superfluous_plus) {
         (None, true) => write!(f, "{}", x),
         (None, false) => write!(f, "{:+}", x),
-        (Some(d), true) => write!(f, "{:.prec$}", x, prec=d),
-        (Some(d), false) => write!(f, "{:+.prec$}", x, prec=d)
+        (Some(d), true) => write!(f, "{:.prec$}", x, prec = d),
+        (Some(d), false) => write!(f, "{:+.prec$}", x, prec = d),
       };
     } else if let Some(d) = self.dec_places {
       return fmt_f64(f, x, 0, d, 2, !self.small_e, self.no_superfluous_plus);
@@ -55,7 +55,7 @@ impl FloatFormat {
         (true, true) => write!(f, "{:e}", x),
         (true, false) => write!(f, "{:E}", x),
         (false, true) => write!(f, "{:+e}", x),
-        (false, false) => write!(f, "{:+E}", x)
+        (false, false) => write!(f, "{:+E}", x),
       };
     }
   }
@@ -97,13 +97,15 @@ impl BlankDisplay {
       Self::Space => " ",
       Self::Dash => "-",
       Self::Dashes => "-----",
-      Self::Empty => ""
+      Self::Empty => "",
     };
   }
 }
 
 /// Padding option so columns (commas) can be made to line up.
-#[derive(Copy, Clone, Debug, Serialize, Deserialize, ValueEnum, PartialEq, Eq)]
+#[derive(
+  Copy, Clone, Debug, Serialize, Deserialize, ValueEnum, PartialEq, Eq,
+)]
 #[clap(rename_all = "snake_case")]
 pub enum Alignment {
   /// No padding: make each field take up its own length.
@@ -113,7 +115,7 @@ pub enum Alignment {
   /// Pad fields with spaces to the right so columns line up to the left.
   Left,
   /// Pad fields with spaces in both sides so they look centralised.
-  Center
+  Center,
 }
 
 impl Default for Alignment {
@@ -133,7 +135,7 @@ pub struct CsvFormatting {
   pub blanks: BlankDisplay,
   /// Alignment setting for values such that commas line up.
   #[arg(long = "align", default_value = "none")]
-  pub align: Alignment
+  pub align: Alignment,
 }
 
 impl CsvFormatting {
@@ -142,8 +144,8 @@ impl CsvFormatting {
     return match fld {
       CsvField::Blank => write!(f, "{}", self.blanks.fmt_str()),
       CsvField::Real(x) => self.reals.fmt_f64(f, *x),
-      _ => write!(f, "{}", fld)
-    }
+      _ => write!(f, "{}", fld),
+    };
   }
 
   /// Turns a CSV field into a string using this formatter.
@@ -153,12 +155,14 @@ impl CsvFormatting {
       CsvField::Real(x) => {
         let mut buf = String::new();
         // Bypass format_args!() to avoid write_str with zero-length strs
-        self.reals.fmt_f64(&mut buf, x)
+        self
+          .reals
+          .fmt_f64(&mut buf, x)
           .expect("a Display implementation returned an error unexpectedly");
         buf
-      },
+      }
       CsvField::String(s) => s,
-      _ => field.to_string()
-    }
+      _ => field.to_string(),
+    };
   }
 }

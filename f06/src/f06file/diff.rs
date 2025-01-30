@@ -5,7 +5,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Display;
 
 use clap::Args;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::prelude::*;
 
@@ -21,7 +21,7 @@ pub enum NonCompareReason {
   NotUniqueInBoth,
   /// The blockref was unique in both files, but the blocks were not
   /// compatible.
-  NotCompatible(IncompatibilityReason)
+  NotCompatible(IncompatibilityReason),
 }
 
 impl Display for NonCompareReason {
@@ -29,22 +29,22 @@ impl Display for NonCompareReason {
     return match self {
       NonCompareReason::NoCounterpart(Some(file)) => {
         write!(f, "no counterpart in {}", file)
-      },
+      }
       NonCompareReason::NoCounterpart(None) => {
         write!(f, "no counterpart in one of the files")
-      },
+      }
       NonCompareReason::NotUniqueInOne(Some(file)) => {
         write!(f, "not unique in {}", file)
-      },
+      }
       NonCompareReason::NotUniqueInOne(None) => {
         write!(f, "not unique in one of the files")
-      },
+      }
       NonCompareReason::NotUniqueInBoth => {
         write!(f, "not unique in either file")
-      },
+      }
       NonCompareReason::NotCompatible(reason) => {
         write!(f, "incompatibility: {}", reason)
-      },
+      }
     };
   }
 }
@@ -62,14 +62,14 @@ pub struct DiffSettings {
   /// Limit for the number of flagged values per block (0 for no limit)
   #[clap(default_value = "0")]
   #[arg(short = 'F')]
-  pub max_flags: Option<usize>
+  pub max_flags: Option<usize>,
 }
 
 impl From<DiffSettings> for DataDiffer {
   fn from(value: DiffSettings) -> Self {
     return Self {
       criteria: value.criteria,
-      dxn_behaviour: value.dxn_behaviour.unwrap_or_default()
+      dxn_behaviour: value.dxn_behaviour.unwrap_or_default(),
     };
   }
 }
@@ -92,7 +92,11 @@ impl F06Diff {
     compared = BTreeMap::new();
     not_compared = BTreeMap::new();
     let differ: DataDiffer = (*settings).into();
-    let brs = a.blocks.keys().chain(b.blocks.keys()).collect::<BTreeSet<_>>();
+    let brs = a
+      .blocks
+      .keys()
+      .chain(b.blocks.keys())
+      .collect::<BTreeSet<_>>();
     for br in brs {
       let ta: Vec<FinalBlock> = Vec::new();
       let tb: Vec<FinalBlock> = Vec::new();
@@ -103,17 +107,11 @@ impl F06Diff {
       match (va.len(), vb.len()) {
         (0, 0) => panic!("block type missing in both files?!"),
         (0, 1) => {
-          not_compared.insert(
-            *br,
-            NonCompareReason::NoCounterpart(afn)
-          );
-        },
+          not_compared.insert(*br, NonCompareReason::NoCounterpart(afn));
+        }
         (1, 0) => {
-          not_compared.insert(
-            *br,
-            NonCompareReason::NoCounterpart(bfn)
-          );
-        },
+          not_compared.insert(*br, NonCompareReason::NoCounterpart(bfn));
+        }
         (1, 1) => {
           let block_a = va.first().unwrap();
           let block_b = vb.first().unwrap();
@@ -125,27 +123,21 @@ impl F06Diff {
               compared.insert(*br, flags.take(mf).collect());
             }
           }
-        },
+        }
         (_, 1) => {
-          not_compared.insert(
-            *br,
-            NonCompareReason::NotUniqueInOne(afn)
-          );
-        },
+          not_compared.insert(*br, NonCompareReason::NotUniqueInOne(afn));
+        }
         (1, _) => {
-          not_compared.insert(
-            *br,
-            NonCompareReason::NotUniqueInOne(bfn)
-          );
-        },
+          not_compared.insert(*br, NonCompareReason::NotUniqueInOne(bfn));
+        }
         (_, _) => {
-          not_compared.insert(
-            *br,
-            NonCompareReason::NotUniqueInBoth
-          );
-        },
+          not_compared.insert(*br, NonCompareReason::NotUniqueInBoth);
+        }
       };
     }
-    return Self { compared, not_compared };
+    return Self {
+      compared,
+      not_compared,
+    };
   }
 }

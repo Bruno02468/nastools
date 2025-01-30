@@ -4,10 +4,10 @@
 pub mod diff;
 pub mod extraction;
 
-use std::collections::{BTreeSet, BTreeMap};
+use std::collections::{BTreeMap, BTreeSet};
 
 use log::debug;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::prelude::*;
 use crate::util::*;
@@ -15,15 +15,23 @@ use crate::util::*;
 /// This type stores a reference to a specific subcase and type (generally
 /// used to refer to a specific block).
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord,
-  derive_more::From
+  Copy,
+  Clone,
+  Debug,
+  Serialize,
+  Deserialize,
+  PartialEq,
+  Eq,
+  PartialOrd,
+  Ord,
+  derive_more::From,
 )]
 pub struct BlockRef {
   /// The subcase. A value of 1 is pre-set for when the output file doesn't
   /// ever mention subcases.
   pub subcase: usize,
   /// The type of the block (or blocks).
-  pub block_type: BlockType
+  pub block_type: BlockType,
 }
 
 /// This is the output of an F06 parser.
@@ -40,7 +48,7 @@ pub struct F06File {
   /// The line numbers for fatal error messages.
   pub fatal_errors: BTreeMap<usize, String>,
   /// Lines with potential, unknown headers, and their line ranges.
-  pub potential_headers: BTreeSet<PotentialHeader>
+  pub potential_headers: BTreeSet<PotentialHeader>,
 }
 
 impl Default for F06File {
@@ -58,7 +66,7 @@ impl F06File {
       blocks: BTreeMap::new(),
       warnings: BTreeMap::new(),
       fatal_errors: BTreeMap::new(),
-      potential_headers: BTreeSet::new()
+      potential_headers: BTreeSet::new(),
     };
   }
 
@@ -75,7 +83,9 @@ impl F06File {
   /// Returns an iterator over all blocks, optionally only the unique ones
   /// (only one of their type in their subcase).
   pub fn all_blocks(&self, unique: bool) -> impl Iterator<Item = &FinalBlock> {
-    return self.blocks.values()
+    return self
+      .blocks
+      .values()
       .filter(move |v| v.len() == 1 || !unique)
       .flatten();
   }
@@ -84,9 +94,11 @@ impl F06File {
   /// only the unique ones (only one fo their type in their subcase).
   pub fn all_blocks_mut(
     &mut self,
-    unique: bool
+    unique: bool,
   ) -> impl Iterator<Item = &mut FinalBlock> {
-    return self.blocks.values_mut()
+    return self
+      .blocks
+      .values_mut()
       .filter(move |v| v.len() == 1 || !unique)
       .flatten();
   }
@@ -97,7 +109,8 @@ impl F06File {
     let mut new_vec: Vec<FinalBlock> = Vec::new();
     while let Some(primary) = vec.pop() {
       // look for merge candidates
-      let sio: Option<usize> = vec.iter()
+      let sio: Option<usize> = vec
+        .iter()
         .enumerate()
         .find(|(_, s)| {
           let can_merge = primary.can_merge(s);
@@ -109,7 +122,8 @@ impl F06File {
             debug!("{:#?}", conflicts);
           }
           return full_ok;
-        }).map(|t| t.0);
+        })
+        .map(|t| t.0);
       if let Some(si) = sio {
         // at least one to merge
         let secondary = vec.remove(si);
@@ -118,8 +132,8 @@ impl F06File {
           Ok(MergeResult::Success { merged }) => merged,
           Ok(MergeResult::Partial { .. }) => {
             panic!("partial merge not implemented yet!")
-          },
-          Err(x) => panic!("pre-merge check failed: {:#?}", x)
+          }
+          Err(x) => panic!("pre-merge check failed: {:#?}", x),
         };
         num_merges += 1;
         // put it back since it could have other potential merges
@@ -136,7 +150,9 @@ impl F06File {
   /// Locates blocks that can be merged and merges them. Returns the number of
   /// done merges. Clean merges mean no row conflicts.
   pub fn merge_blocks(&mut self, clean: bool) -> usize {
-    return self.blocks.values_mut()
+    return self
+      .blocks
+      .values_mut()
       .map(|v| Self::merge_block_vec(v, clean))
       .sum();
   }
@@ -156,13 +172,13 @@ impl F06File {
             // merged, put it back, continue.
             self.potential_headers.insert(merged);
             num_merges += 1;
-          },
+          }
           Err((first, second)) => {
             // couldn't merge. put the first one in the new set, put the second
             // one back, and try again.
             new_phs.insert(first);
             self.potential_headers.insert(second);
-          },
+          }
         }
       } else {
         // there is no second. put the final one in the new set, and we're done
@@ -183,7 +199,9 @@ impl F06File {
 
   /// Returns all the subcases.
   pub fn subcases(&self) -> impl Iterator<Item = usize> {
-    return self.blocks.keys()
+    return self
+      .blocks
+      .keys()
       .map(|k| k.subcase)
       .collect::<BTreeSet<usize>>()
       .into_iter();
@@ -191,7 +209,9 @@ impl F06File {
 
   /// Returns all the block types.
   pub fn block_types(&self) -> impl Iterator<Item = BlockType> {
-    return self.blocks.keys()
+    return self
+      .blocks
+      .keys()
       .map(|k| k.block_type)
       .collect::<BTreeSet<BlockType>>()
       .into_iter();
@@ -202,9 +222,10 @@ impl F06File {
     &self,
     type_filter: Option<BlockType>,
     subcase_filter: Option<usize>,
-    unique: bool
+    unique: bool,
   ) -> impl Iterator<Item = &'_ FinalBlock> {
-    return self.all_blocks(unique)
+    return self
+      .all_blocks(unique)
       .filter(move |b| type_filter.map(|t| b.block_type == t).unwrap_or(true))
       .filter(move |b| subcase_filter.map(|s| b.subcase == s).unwrap_or(true));
   }

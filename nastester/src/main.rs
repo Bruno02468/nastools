@@ -42,6 +42,6 @@ fn main() -> Result<(), eframe::Error> {
   return eframe::run_native(
     &format!("nastester {}", env!("CARGO_PKG_VERSION")),
     native_options,
-    Box::new(|cc| Box::new(Gui::new(cc)))
+    Box::new(|cc| Box::new(Gui::new(cc))),
   );
 }

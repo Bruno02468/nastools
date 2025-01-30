@@ -8,17 +8,17 @@ use clap::builder::PossibleValue;
 use clap::ValueEnum;
 use f06::prelude::*;
 use f06::util::fmt_f64;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 /// Number of fields in a fixed-form CSV record.
 pub const NAS_CSV_COLS: usize = 11;
 
 /// Type that holds the headers for a row.
-pub type RowHeader = [&'static str; NAS_CSV_COLS-1];
+pub type RowHeader = [&'static str; NAS_CSV_COLS - 1];
 
 /// CSV block IDs based on their content.]
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord
+  Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord,
 )]
 #[non_exhaustive]
 pub enum CsvBlockId {
@@ -64,7 +64,7 @@ impl CsvBlockId {
       Self::EngForces,
       Self::GridPointForces,
       Self::AppliedForces,
-      Self::SpcForces
+      Self::SpcForces,
     ];
   }
 
@@ -78,7 +78,7 @@ impl CsvBlockId {
       Self::EngForces => "EngForces",
       Self::GridPointForces => "GridPointForces",
       Self::AppliedForces => "AppliedForces",
-      Self::SpcForces => "SpcForces"
+      Self::SpcForces => "SpcForces",
     };
   }
 
@@ -92,8 +92,8 @@ impl CsvBlockId {
       Self::EngForces => "engfor",
       Self::GridPointForces => "gpforce",
       Self::AppliedForces => "load",
-      Self::SpcForces => "spcfor"
-    }
+      Self::SpcForces => "spcfor",
+    };
   }
 
   /// Returns the hidden aliases for each block ID.
@@ -105,12 +105,16 @@ impl CsvBlockId {
       Self::Strains => &["3", "strains"],
       Self::EngForces => &["4", "engforces", "eng_forces"],
       Self::GridPointForces => &[
-        "5", "gpfb", "gpfor", "gpforces", "grid_point_forces",
-        "grid_point_force_balance"
+        "5",
+        "gpfb",
+        "gpfor",
+        "gpforces",
+        "grid_point_forces",
+        "grid_point_force_balance",
       ],
       Self::AppliedForces => &["6", "applied"],
-      Self::SpcForces => &["7", "spcf", "spcforces"]
-    }
+      Self::SpcForces => &["7", "spcf", "spcforces"],
+    };
   }
 }
 
@@ -154,15 +158,14 @@ impl TryFrom<usize> for CsvBlockId {
       5 => CsvBlockId::GridPointForces,
       6 => CsvBlockId::AppliedForces,
       7 => CsvBlockId::SpcForces,
-      _ => return Err(())
+      _ => return Err(()),
     });
   }
 }
 
 /// The kinds of CSV records we can find in our format.
 #[derive(
-  Clone, Debug, Serialize, Deserialize, PartialEq, PartialOrd,
-  derive_more::From
+  Clone, Debug, Serialize, Deserialize, PartialEq, PartialOrd, derive_more::From,
 )]
 pub enum CsvField {
   /// A blank record.
@@ -176,7 +179,7 @@ pub enum CsvField {
   /// An alloc'd string.
   String(String),
   /// An element type.
-  ElementType(ElementType)
+  ElementType(ElementType),
 }
 
 impl From<F06Number> for CsvField {
@@ -184,7 +187,7 @@ impl From<F06Number> for CsvField {
     return match value {
       F06Number::Real(x) => Self::Real(x),
       F06Number::Integer(i) => Self::Integer(i),
-      F06Number::Natural(n) => Self::Natural(n)
+      F06Number::Natural(n) => Self::Natural(n),
     };
   }
 }
@@ -197,7 +200,7 @@ impl Display for CsvField {
       Self::Natural(n) => n.fmt(f),
       Self::Real(x) => fmt_f64(f, *x, 0, 6, 3, true, false),
       Self::String(s) => s.fmt(f),
-      Self::ElementType(et) => et.fmt(f)
+      Self::ElementType(et) => et.fmt(f),
     };
   }
 }
@@ -218,21 +221,23 @@ pub struct CsvRecord {
   /// If this record relates to a subcase, its ID.
   pub subcase: Option<usize>,
   /// The remaining ten fields.
-  pub fields: [CsvField; NAS_CSV_COLS-1],
+  pub fields: [CsvField; NAS_CSV_COLS - 1],
   /// The headers for the ten fields.
-  pub headers: &'static RowHeader
+  pub headers: &'static RowHeader,
 }
 
 impl CsvRecord {
   /// Returns this as eleven strings.
   pub fn to_fields(self) -> impl Iterator<Item = CsvField> {
-    return [CsvField::from(self.block_id)].into_iter().chain(self.fields);
+    return [CsvField::from(self.block_id)]
+      .into_iter()
+      .chain(self.fields);
   }
 
   /// Returns this block's headers as eleven strings.
   pub fn header_as_iter(&self) -> impl Iterator<Item = &str> {
-    return [self.block_id.name()].into_iter().chain(
-      self.headers.iter().copied()
-    );
+    return [self.block_id.name()]
+      .into_iter()
+      .chain(self.headers.iter().copied());
   }
 }

@@ -3,14 +3,15 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::error::Error;
 use std::fmt::Debug;
+use std::fmt::Write as FmtWrite;
 use std::fs::File;
 use std::io::{BufReader, BufWriter, Write};
 use std::path::PathBuf;
 use std::str::FromStr;
-use std::fmt::Write as FmtWrite;
 
 use egui::{
-  Align, Color32, ComboBox, Context, DragValue, FontFamily, Id, Layout, RichText, ScrollArea, TextStyle, Ui, Visuals, WidgetText
+  Align, Color32, ComboBox, Context, DragValue, FontFamily, Id, Layout,
+  RichText, ScrollArea, TextStyle, Ui, Visuals, WidgetText,
 };
 use egui_extras::{Column, TableBuilder};
 use f06::blocks::types::BlockType;
@@ -39,7 +40,7 @@ pub(crate) enum View {
   /// A specific deck's extractions.
   Extractions,
   /// A deck's side-by-side results.
-  Results
+  Results,
 }
 
 /// This contains form fields hat are always present.
@@ -52,7 +53,7 @@ pub(crate) struct StaticFields {
   /// Limit display to values that are part of extractions?
   extractions_only: bool,
   /// Highlight flagged values?
-  highlight_flagged: bool
+  highlight_flagged: bool,
 }
 
 impl Default for StaticFields {
@@ -61,7 +62,7 @@ impl Default for StaticFields {
       current_deck: None,
       block_ref: None,
       extractions_only: false,
-      highlight_flagged: true
+      highlight_flagged: true,
     };
   }
 }
@@ -81,7 +82,7 @@ pub(crate) struct Gui {
   /// "invalid" sometimes. These are cleared when the view changes.
   pub(crate) text_fields: HashMap<Id, String>,
   /// Fields that are always present.
-  pub(crate) static_fields: StaticFields
+  pub(crate) static_fields: StaticFields,
 }
 
 impl Default for Gui {
@@ -92,7 +93,7 @@ impl Default for Gui {
       suite_file: None,
       suite_clean: true,
       text_fields: HashMap::new(),
-      static_fields: StaticFields::default()
+      static_fields: StaticFields::default(),
     };
   }
 }
@@ -132,7 +133,7 @@ impl Gui {
       return Ok(true);
     } else {
       log::info!("Suite saving cancelled or no file chosen.");
-      return Ok(false)
+      return Ok(false);
     }
   }
 
@@ -235,9 +236,9 @@ impl Gui {
   /// Dialog to pick an F06 directory.
   fn solver_dir_dialog() -> Option<PathBuf> {
     return rfd::FileDialog::new()
-    .set_title("Choose F06 directory...")
-    .set_can_create_directories(true)
-    .pick_folder();
+      .set_title("Choose F06 directory...")
+      .set_can_create_directories(true)
+      .pick_folder();
   }
 
   /// Add a solver as an F06 directory. Returns whether it's been added.
@@ -290,7 +291,7 @@ impl Gui {
           *p = np;
           return Ok(true);
         }
-      },
+      }
       RunMethod::RunSolver(ref mut p) => {
         if let Some(np) = Self::solver_bin_dialog() {
           *p = np;
@@ -339,11 +340,10 @@ impl Gui {
   fn editable_vec<F, T: Clone + PartialEq + ToString + FromStr>(
     &mut self,
     ui: &mut Ui,
-    finder: F
-  )
-  where
+    finder: F,
+  ) where
     <T as FromStr>::Err: Debug,
-    F: Fn(&mut Self) -> &mut Vec<T>
+    F: Fn(&mut Self) -> &mut Vec<T>,
   {
     let body_height = ui.text_style_height(&TextStyle::Body);
     let field_id = ui.next_auto_id();
@@ -358,14 +358,18 @@ impl Gui {
           let i = row.index();
           if i < finder(self).len() {
             let x = finder(self).get(i).unwrap();
-            row.col(|ui| { ui.label(x.to_string()); });
+            row.col(|ui| {
+              ui.label(x.to_string());
+            });
             row.col(|ui| {
               if ui.button("x").clicked() {
                 finder(self).remove(i);
               }
             });
           } else {
-            row.col(|ui| { ui.text_edit_singleline(self.text_buffer(field_id)); });
+            row.col(|ui| {
+              ui.text_edit_singleline(self.text_buffer(field_id));
+            });
             row.col(|ui| {
               if ui.button("add").clicked() {
                 if let Ok(k) = self.text_buffer(field_id).parse::<T>() {
@@ -408,7 +412,7 @@ impl Gui {
                     ui.selectable_value(
                       x,
                       val.clone(),
-                      val.to_string().as_str()
+                      val.to_string().as_str(),
                     );
                   }
                 });
@@ -420,7 +424,7 @@ impl Gui {
               }
             });
           } else {
-            row.col(|_ui| { });
+            row.col(|_ui| {});
             row.col(|ui| {
               if ui.button("add").clicked() {
                 vec_finder(self).push(set[0].clone());
@@ -436,11 +440,10 @@ impl Gui {
   fn text_specifier<F, T: Clone + PartialEq + ToString + FromStr>(
     &mut self,
     ui: &mut Ui,
-    finder: F
-  )
-  where
+    finder: F,
+  ) where
     <T as FromStr>::Err: Debug,
-    F: Fn(&mut Self) -> &mut Specifier<T>
+    F: Fn(&mut Self) -> &mut Specifier<T>,
   {
     ui.horizontal(|ui| {
       ComboBox::from_id_source(ui.next_auto_id())
@@ -448,17 +451,19 @@ impl Gui {
         .show_ui(ui, |ui| {
           let tgt = finder(self);
           let types = [
-            SpecifierType::All, SpecifierType::List, SpecifierType::AllExcept
+            SpecifierType::All,
+            SpecifierType::List,
+            SpecifierType::AllExcept,
           ];
           for new_type in types {
             ui.selectable_value(tgt, tgt.with_type(new_type), new_type.name());
           }
         });
       match finder(self) {
-        Specifier::All => {},
+        Specifier::All => {}
         Specifier::List(_) | Specifier::AllExcept(_) => {
           self.editable_vec(ui, |s| finder(s).inner_vec_mut().unwrap());
-        },
+        }
       };
     });
   }
@@ -468,9 +473,8 @@ impl Gui {
     &mut self,
     ui: &mut Ui,
     set: &'static [T],
-    spec_finder: F
-  )
-  where
+    spec_finder: F,
+  ) where
     F: Fn(&mut Self) -> &mut Specifier<T>,
   {
     ui.horizontal(|ui| {
@@ -479,21 +483,21 @@ impl Gui {
         .show_ui(ui, |ui| {
           let tgt = spec_finder(self);
           let types = [
-            SpecifierType::All, SpecifierType::List, SpecifierType::AllExcept
+            SpecifierType::All,
+            SpecifierType::List,
+            SpecifierType::AllExcept,
           ];
           for new_type in types {
             ui.selectable_value(tgt, tgt.with_type(new_type), new_type.name());
           }
         });
       match spec_finder(self) {
-        Specifier::All => {},
+        Specifier::All => {}
         Specifier::List(_) | Specifier::AllExcept(_) => {
-          self.comboable_vec(
-            ui,
-            set,
-            |s| spec_finder(s).inner_vec_mut().unwrap()
-          );
-        },
+          self.comboable_vec(ui, set, |s| {
+            spec_finder(s).inner_vec_mut().unwrap()
+          });
+        }
       };
     });
   }
@@ -528,19 +532,19 @@ impl Gui {
         }
       });
       // generates sub-menu solver buttons
-      let btn = |
-        state: &mut AppState,
-        ui: &mut Ui,
-        opt: Option<Uuid>,
-        lbl: &str,
-        pick: SolverPick,
-      | {
+      let btn = |state: &mut AppState,
+                 ui: &mut Ui,
+                 opt: Option<Uuid>,
+                 lbl: &str,
+                 pick: SolverPick| {
         let mut rt = RichText::new(lbl);
         let tgt = match pick {
           SolverPick::Reference => &mut state.runner.ref_solver,
           SolverPick::Testing => &mut state.runner.test_solver,
         };
-        if opt == *tgt { rt = rt.strong(); }
+        if opt == *tgt {
+          rt = rt.strong();
+        }
         if ui.button(rt).clicked() && opt != *tgt {
           *tgt = opt;
           state.clear_results_of(pick);
@@ -557,7 +561,9 @@ impl Gui {
         if ui.button("Add F06 directory...").clicked() {
           self.try_run(ui, Gui::add_solver_dir);
         }
-        let snames = self.state.solvers_names()
+        let snames = self
+          .state
+          .solvers_names()
           .map(|(s, u)| (s.to_owned(), u))
           .collect::<Vec<_>>();
         ui.menu_button("Set reference solver", |ui| {
@@ -568,7 +574,7 @@ impl Gui {
               ui,
               Some(*u),
               s.as_str(),
-              SolverPick::Reference
+              SolverPick::Reference,
             );
           }
         });
@@ -580,7 +586,7 @@ impl Gui {
               ui,
               Some(*u),
               s.as_str(),
-              SolverPick::Testing
+              SolverPick::Testing,
             );
           }
         });
@@ -641,7 +647,9 @@ impl Gui {
   /// Render function for the global decks list.
   fn view_decks(&mut self, ctx: &Context) {
     // one per deck
-    let deck_data = self.state.decks_by_name()
+    let deck_data = self
+      .state
+      .decks_by_name()
       .map(|(u, d, r)| (u, d.clone(), r))
       .collect::<Vec<_>>();
     egui::CentralPanel::default().show(ctx, |ui| {
@@ -689,27 +697,43 @@ impl Gui {
           .column(Column::auto().resizable(true))
           .column(Column::auto().resizable(true))
           .header(heading_height, |mut header| {
-            header.col(|ui| { ui.heading("File name"); });
-            header.col(|ui| { ui.heading("Status"); });
-            header.col(|ui| { ui.heading("Reference run"); });
-            header.col(|ui| { ui.heading("Test run"); });
-            header.col(|ui| { ui.heading("Flagged"); });
-            header.col(|ui| { ui.heading("Actions"); });
+            header.col(|ui| {
+              ui.heading("File name");
+            });
+            header.col(|ui| {
+              ui.heading("Status");
+            });
+            header.col(|ui| {
+              ui.heading("Reference run");
+            });
+            header.col(|ui| {
+              ui.heading("Test run");
+            });
+            header.col(|ui| {
+              ui.heading("Flagged");
+            });
+            header.col(|ui| {
+              ui.heading("Actions");
+            });
           })
           .body(|body| {
             body.rows(body_height, ndecks, |mut row| {
               let (uuid, deck, results) = deck_data.get(row.index()).unwrap();
               // filename
-              row.col(|ui| { ui.label(deck.name()); });
+              row.col(|ui| {
+                ui.label(deck.name());
+              });
               // status
-              row.col(|ui| if deck.in_file.is_file() {
-                ui.label("Ready");
-              } else {
-                ui.add(egui::Label::new(
-                  WidgetText::from("Missing!").strong().color(Color32::RED))
-                );
-                if ui.button("Locate...").clicked() {
-                  self.change_deck(*uuid).ok();
+              row.col(|ui| {
+                if deck.in_file.is_file() {
+                  ui.label("Ready");
+                } else {
+                  ui.add(egui::Label::new(
+                    WidgetText::from("Missing!").strong().color(Color32::RED),
+                  ));
+                  if ui.button("Locate...").clicked() {
+                    self.change_deck(*uuid).ok();
+                  }
                 }
               });
               // results
@@ -721,23 +745,17 @@ impl Gui {
                       self.state.run_queue();
                     }
                     return;
-                  },
+                  }
                   RunState::Enqueued => {
                     ("In queue".to_owned(), Color32::LIGHT_YELLOW)
-                  },
-                  RunState::Running => {
-                    ("Running".to_owned(), Color32::YELLOW)
-                  },
+                  }
+                  RunState::Running => ("Running".to_owned(), Color32::YELLOW),
                   RunState::Finished(_) => {
                     ("Finished".to_owned(), Color32::DARK_GREEN)
-                  },
-                  RunState::Error(e) => {
-                    (format!("Error: {}", e), Color32::RED)
-                  },
+                  }
+                  RunState::Error(e) => (format!("Error: {}", e), Color32::RED),
                 };
-                ui.add(egui::Label::new(
-                  WidgetText::from(text).color(color))
-                );
+                ui.add(egui::Label::new(WidgetText::from(text).color(color)));
               };
               if let Some(res) = results {
                 if let Ok(h) = res.try_lock() {
@@ -752,44 +770,40 @@ impl Gui {
                       row.col(|ui| {
                         ui.label(format!("{} values", h.num_flagged()));
                       });
-                    },
+                    }
                     _ => {
-                      row.col(|ui| { ui.label("(requires both runs)"); });
+                      row.col(|ui| {
+                        ui.label("(requires both runs)");
+                      });
                     }
                   };
                 } else {
                   // no lock on results
                   // reference run
-                  row.col(|ui| lblres(
-                    ui,
-                    &RunState::Running,
-                    SolverPick::Reference
-                  ));
+                  row.col(|ui| {
+                    lblres(ui, &RunState::Running, SolverPick::Reference)
+                  });
                   // test run
-                  row.col(|ui| lblres(
-                    ui,
-                    &RunState::Running,
-                    SolverPick::Testing
-                  ));
+                  row.col(|ui| {
+                    lblres(ui, &RunState::Running, SolverPick::Testing)
+                  });
                   // flags
-                  row.col(|ui| { ui.label("(running)"); });
+                  row.col(|ui| {
+                    ui.label("(running)");
+                  });
                 }
               } else {
                 // no results, so it's just ready
                 // reference run
-                row.col(|ui| lblres(
-                  ui,
-                  &RunState::Ready,
-                  SolverPick::Reference
-                ));
+                row.col(|ui| {
+                  lblres(ui, &RunState::Ready, SolverPick::Reference)
+                });
                 // test run
-                row.col(|ui| lblres(
-                  ui,
-                  &RunState::Ready,
-                  SolverPick::Testing
-                ));
+                row.col(|ui| lblres(ui, &RunState::Ready, SolverPick::Testing));
                 // flags
-                row.col(|ui| { ui.label("(requires both runs)"); });
+                row.col(|ui| {
+                  ui.label("(requires both runs)");
+                });
               }
               // actions
               row.col(|ui| {
@@ -812,7 +826,7 @@ impl Gui {
                 });
               });
             });
-        });
+          });
       }
     });
   }
@@ -836,9 +850,13 @@ impl Gui {
             });
           ui.strong("Deck extractions:");
           if ui.button("Add new").clicked() {
-            self.state.get_deck_mut(uuid)
+            self
+              .state
+              .get_deck_mut(uuid)
               .expect("deck UUID missing for extraction addition")
-              .0.extractions.push((Extraction::default(), None));
+              .0
+              .extractions
+              .push((Extraction::default(), None));
           }
           let heading_height = ui.text_style_height(&TextStyle::Heading);
           let body_height = ui.text_style_height(&TextStyle::Body);
@@ -856,17 +874,35 @@ impl Gui {
             .column(Column::remainder().resizable(true))
             .column(Column::remainder().resizable(true))
             .header(heading_height, |mut header| {
-              header.col(|ui| { ui.label("#"); });
-              header.col(|ui| { ui.label("blocks"); });
-              header.col(|ui| { ui.label("subcases"); });
-              header.col(|ui| { ui.label("nodes"); });
-              header.col(|ui| { ui.label("elements"); });
-              header.col(|ui| { ui.label("columns"); });
-              header.col(|ui| { ui.label("on disjunction"); });
-              header.col(|ui| { ui.label("criteria"); });
+              header.col(|ui| {
+                ui.label("#");
+              });
+              header.col(|ui| {
+                ui.label("blocks");
+              });
+              header.col(|ui| {
+                ui.label("subcases");
+              });
+              header.col(|ui| {
+                ui.label("nodes");
+              });
+              header.col(|ui| {
+                ui.label("elements");
+              });
+              header.col(|ui| {
+                ui.label("columns");
+              });
+              header.col(|ui| {
+                ui.label("on disjunction");
+              });
+              header.col(|ui| {
+                ui.label("criteria");
+              });
             })
             .body(|mut body| {
-              let (deck_ref, _results_ref) = self.state.get_deck_mut(uuid)
+              let (deck_ref, _results_ref) = self
+                .state
+                .get_deck_mut(uuid)
                 .expect("deck UUID missing for extraction addition");
               let exns = deck_ref.extractions.clone();
               for (i, (exn, crit)) in exns.iter().enumerate() {
@@ -876,61 +912,111 @@ impl Gui {
                   exn.block_types.inner_vec().map_or(0, |v| v.len()),
                   exn.subcases.inner_vec().map_or(0, |v| v.len()),
                   exn.grid_points.inner_vec().map_or(0, |v| v.len()),
-                  exn.elements.inner_vec().map_or(0, |v| v.len())
-                ].into_iter().max().unwrap() + 1;
+                  exn.elements.inner_vec().map_or(0, |v| v.len()),
+                ]
+                .into_iter()
+                .max()
+                .unwrap()
+                  + 1;
                 let est_height = max_exn_lens as f32 * item_height;
                 body.row(est_height, |mut row| {
-                  row.col(|ui| { ui.label(&i.to_string()); });
                   row.col(|ui| {
-                    self.combo_specifier(
-                      ui,
-                      BlockType::all(),
-                      |s| &mut s.state
-                        .suite.decks.get_mut(&uuid).expect("deck UUID missing!")
-                        .extractions.get_mut(i).expect("bad extraction index!")
-                        .0.block_types
-                    );
+                    ui.label(&i.to_string());
                   });
                   row.col(|ui| {
-                    self.text_specifier(ui, |s| &mut s.state
-                      .suite.decks.get_mut(&uuid).expect("deck UUID missing!")
-                      .extractions.get_mut(i).expect("bad extraction index!")
-                      .0.subcases
-                    );
+                    self.combo_specifier(ui, BlockType::all(), |s| {
+                      &mut s
+                        .state
+                        .suite
+                        .decks
+                        .get_mut(&uuid)
+                        .expect("deck UUID missing!")
+                        .extractions
+                        .get_mut(i)
+                        .expect("bad extraction index!")
+                        .0
+                        .block_types
+                    });
                   });
                   row.col(|ui| {
-                    self.text_specifier(ui, |s| &mut s.state
-                      .suite.decks.get_mut(&uuid).expect("deck UUID missing!")
-                      .extractions.get_mut(i).expect("bad extraction index!")
-                      .0.grid_points
-                    );
+                    self.text_specifier(ui, |s| {
+                      &mut s
+                        .state
+                        .suite
+                        .decks
+                        .get_mut(&uuid)
+                        .expect("deck UUID missing!")
+                        .extractions
+                        .get_mut(i)
+                        .expect("bad extraction index!")
+                        .0
+                        .subcases
+                    });
                   });
                   row.col(|ui| {
-                    self.text_specifier(ui, |s| &mut s.state
-                      .suite.decks.get_mut(&uuid).expect("deck UUID missing!")
-                      .extractions.get_mut(i).expect("bad extraction index!")
-                      .0.elements
-                    );
+                    self.text_specifier(ui, |s| {
+                      &mut s
+                        .state
+                        .suite
+                        .decks
+                        .get_mut(&uuid)
+                        .expect("deck UUID missing!")
+                        .extractions
+                        .get_mut(i)
+                        .expect("bad extraction index!")
+                        .0
+                        .grid_points
+                    });
                   });
                   row.col(|ui| {
-                    self.text_specifier(ui, |s| &mut s.state
-                      .suite.decks.get_mut(&uuid).expect("deck UUID missing!")
-                      .extractions.get_mut(i).expect("bad extraction index!")
-                      .0.raw_cols
-                    );
+                    self.text_specifier(ui, |s| {
+                      &mut s
+                        .state
+                        .suite
+                        .decks
+                        .get_mut(&uuid)
+                        .expect("deck UUID missing!")
+                        .extractions
+                        .get_mut(i)
+                        .expect("bad extraction index!")
+                        .0
+                        .elements
+                    });
                   });
                   row.col(|ui| {
-                    let dxn = &mut self.state
-                      .suite.decks.get_mut(&uuid).expect("deck UUID missing!")
-                      .extractions.get_mut(i).expect("bad extraction index!")
-                      .0.dxn;
+                    self.text_specifier(ui, |s| {
+                      &mut s
+                        .state
+                        .suite
+                        .decks
+                        .get_mut(&uuid)
+                        .expect("deck UUID missing!")
+                        .extractions
+                        .get_mut(i)
+                        .expect("bad extraction index!")
+                        .0
+                        .raw_cols
+                    });
+                  });
+                  row.col(|ui| {
+                    let dxn = &mut self
+                      .state
+                      .suite
+                      .decks
+                      .get_mut(&uuid)
+                      .expect("deck UUID missing!")
+                      .extractions
+                      .get_mut(i)
+                      .expect("bad extraction index!")
+                      .0
+                      .dxn;
                     ComboBox::from_id_source(ui.next_auto_id())
                       .selected_text(dxn.to_string())
                       .show_ui(ui, |ui| {
                         let all = [
                           DisjunctionBehaviour::AssumeZeroes,
                           DisjunctionBehaviour::Skip,
-                          DisjunctionBehaviour::Flag
+                          DisjunctionBehaviour::Flag,
                         ];
                         for db in all {
                           ui.selectable_value(dxn, db, db.to_string());
@@ -939,23 +1025,33 @@ impl Gui {
                   });
                   row.col(|ui| {
                     ComboBox::from_id_source(ui.next_auto_id())
-                      .selected_text(crit.map_or(
-                        "<none>".to_owned(),
-                        |u| self.state.suite.criteria_sets
+                      .selected_text(crit.map_or("<none>".to_owned(), |u| {
+                        self
+                          .state
+                          .suite
+                          .criteria_sets
                           .get(&u)
                           .map(|c| c.name.clone())
-                          .expect("critset UUID missing"))
-                      ).show_ui(ui, |ui| {
-                        let crit_mut = &mut self.state.suite.decks
-                          .get_mut(&uuid).unwrap()
-                          .extractions.get_mut(i).unwrap().1;
+                          .expect("critset UUID missing")
+                      }))
+                      .show_ui(ui, |ui| {
+                        let crit_mut = &mut self
+                          .state
+                          .suite
+                          .decks
+                          .get_mut(&uuid)
+                          .unwrap()
+                          .extractions
+                          .get_mut(i)
+                          .unwrap()
+                          .1;
                         ui.selectable_value(crit_mut, None, "<none>");
                         let critsets = self.state.suite.criteria_sets.iter();
                         for (uuid, crit) in critsets {
                           ui.selectable_value(
                             crit_mut,
                             Some(*uuid),
-                            &crit.name
+                            &crit.name,
                           );
                         }
                       });
@@ -980,7 +1076,8 @@ impl Gui {
     egui::CentralPanel::default().show(ctx, |ui| {
       self.show_menu(ctx, ui);
       let heading_height = ui.text_style_height(&TextStyle::Heading);
-      let body_height = ui.text_style_height(&TextStyle::Body) + ui.spacing().item_spacing.y;
+      let body_height =
+        ui.text_style_height(&TextStyle::Body) + ui.spacing().item_spacing.y;
       let mut cells = Layout::left_to_right(Align::Center);
       cells.main_wrap = false;
       if self.state.suite.criteria_sets.is_empty() {
@@ -1005,7 +1102,10 @@ impl Gui {
           });
         });
       } else {
-        let mut names_ids = self.state.suite.criteria_sets
+        let mut names_ids = self
+          .state
+          .suite
+          .criteria_sets
           .iter()
           .map(|(u, c)| (c.name.clone(), *u))
           .collect::<Vec<(_, _)>>();
@@ -1030,18 +1130,35 @@ impl Gui {
           .column(Column::auto())
           .column(Column::auto())
           .header(heading_height, |mut header| {
-            header.col(|ui| { ui.heading("Criteria set name"); });
-            header.col(|ui| { ui.heading("Max absolute difference"); });
-            header.col(|ui| { ui.heading("Max absolute ratio"); });
-            header.col(|ui| { ui.heading("Flag NaN"); });
-            header.col(|ui| { ui.heading("Flag infinities"); });
-            header.col(|ui| { ui.heading("Flag if signs differ"); });
-            header.col(|ui| { ui.heading("Actions"); });
+            header.col(|ui| {
+              ui.heading("Criteria set name");
+            });
+            header.col(|ui| {
+              ui.heading("Max absolute difference");
+            });
+            header.col(|ui| {
+              ui.heading("Max absolute ratio");
+            });
+            header.col(|ui| {
+              ui.heading("Flag NaN");
+            });
+            header.col(|ui| {
+              ui.heading("Flag infinities");
+            });
+            header.col(|ui| {
+              ui.heading("Flag if signs differ");
+            });
+            header.col(|ui| {
+              ui.heading("Actions");
+            });
           })
           .body(|body| {
             body.rows(body_height, nsets, |mut row| {
               let uuid = names_ids.get(row.index()).unwrap().1;
-              let critset = self.state.suite.criteria_sets
+              let critset = self
+                .state
+                .suite
+                .criteria_sets
                 .get_mut(&uuid)
                 .expect("unable to find critset");
               // name
@@ -1107,7 +1224,9 @@ impl Gui {
       let body_height = ui.text_style_height(&TextStyle::Body) + dy;
       let mut cells = Layout::left_to_right(Align::Center);
       let nsolvers = self.state.solvers.len();
-      let mut snames = self.state.solvers_names()
+      let mut snames = self
+        .state
+        .solvers_names()
         .map(|(s, u)| (s.to_owned(), u))
         .collect::<Vec<_>>();
       // prevent moving mid-rename
@@ -1132,16 +1251,29 @@ impl Gui {
           .column(Column::auto().resizable(true))
           .column(Column::auto().resizable(true))
           .header(heading_height, |mut header| {
-            header.col(|ui| { ui.heading("Solver nickname"); });
-            header.col(|ui| { ui.heading("F06 acquisition method"); });
-            header.col(|ui| { ui.heading("Current reference solver"); });
-            header.col(|ui| { ui.heading("Current solver under test"); });
-            header.col(|ui| { ui.heading("Actions"); });
+            header.col(|ui| {
+              ui.heading("Solver nickname");
+            });
+            header.col(|ui| {
+              ui.heading("F06 acquisition method");
+            });
+            header.col(|ui| {
+              ui.heading("Current reference solver");
+            });
+            header.col(|ui| {
+              ui.heading("Current solver under test");
+            });
+            header.col(|ui| {
+              ui.heading("Actions");
+            });
           })
           .body(|body| {
             body.rows(body_height, nsolvers, |mut row| {
               let (_name, uuid) = snames.get(row.index()).unwrap();
-              let solver = self.state.solvers.get_mut(uuid)
+              let solver = self
+                .state
+                .solvers
+                .get_mut(uuid)
                 .expect("missing solver UUID!");
               // nickname
               row.col(|ui| {
@@ -1152,7 +1284,7 @@ impl Gui {
                 ui.label(match &solver.method {
                   RunMethod::ImportFromDir(p) => {
                     format!("Get from {}", p.display())
-                  },
+                  }
                   RunMethod::RunSolver(p) => {
                     format!("Run solver {}", p.display())
                   }
@@ -1206,83 +1338,86 @@ impl Gui {
     };
     // show block in column
     let formatter = FloatFormat::default();
-    let block_table = |
-      ui: &mut Ui,
-      block: &FinalBlock,
-      oe: Option<&BTreeSet<DatumIndex>>,
-      hf: Option<&BTreeSet<DatumIndex>>
-    | {
-      let heading_height = ui.text_style_height(&TextStyle::Heading);
-      let dy = ui.spacing().item_spacing.y;
-      let body_height = ui.text_style_height(&TextStyle::Body) + dy;
-      let mut cells = Layout::left_to_right(Align::Center);
-      cells.main_wrap = false;
-      let rows: BTreeMap<usize, NasIndex> = block.row_indexes
-        .keys()
-        .filter(|ri| oe.is_none() || oe.is_some_and(
-          |k| k.iter().any(|d| &&d.row == ri)
-        ))
-        .copied()
-        .enumerate()
-        .collect();
-      let cols: BTreeMap<usize, NasIndex> = block.col_indexes
-        .keys()
-        .filter(|ci| oe.is_none() || oe.is_some_and(
-          |k| k.iter().any(|d| &&d.col == ci)
-        ))
-        .copied()
-        .enumerate()
-        .collect();
-      TableBuilder::new(ui)
-        .vscroll(true)
-        .auto_shrink(true)
-        .striped(true)
-        .cell_layout(cells)
-        .columns(Column::auto(), cols.len()+1)
-        .header(heading_height, |mut header| {
-          header.col(|ui| { ui.label("Row/Col"); });
-          for col_index in cols.values() {
-            // column indexes heading
-            header.col(|ui| { ui.strong(col_index.to_string()); });
-          }
-        })
-        .body(|body| {
-          body.rows(body_height, rows.len(), |mut row| {
-            let row_index = rows.get(&row.index()).unwrap();
-            // row indexes column
-            row.col(|ui| {
-              ui.strong(row_index.to_string());
+    let block_table =
+      |ui: &mut Ui,
+       block: &FinalBlock,
+       oe: Option<&BTreeSet<DatumIndex>>,
+       hf: Option<&BTreeSet<DatumIndex>>| {
+        let heading_height = ui.text_style_height(&TextStyle::Heading);
+        let dy = ui.spacing().item_spacing.y;
+        let body_height = ui.text_style_height(&TextStyle::Body) + dy;
+        let mut cells = Layout::left_to_right(Align::Center);
+        cells.main_wrap = false;
+        let rows: BTreeMap<usize, NasIndex> = block
+          .row_indexes
+          .keys()
+          .filter(|ri| {
+            oe.is_none() || oe.is_some_and(|k| k.iter().any(|d| &&d.row == ri))
+          })
+          .copied()
+          .enumerate()
+          .collect();
+        let cols: BTreeMap<usize, NasIndex> = block
+          .col_indexes
+          .keys()
+          .filter(|ci| {
+            oe.is_none() || oe.is_some_and(|k| k.iter().any(|d| &&d.col == ci))
+          })
+          .copied()
+          .enumerate()
+          .collect();
+        TableBuilder::new(ui)
+          .vscroll(true)
+          .auto_shrink(true)
+          .striped(true)
+          .cell_layout(cells)
+          .columns(Column::auto(), cols.len() + 1)
+          .header(heading_height, |mut header| {
+            header.col(|ui| {
+              ui.label("Row/Col");
             });
-            for col_index in block.col_indexes.keys() {
-              // data rows
-              row.col(|ui| {
-                let mut fbuf = String::new();
-                let x = block.get(*row_index, *col_index).unwrap();
-                formatter.fmt_f64(&mut fbuf, x.into()).ok();
-                let mut rt = RichText::new(fbuf)
-                  .family(FontFamily::Monospace);
-                let di = DatumIndex {
-                  block_ref: block.block_ref(),
-                  row: *row_index,
-                  col: *col_index,
-                };
-                if hf.is_some_and(|f| f.contains(&di)) {
-                  rt = rt.color(Color32::RED);
-                }
-                ui.label(rt);
+            for col_index in cols.values() {
+              // column indexes heading
+              header.col(|ui| {
+                ui.strong(col_index.to_string());
               });
             }
+          })
+          .body(|body| {
+            body.rows(body_height, rows.len(), |mut row| {
+              let row_index = rows.get(&row.index()).unwrap();
+              // row indexes column
+              row.col(|ui| {
+                ui.strong(row_index.to_string());
+              });
+              for col_index in block.col_indexes.keys() {
+                // data rows
+                row.col(|ui| {
+                  let mut fbuf = String::new();
+                  let x = block.get(*row_index, *col_index).unwrap();
+                  formatter.fmt_f64(&mut fbuf, x.into()).ok();
+                  let mut rt =
+                    RichText::new(fbuf).family(FontFamily::Monospace);
+                  let di = DatumIndex {
+                    block_ref: block.block_ref(),
+                    row: *row_index,
+                    col: *col_index,
+                  };
+                  if hf.is_some_and(|f| f.contains(&di)) {
+                    rt = rt.color(Color32::RED);
+                  }
+                  ui.label(rt);
+                });
+              }
+            });
           });
-        });
-    };
+      };
     // column to show a block
-    let block_col = |
-      ui: &mut Ui,
-      rs: &RunState,
-      br: BlockRef,
-      oe: Option<&BTreeSet<DatumIndex>>,
-      hf: Option<&BTreeSet<DatumIndex>>
-    | {
+    let block_col = |ui: &mut Ui,
+                     rs: &RunState,
+                     br: BlockRef,
+                     oe: Option<&BTreeSet<DatumIndex>>,
+                     hf: Option<&BTreeSet<DatumIndex>>| {
       if let RunState::Finished(f) = rs {
         if let Some(fb) = f.blocks.get(&br) {
           block_table(ui, &fb[0], oe, hf);
@@ -1306,11 +1441,17 @@ impl Gui {
           SolverPick::Testing => ui.label("  => Solver under test:"),
         };
         let metrics = SingleColumnMetric::all();
-        let mut rows: Vec<(BlockRef, NasIndex)> = exr.col_metrics
+        let mut rows: Vec<(BlockRef, NasIndex)> = exr
+          .col_metrics
           .keys()
-          .filter_map(
-            |scmi| if scmi.0 == *pick { Some((scmi.1, scmi.2)) } else { None }
-          ).collect();
+          .filter_map(|scmi| {
+            if scmi.0 == *pick {
+              Some((scmi.1, scmi.2))
+            } else {
+              None
+            }
+          })
+          .collect();
         rows.sort();
         rows.dedup();
         ui.push_id(pick, |ui| {
@@ -1319,12 +1460,16 @@ impl Gui {
             .auto_shrink(true)
             .striped(true)
             .cell_layout(cells)
-            .columns(Column::auto(), metrics.len()+1)
+            .columns(Column::auto(), metrics.len() + 1)
             .header(heading_height, |mut header| {
-              header.col(|ui| { ui.label("Col/Metric"); });
+              header.col(|ui| {
+                ui.label("Col/Metric");
+              });
               for metric in metrics {
                 // column indexes heading
-                header.col(|ui| { ui.strong(metric.short_name()); });
+                header.col(|ui| {
+                  ui.strong(metric.short_name());
+                });
               }
             })
             .body(|body| {
@@ -1333,9 +1478,7 @@ impl Gui {
                 row.col(|ui| {
                   ui.strong(format!(
                     "Subcase {}, {}, {}",
-                    bref.subcase,
-                    bref.block_type,
-                    col
+                    bref.subcase, bref.block_type, col
                   ));
                 });
                 for scm in metrics {
@@ -1347,16 +1490,19 @@ impl Gui {
                     write!(&mut fbuf, "N/A").ok();
                   }
                   let rt = RichText::new(fbuf).family(FontFamily::Monospace);
-                  row.col(|ui| { ui.label(rt); });
+                  row.col(|ui| {
+                    ui.label(rt);
+                  });
                 }
               })
             });
-          });
+        });
         ui.separator();
       }
       // column compare metrics
       ui.label("  => Column-compare metrics:");
-      let mut rows: Vec<(BlockRef, NasIndex)> = exr.col_compares
+      let mut rows: Vec<(BlockRef, NasIndex)> = exr
+        .col_compares
         .keys()
         .map(|ccmi| (ccmi.0, ccmi.1))
         .collect();
@@ -1368,12 +1514,16 @@ impl Gui {
         .auto_shrink(true)
         .striped(true)
         .cell_layout(cells)
-        .columns(Column::auto(), metrics.len()+1)
+        .columns(Column::auto(), metrics.len() + 1)
         .header(heading_height, |mut header| {
-          header.col(|ui| { ui.label("Col/Metric"); });
+          header.col(|ui| {
+            ui.label("Col/Metric");
+          });
           for metric in metrics {
             // column indexes heading
-            header.col(|ui| { ui.strong(metric.short_name()); });
+            header.col(|ui| {
+              ui.strong(metric.short_name());
+            });
           }
         })
         .body(|body| {
@@ -1382,9 +1532,7 @@ impl Gui {
             row.col(|ui| {
               ui.strong(format!(
                 "Subcase {}, {}, {}",
-                bref.subcase,
-                bref.block_type,
-                col
+                bref.subcase, bref.block_type, col
               ));
             });
             for ccm in metrics {
@@ -1396,7 +1544,9 @@ impl Gui {
                 write!(&mut fbuf, "N/A").ok();
               }
               let rt = RichText::new(fbuf).family(FontFamily::Monospace);
-              row.col(|ui| { ui.label(rt); });
+              row.col(|ui| {
+                ui.label(rt);
+              });
             }
           })
         });
@@ -1431,19 +1581,16 @@ impl Gui {
         // limit to extracted
         ui.checkbox(
           &mut sf.extractions_only,
-          "Show only values in extractions"
+          "Show only values in extractions",
         );
         // highlight flagged
-        ui.checkbox(
-          &mut sf.highlight_flagged,
-          "Highlight flagged values"
-        );
+        ui.checkbox(&mut sf.highlight_flagged, "Highlight flagged values");
       });
       if let Some(bref) = sf.block_ref {
         // show chosen block
         ui.columns(2, |cols| {
           for (i, pick) in SolverPick::all().iter().enumerate() {
-            cols[i].vertical_centered(|ui|
+            cols[i].vertical_centered(|ui| {
               ui.push_id(i, |ui| {
                 block_col(
                   ui,
@@ -1454,10 +1601,14 @@ impl Gui {
                   } else {
                     None
                   },
-                  if sf.highlight_flagged { Some(&res.flagged) } else { None }
+                  if sf.highlight_flagged {
+                    Some(&res.flagged)
+                  } else {
+                    None
+                  },
                 );
               })
-            );
+            });
           }
         });
       } else {
@@ -1483,7 +1634,7 @@ impl eframe::App for Gui {
       View::Solvers => self.view_solvers(ctx),
       View::CriteriaSets => self.view_criteria_sets(ctx),
       View::Extractions => self.view_deck_exns(ctx),
-      View::Results => self.view_results(ctx)
+      View::Results => self.view_results(ctx),
     };
   }
 }

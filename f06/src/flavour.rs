@@ -3,7 +3,7 @@
 
 use std::fmt::Display;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::prelude::BlockType;
 
@@ -14,7 +14,7 @@ pub enum Solver {
   /// The MYSTRAN solver originally developed by Dr. Bill Case.
   Mystran,
   /// The Simcenter Nastran solver, formerly known as NX Nastran.
-  Simcenter
+  Simcenter,
 }
 
 impl Display for Solver {
@@ -33,20 +33,15 @@ impl Solver {
   pub const fn name(&self) -> &'static str {
     return match self {
       Solver::Mystran => "MYSTRAN",
-      Solver::Simcenter => "Simcenter Nastran"
+      Solver::Simcenter => "Simcenter Nastran",
     };
   }
 
   /// Returns an array of "block ending" strings tht we should test for.
   pub const fn block_enders(&self) -> &'static [&'static str] {
     return match self {
-      Solver::Mystran => &[
-        "-------------",
-        "------------"
-      ],
-      Solver::Simcenter => &[
-        "SIMCENTER NASTRAN"
-      ],
+      Solver::Mystran => &["-------------", "------------"],
+      Solver::Simcenter => &["SIMCENTER NASTRAN"],
     };
   }
 
@@ -72,7 +67,7 @@ pub enum SolType {
   /// Linear buckling analysis, also known as SOL BUCKLING or SOL 105.
   LinearBuckling,
   /// Nonlinear static analysis, also known as SOL NLSTATIC or SOL 106.
-  NonLinearStatic
+  NonLinearStatic,
 }
 
 impl From<SolType> for usize {
@@ -82,7 +77,7 @@ impl From<SolType> for usize {
       SolType::Eigenvalue => 103,
       SolType::LinearStaticDiffStiff => 104,
       SolType::LinearBuckling => 105,
-      SolType::NonLinearStatic => 106
+      SolType::NonLinearStatic => 106,
     };
   }
 }
@@ -96,7 +91,7 @@ impl TryFrom<usize> for SolType {
       4 | 104 => Self::LinearStaticDiffStiff,
       5 | 105 => Self::LinearBuckling,
       106 => Self::NonLinearStatic,
-      _ => return Err(())
+      _ => return Err(()),
     });
   }
 }
@@ -115,19 +110,21 @@ impl SolType {
       SolType::Eigenvalue => "Eigenvalue",
       SolType::LinearStaticDiffStiff => {
         "Linear static with differential stiffness"
-      },
+      }
       SolType::LinearBuckling => "Linear buckling",
       SolType::NonLinearStatic => "Non-linear static",
-    }
+    };
   }
 }
 
 /// This structure encapsulates what we currently take to be the "flavour" of
 /// F06 file.
-#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[derive(
+  Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Default,
+)]
 pub struct Flavour {
   /// The solver that produced the file, if known.
   pub solver: Option<Solver>,
   /// The solution type that resulted in the file, if known.
-  pub soltype: Option<SolType>
+  pub soltype: Option<SolType>,
 }

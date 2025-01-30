@@ -12,8 +12,8 @@ use std::io::{self, BufReader};
 use std::path::PathBuf;
 
 use clap::Parser;
-use log::{LevelFilter, info, error, warn};
 use f06::prelude::*;
+use log::{error, info, warn, LevelFilter};
 
 const INDENT: &str = "  ";
 const MAX_FILE_NAME_LEN: usize = 16;
@@ -35,7 +35,7 @@ struct Cli {
   /// Path to the first file.
   first: PathBuf,
   /// Path to the second file. Set to "-" to read from stdin.
-  second: PathBuf
+  second: PathBuf,
 }
 
 fn main() -> io::Result<()> {
@@ -86,10 +86,16 @@ fn main() -> io::Result<()> {
     std::process::exit(1);
   };
   // set up names for the first files
-  let mut fn1 = first.filename.as_deref()
-    .unwrap_or("the first file").to_owned();
-  let mut fn2 = second.filename.as_deref()
-    .unwrap_or("the second file").to_owned();
+  let mut fn1 = first
+    .filename
+    .as_deref()
+    .unwrap_or("the first file")
+    .to_owned();
+  let mut fn2 = second
+    .filename
+    .as_deref()
+    .unwrap_or("the second file")
+    .to_owned();
   // tidy stuff up
   for b in [&mut first, &mut second] {
     b.merge_blocks(true);
@@ -103,8 +109,8 @@ fn main() -> io::Result<()> {
   // list basic file info
   info!("Basic information:");
   // solver
-  let solver_name = |f: &F06File| f.flavour.solver
-    .map(|s| s.name()).unwrap_or("unknown");
+  let solver_name =
+    |f: &F06File| f.flavour.solver.map(|s| s.name()).unwrap_or("unknown");
   if first.flavour.solver == second.flavour.solver {
     info!("{}- Solver: both are {};", INDENT, solver_name(&first));
   } else {
@@ -121,10 +127,12 @@ fn main() -> io::Result<()> {
   let nb2 = second.all_blocks(false).count();
   let nb2u = second.all_blocks(true).count();
   let pl = |n: usize| if n == 1 { "" } else { "s" };
-  let bcount = |nb: usize, nbu: usize| if nb == nbu {
-    format!("{} unique decoded block{}", nb, pl(nb))
-  } else {
-    format!("{} decoded block{} ({} unique)", nb, pl(nb), nbu)
+  let bcount = |nb: usize, nbu: usize| {
+    if nb == nbu {
+      format!("{} unique decoded block{}", nb, pl(nb))
+    } else {
+      format!("{} decoded block{} ({} unique)", nb, pl(nb), nbu)
+    }
   };
   let bc0 = format!("{}- Decoded blocks: ", INDENT);
   if nb1 == nb2 && nb1 == nb1u && nb1u == nb2u {
@@ -146,11 +154,14 @@ fn main() -> io::Result<()> {
     }
   };
   countwarn(first.warnings.len(), second.warnings.len(), "Warnings");
-  countwarn(first.fatal_errors.len(), second.fatal_errors.len(), "Fatals");
+  countwarn(
+    first.fatal_errors.len(),
+    second.fatal_errors.len(),
+    "Fatals",
+  );
   // filenames similarity
   let mut fnwarn: Option<&str> = None;
   if fn1.eq_ignore_ascii_case(&fn2) {
-
     fnwarn = Some("too similar");
   }
   if fn1.len() > MAX_FILE_NAME_LEN || fn2.len() > MAX_FILE_NAME_LEN {
@@ -165,10 +176,7 @@ fn main() -> io::Result<()> {
     fn2 = "the second file".to_string();
     info!(
       "  - File names are {}, they'll be referred to as \"{}\" and \"{}\" {}.",
-      fnw,
-      fn1,
-      fn2,
-      "respectively"
+      fnw, fn1, fn2, "respectively"
     );
   }
   // make file padding
@@ -209,8 +217,14 @@ fn main() -> io::Result<()> {
       info!("{}{}- No values flagged.", INDENT, INDENT);
     } else {
       // first a summary
-      let rows = flags.iter().map(|fp| fp.values.row).collect::<BTreeSet<_>>();
-      let cols = flags.iter().map(|fp| fp.values.col).collect::<BTreeSet<_>>();
+      let rows = flags
+        .iter()
+        .map(|fp| fp.values.row)
+        .collect::<BTreeSet<_>>();
+      let cols = flags
+        .iter()
+        .map(|fp| fp.values.col)
+        .collect::<BTreeSet<_>>();
       info!("{}{}- Flagged {} position(s);", INDENT, INDENT, flags.len());
       let count = |s: BTreeSet<NasIndex>, name: &str| {
         if s.len() == 1 {
@@ -236,67 +250,40 @@ fn main() -> io::Result<()> {
       // now report specific positions
       let t = match args.print_max_flags.cmp(&0) {
         std::cmp::Ordering::Less => {
-          info!(
-            "{}{}- Details of all flagged position(s):",
-            INDENT,
-            INDENT
-          );
+          info!("{}{}- Details of all flagged position(s):", INDENT, INDENT);
           flags.len()
-        },
+        }
         std::cmp::Ordering::Equal => {
           info!(
             "{}{}- Details of flagged positions not requested.",
-            INDENT,
-            INDENT
+            INDENT, INDENT
           );
-          continue
-        },
+          continue;
+        }
         std::cmp::Ordering::Greater => {
           info!(
             "{}{}- Details of flagged positions (limited to {}):",
-            INDENT,
-            INDENT,
-            args.print_max_flags
+            INDENT, INDENT, args.print_max_flags
           );
           args.print_max_flags as usize
-        },
+        }
       };
       for flag in flags.iter().take(t) {
         info!(
           "{}{}{}- {}, {}:",
-          INDENT,
-          INDENT,
-          INDENT,
-          flag.values.row,
-          flag.values.col
+          INDENT, INDENT, INDENT, flag.values.row, flag.values.col
         );
         info!(
           "{}{}{}{}- Value in {}:{} {}",
-          INDENT,
-          INDENT,
-          INDENT,
-          INDENT,
-          fn1,
-          pad1,
-          flag.values.val_a
+          INDENT, INDENT, INDENT, INDENT, fn1, pad1, flag.values.val_a
         );
         info!(
           "{}{}{}{}- Value in {}:{} {}",
-          INDENT,
-          INDENT,
-          INDENT,
-          INDENT,
-          fn2,
-          pad2,
-          flag.values.val_b
+          INDENT, INDENT, INDENT, INDENT, fn2, pad2, flag.values.val_b
         );
         info!(
           "{}{}{}{}- Flag reason: {}.",
-          INDENT,
-          INDENT,
-          INDENT,
-          INDENT,
-          flag.reason
+          INDENT, INDENT, INDENT, INDENT, flag.reason
         );
       }
     }

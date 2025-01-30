@@ -40,7 +40,7 @@ macro_rules! converting_decoder {
     #[doc = $outer_desc]
     pub(crate) struct $outer_type {
       /// The inner decoder.
-      inner: $inner_type
+      inner: $inner_type,
     }
 
     impl BlockDecoder for $outer_type {
@@ -52,7 +52,8 @@ macro_rules! converting_decoder {
 
       fn new(flavour: Flavour) -> Self {
         return Self {
-          inner: <$inner_type>::new(flavour) };
+          inner: <$inner_type>::new(flavour),
+        };
       }
 
       fn good_header(&mut self, header: &str) -> bool {
@@ -70,10 +71,12 @@ macro_rules! converting_decoder {
       fn unwrap(
         self,
         subcase: usize,
-        line_range: Option<(usize, usize)>
+        line_range: Option<(usize, usize)>,
       ) -> FinalBlock {
         let mut fb = self.inner.unwrap(subcase, line_range);
-        fb.col_indexes = fb.col_indexes.into_iter()
+        fb.col_indexes = fb
+          .col_indexes
+          .into_iter()
           .map(|(ci, n)| {
             if let NasIndex::$inner_col_type(col) = ci {
               return ($col_type::from(col).into(), n);
@@ -83,7 +86,9 @@ macro_rules! converting_decoder {
             }
           })
           .collect();
-        fb.row_indexes = fb.row_indexes.into_iter()
+        fb.row_indexes = fb
+          .row_indexes
+          .into_iter()
           .map(|(ci, n)| {
             if let NasIndex::$inner_row_type(row) = ci {
               return ($row_type::from(row).into(), n);
@@ -109,7 +114,7 @@ pub(crate) struct DisplacementsDecoder {
   /// The flavour of F06 file we're decoding displacements for.
   flavour: Flavour,
   /// The displacement data.
-  data: RowBlock<f64, GridPointRef, Dof, { Self::MATWIDTH }>
+  data: RowBlock<f64, GridPointRef, Dof, { Self::MATWIDTH }>,
 }
 
 impl BlockDecoder for DisplacementsDecoder {
@@ -122,14 +127,14 @@ impl BlockDecoder for DisplacementsDecoder {
   fn new(flavour: Flavour) -> Self {
     return Self {
       flavour,
-      data: RowBlock::new(dof_cols())
+      data: RowBlock::new(dof_cols()),
     };
   }
 
   fn unwrap(
     self,
     subcase: usize,
-    line_range: Option<(usize, usize)>
+    line_range: Option<(usize, usize)>,
   ) -> FinalBlock {
     return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
   }
@@ -155,7 +160,7 @@ pub(crate) struct GridPointForceBalanceDecoder {
   /// The current grid point ID.
   gpref: Option<GridPointRef>,
   /// The force balance data.
-  data: RowBlock<f64, GridPointForceOrigin, Dof, { Self::MATWIDTH }>
+  data: RowBlock<f64, GridPointForceOrigin, Dof, { Self::MATWIDTH }>,
 }
 
 impl BlockDecoder for GridPointForceBalanceDecoder {
@@ -176,7 +181,7 @@ impl BlockDecoder for GridPointForceBalanceDecoder {
   fn unwrap(
     self,
     subcase: usize,
-    line_range: Option<(usize, usize)>
+    line_range: Option<(usize, usize)>,
   ) -> FinalBlock {
     return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
   }
@@ -202,24 +207,25 @@ impl BlockDecoder for GridPointForceBalanceDecoder {
             ForceOrigin::Element {
               elem: ElementRef {
                 eid: eid as usize,
-                etype: nth_etype(line, 0)
-              }
+                etype: nth_etype(line, 0),
+              },
             }
           } else {
-            return LineResponse::Useless
+            return LineResponse::Useless;
           }
         } else {
           return LineResponse::Useless;
         }
-      },
+      }
       Some(Solver::Simcenter) => {
         let i0 = nth_integer(line, 0).map(|x| x as usize);
         let i1 = nth_integer(line, 1).map(|x| x as usize);
         self.gpref = match (i0, i1) {
           (Some(0), Some(x)) => Some(x),
           (Some(x), _) => Some(x),
-          _ => None
-        }.map(|x| x.into());
+          _ => None,
+        }
+        .map(|x| x.into());
         if line.contains("*TOTALS*") {
           return LineResponse::Useless;
         } else if line.contains("APP-LOAD") {
@@ -236,17 +242,21 @@ impl BlockDecoder for GridPointForceBalanceDecoder {
               } else {
                 return None;
               }
-            }).last();
+            })
+            .last();
           let etype_opt = nth_etype(line, 0);
           match (self.gpref, eid, etype_opt) {
             (Some(_), Some(eid), Some(etype)) => ForceOrigin::Element {
-              elem: ElementRef { eid, etype: Some(etype) }
+              elem: ElementRef {
+                eid,
+                etype: Some(etype),
+              },
             },
-            _ => return LineResponse::Useless
+            _ => return LineResponse::Useless,
           }
         }
-      },
-      None => return LineResponse::BadFlavour
+      }
+      None => return LineResponse::BadFlavour,
     };
     if let Some(gpref) = self.gpref {
       let ri = GridPointForceOrigin {
@@ -269,7 +279,7 @@ pub(crate) struct SpcForcesDecoder {
   /// The flavour of F06 file we're decoding SPC forces for.
   flavour: Flavour,
   /// The displacement data.
-  data: RowBlock<f64, GridPointRef, Dof, { Self::MATWIDTH }>
+  data: RowBlock<f64, GridPointRef, Dof, { Self::MATWIDTH }>,
 }
 
 impl BlockDecoder for SpcForcesDecoder {
@@ -282,14 +292,14 @@ impl BlockDecoder for SpcForcesDecoder {
   fn new(flavour: Flavour) -> Self {
     return Self {
       flavour,
-      data: RowBlock::new(dof_cols())
+      data: RowBlock::new(dof_cols()),
     };
   }
 
   fn unwrap(
     self,
     subcase: usize,
-    line_range: Option<(usize, usize)>
+    line_range: Option<(usize, usize)>,
   ) -> FinalBlock {
     return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
   }
@@ -313,7 +323,7 @@ pub(crate) struct AppliedForcesDecoder {
   /// The flavour of F06 file we're decoding displacements for.
   flavour: Flavour,
   /// The displacement data.
-  data: RowBlock<f64, GridPointRef, Dof, { Self::MATWIDTH }>
+  data: RowBlock<f64, GridPointRef, Dof, { Self::MATWIDTH }>,
 }
 
 impl BlockDecoder for AppliedForcesDecoder {
@@ -326,14 +336,14 @@ impl BlockDecoder for AppliedForcesDecoder {
   fn new(flavour: Flavour) -> Self {
     return Self {
       flavour,
-      data: RowBlock::new(dof_cols())
+      data: RowBlock::new(dof_cols()),
     };
   }
 
   fn unwrap(
     self,
     subcase: usize,
-    line_range: Option<(usize, usize)>
+    line_range: Option<(usize, usize)>,
   ) -> FinalBlock {
     return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
   }
@@ -361,7 +371,7 @@ pub(crate) struct QuadStressesDecoder {
   /// Current row reference.
   cur_row: Option<<Self as BlockDecoder>::RowIndex>,
   /// Element type, hinted by the header.
-  etype: Option<ElementType>
+  etype: Option<ElementType>,
 }
 
 impl BlockDecoder for QuadStressesDecoder {
@@ -376,14 +386,14 @@ impl BlockDecoder for QuadStressesDecoder {
       flavour,
       data: RowBlock::new(PlateStressField::canonical_cols()),
       cur_row: None,
-      etype: None
+      etype: None,
     };
   }
 
   fn unwrap(
     self,
     subcase: usize,
-    line_range: Option<(usize, usize)>
+    line_range: Option<(usize, usize)>,
   ) -> FinalBlock {
     return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
   }
@@ -415,10 +425,17 @@ impl BlockDecoder for QuadStressesDecoder {
     };
     // okay, now we get the sided point.
     let fields = line_breakdown(line).collect::<Vec<_>>();
-    let ints = fields.iter()
+    let ints = fields
+      .iter()
       .filter_map(|lf| {
-        if let LineField::Integer(i) = lf { Some(i) } else { None }
-      }).copied().collect::<Vec<_>>();
+        if let LineField::Integer(i) = lf {
+          Some(i)
+        } else {
+          None
+        }
+      })
+      .copied()
+      .collect::<Vec<_>>();
     match self.flavour.solver {
       Some(Solver::Mystran) => {
         if ints.is_empty() {
@@ -449,12 +466,15 @@ impl BlockDecoder for QuadStressesDecoder {
             return LineResponse::Abort;
           };
           self.cur_row.replace(ElementSidedPoint {
-            element: ElementRef { eid, etype: self.etype },
+            element: ElementRef {
+              eid,
+              etype: self.etype,
+            },
             point,
-            side
+            side,
           });
         }
-      },
+      }
       Some(Solver::Simcenter) => {
         if ints.is_empty() {
           // cont. line
@@ -484,12 +504,15 @@ impl BlockDecoder for QuadStressesDecoder {
             return LineResponse::Abort;
           };
           self.cur_row.replace(ElementSidedPoint {
-            element: ElementRef { eid, etype: self.etype },
+            element: ElementRef {
+              eid,
+              etype: self.etype,
+            },
             point,
-            side
+            side,
           });
         }
-      },
+      }
       None => return LineResponse::BadFlavour,
     }
     if let Some(rid) = self.cur_row {
@@ -524,7 +547,7 @@ pub(crate) struct QuadForcesDecoder {
   /// Element type, hinted by the header.
   etype: Option<ElementType>,
   /// Does this block hold grid-IDs?
-  has_grid_id: bool
+  has_grid_id: bool,
 }
 
 impl BlockDecoder for QuadForcesDecoder {
@@ -540,7 +563,7 @@ impl BlockDecoder for QuadForcesDecoder {
       data: RowBlock::new(PlateForceField::canonical_cols()),
       cur_row: None,
       etype: None,
-      has_grid_id: false
+      has_grid_id: false,
     };
   }
 
@@ -562,7 +585,7 @@ impl BlockDecoder for QuadForcesDecoder {
   fn unwrap(
     self,
     subcase: usize,
-    line_range: Option<(usize, usize)>
+    line_range: Option<(usize, usize)>,
   ) -> FinalBlock {
     return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
   }
@@ -580,21 +603,31 @@ impl BlockDecoder for QuadForcesDecoder {
     };
     // get the row ID.
     let fields = line_breakdown(line).collect::<Vec<_>>();
-    let ints = fields.iter()
+    let ints = fields
+      .iter()
       .filter_map(|lf| {
-        if let LineField::Integer(i) = lf { Some(i) } else { None }
-      }).copied().collect::<Vec<_>>();
+        if let LineField::Integer(i) = lf {
+          Some(i)
+        } else {
+          None
+        }
+      })
+      .copied()
+      .collect::<Vec<_>>();
     match self.flavour.solver {
       Some(Solver::Mystran) => {
         if let Some(eid) = ints.first() {
           self.cur_row.replace(PointInElement {
-            element: ElementRef { eid: *eid as usize, etype: self.etype },
-            point: ElementPoint::Centroid
+            element: ElementRef {
+              eid: *eid as usize,
+              etype: self.etype,
+            },
+            point: ElementPoint::Centroid,
           });
         } else {
           self.cur_row = None;
         }
-      },
+      }
       Some(Solver::Simcenter) => {
         // line has row info
         let eid: usize;
@@ -628,11 +661,14 @@ impl BlockDecoder for QuadForcesDecoder {
           };
         }
         self.cur_row.replace(PointInElement {
-          element: ElementRef { eid, etype: self.etype },
-          point
+          element: ElementRef {
+            eid,
+            etype: self.etype,
+          },
+          point,
         });
-      },
-      None => return LineResponse::BadFlavour
+      }
+      None => return LineResponse::BadFlavour,
     };
     // if we got a row ID, insert.
     if let Some(rid) = self.cur_row {
@@ -652,7 +688,7 @@ pub(crate) struct TriaForcesDecoder {
   /// The inner block of data.
   data: RowBlock<f64, ElementRef, PlateForceField, { Self::MATWIDTH }>,
   /// Element type, hinted by the header.
-  etype: Option<ElementType>
+  etype: Option<ElementType>,
 }
 
 impl BlockDecoder for TriaForcesDecoder {
@@ -666,7 +702,7 @@ impl BlockDecoder for TriaForcesDecoder {
     return Self {
       flavour,
       data: RowBlock::new(PlateForceField::canonical_cols()),
-      etype: None
+      etype: None,
     };
   }
 
@@ -678,7 +714,7 @@ impl BlockDecoder for TriaForcesDecoder {
   fn unwrap(
     self,
     subcase: usize,
-    line_range: Option<(usize, usize)>
+    line_range: Option<(usize, usize)>,
   ) -> FinalBlock {
     return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
   }
@@ -690,7 +726,10 @@ impl BlockDecoder for TriaForcesDecoder {
       return LineResponse::Useless;
     };
     if let Some(eid) = nth_integer(line, 0) {
-      let ri = ElementRef { eid: eid as usize, etype: self.etype };
+      let ri = ElementRef {
+        eid: eid as usize,
+        etype: self.etype,
+      };
       self.data.insert_raw(ri, &cols);
       return LineResponse::Useless;
     } else {
@@ -703,7 +742,7 @@ impl BlockDecoder for TriaForcesDecoder {
 /// Decoder for ROD element engineering forces.
 pub(crate) struct RodForcesDecoder {
   /// The inner block of data.
-  data: RowBlock<f64, ElementRef, RodForceField, 2>
+  data: RowBlock<f64, ElementRef, RodForceField, 2>,
 }
 
 impl BlockDecoder for RodForcesDecoder {
@@ -714,13 +753,15 @@ impl BlockDecoder for RodForcesDecoder {
   const BLOCK_TYPE: BlockType = BlockType::RodForces;
 
   fn new(_flavour: Flavour) -> Self {
-    return Self { data: RowBlock::new(RodForceField::canonical_cols()) };
+    return Self {
+      data: RowBlock::new(RodForceField::canonical_cols()),
+    };
   }
 
   fn unwrap(
     self,
     subcase: usize,
-    line_range: Option<(usize, usize)>
+    line_range: Option<(usize, usize)>,
   ) -> FinalBlock {
     return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
   }
@@ -734,18 +775,20 @@ impl BlockDecoder for RodForcesDecoder {
         (
           Some(LineField::Integer(eid)),
           Some(LineField::Real(x)),
-          Some(LineField::Real(y))
+          Some(LineField::Real(y)),
         ) => {
           let ri = ElementRef {
             eid: eid as usize,
-            etype: Some(ElementType::Rod)
+            etype: Some(ElementType::Rod),
           };
           self.data.insert_raw(ri, &[x, y]);
           found += 1;
-        },
-        _ => { break; }
+        }
+        _ => {
+          break;
+        }
       };
-    };
+    }
     if found > 0 {
       return LineResponse::Data;
     } else {
@@ -757,7 +800,7 @@ impl BlockDecoder for RodForcesDecoder {
 /// Decoder for bar engineering forces table.
 pub(crate) struct BarForcesDecoder {
   /// The inner block of data.
-  data: RowBlock<f64, ElementRef, BarForceField, 8>
+  data: RowBlock<f64, ElementRef, BarForceField, 8>,
 }
 
 impl BlockDecoder for BarForcesDecoder {
@@ -776,7 +819,7 @@ impl BlockDecoder for BarForcesDecoder {
   fn unwrap(
     self,
     subcase: usize,
-    line_range: Option<(usize, usize)>
+    line_range: Option<(usize, usize)>,
   ) -> FinalBlock {
     return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
   }
@@ -804,7 +847,7 @@ impl BlockDecoder for BarForcesDecoder {
 /// Decoder for ELAS1 engineering force blocks.
 pub(crate) struct Elas1ForcesDecoder {
   /// The inner data block.
-  data: RowBlock<f64, ElementRef, SingleForce, { Self::MATWIDTH }>
+  data: RowBlock<f64, ElementRef, SingleForce, { Self::MATWIDTH }>,
 }
 
 impl BlockDecoder for Elas1ForcesDecoder {
@@ -815,13 +858,15 @@ impl BlockDecoder for Elas1ForcesDecoder {
   const BLOCK_TYPE: BlockType = BlockType::Elas1Forces;
 
   fn new(_flavour: Flavour) -> Self {
-    return Self { data: RowBlock::new(SingleForce::canonical_cols()) };
+    return Self {
+      data: RowBlock::new(SingleForce::canonical_cols()),
+    };
   }
 
   fn unwrap(
     self,
     subcase: usize,
-    line_range: Option<(usize, usize)>
+    line_range: Option<(usize, usize)>,
   ) -> FinalBlock {
     return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
   }
@@ -835,14 +880,16 @@ impl BlockDecoder for Elas1ForcesDecoder {
         (Some(LineField::Integer(eid)), Some(LineField::Real(x))) => {
           let ri = ElementRef {
             eid: eid as usize,
-            etype: Some(ElementType::Elas1)
+            etype: Some(ElementType::Elas1),
           };
           self.data.insert_raw(ri, &[x]);
           found += 1;
-        },
-        _ => { break; }
+        }
+        _ => {
+          break;
+        }
       };
-    };
+    }
     if found > 0 {
       return LineResponse::Data;
     } else {
@@ -860,7 +907,7 @@ pub(crate) struct TriaStressesDecoder {
   /// The current element ID.
   eid: Option<usize>,
   /// The element type (gleaned from the header).
-  etype: Option<ElementType>
+  etype: Option<ElementType>,
 }
 
 impl BlockDecoder for TriaStressesDecoder {
@@ -876,7 +923,7 @@ impl BlockDecoder for TriaStressesDecoder {
       data: RowBlock::new(PlateStressField::canonical_cols()),
       eid: None,
       etype: None,
-    }
+    };
   }
 
   fn good_header(&mut self, header: &str) -> bool {
@@ -896,7 +943,7 @@ impl BlockDecoder for TriaStressesDecoder {
   fn unwrap(
     self,
     subcase: usize,
-    line_range: Option<(usize, usize)>
+    line_range: Option<(usize, usize)>,
   ) -> FinalBlock {
     return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
   }
@@ -917,14 +964,21 @@ impl BlockDecoder for TriaStressesDecoder {
       (None, _) => return LineResponse::BadFlavour,
     };
     let esp = if let Some(eid) = self.eid {
-      let element = ElementRef { eid, etype: self.etype };
+      let element = ElementRef {
+        eid,
+        etype: self.etype,
+      };
       let side = if nth_natural(line, 0).is_none() {
         ElementSide::Top
       } else {
         ElementSide::Bottom
       };
       let point = ElementPoint::Anywhere;
-      ElementSidedPoint { element, point, side }
+      ElementSidedPoint {
+        element,
+        point,
+        side,
+      }
     } else {
       warn!("no eid on data line on {}", line);
       return LineResponse::Abort;
@@ -950,7 +1004,7 @@ pub(crate) struct RodStressesDecoder {
   /// The flavour of type we're decoding in.
   flavour: Flavour,
   /// The data within.
-  data: RowBlock<f64, ElementRef, RodStressField, { Self::MATWIDTH }>
+  data: RowBlock<f64, ElementRef, RodStressField, { Self::MATWIDTH }>,
 }
 
 impl BlockDecoder for RodStressesDecoder {
@@ -963,14 +1017,14 @@ impl BlockDecoder for RodStressesDecoder {
   fn new(flavour: Flavour) -> Self {
     return Self {
       flavour,
-      data: RowBlock::new(RodStressField::canonical_cols())
+      data: RowBlock::new(RodStressField::canonical_cols()),
     };
   }
 
   fn unwrap(
     self,
     subcase: usize,
-    line_range: Option<(usize, usize)>
+    line_range: Option<(usize, usize)>,
   ) -> FinalBlock {
     return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
   }
@@ -980,10 +1034,12 @@ impl BlockDecoder for RodStressesDecoder {
     for (eid, floats) in int_pattern(line) {
       let arr: [f64; 4] = match floats.len() {
         2 => [floats[0], 0.0, floats[1], 0.0],
-        3 => if floats[0] == 0.0 {
-          [floats[0], 0.0, floats[1], floats[2]]
-        } else {
-          [floats[0], floats[1], floats[2], 0.0]
+        3 => {
+          if floats[0] == 0.0 {
+            [floats[0], 0.0, floats[1], floats[2]]
+          } else {
+            [floats[0], floats[1], floats[2], 0.0]
+          }
         }
         4 => [floats[0], floats[1], floats[2], floats[3]],
         0 => return LineResponse::Useless,
@@ -992,7 +1048,10 @@ impl BlockDecoder for RodStressesDecoder {
           return LineResponse::Abort;
         }
       };
-      let eref = ElementRef { eid, etype: Some(ElementType::Rod) };
+      let eref = ElementRef {
+        eid,
+        etype: Some(ElementType::Rod),
+      };
       self.data.insert_raw(eref, &arr);
       added += 1;
     }
@@ -1022,7 +1081,7 @@ pub(crate) struct BarStressesDecoder {
   /// The currently-known element ID and line data.
   curr: Option<(usize, BTreeMap<BarStressField, f64>)>,
   /// The data within.
-  data: RowBlock<f64, ElementRef, BarStressField, 15>
+  data: RowBlock<f64, ElementRef, BarStressField, 15>,
 }
 
 impl BlockDecoder for BarStressesDecoder {
@@ -1036,14 +1095,14 @@ impl BlockDecoder for BarStressesDecoder {
     return Self {
       flavour,
       curr: None,
-      data: RowBlock::new(BarStressField::canonical_cols())
+      data: RowBlock::new(BarStressField::canonical_cols()),
     };
   }
 
   fn unwrap(
     self,
     subcase: usize,
-    line_range: Option<(usize, usize)>
+    line_range: Option<(usize, usize)>,
   ) -> FinalBlock {
     return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
   }
@@ -1051,24 +1110,48 @@ impl BlockDecoder for BarStressesDecoder {
   fn consume(&mut self, line: &str) -> LineResponse {
     /// Order of columns in the first row.
     const ORDER_L1: &[BarStressField] = &[
-      BarStressField::AtRecoveryPoint { end: BarEnd::EndA, point: 1 },
-      BarStressField::AtRecoveryPoint { end: BarEnd::EndA, point: 2 },
-      BarStressField::AtRecoveryPoint { end: BarEnd::EndA, point: 3 },
-      BarStressField::AtRecoveryPoint { end: BarEnd::EndA, point: 4 },
+      BarStressField::AtRecoveryPoint {
+        end: BarEnd::EndA,
+        point: 1,
+      },
+      BarStressField::AtRecoveryPoint {
+        end: BarEnd::EndA,
+        point: 2,
+      },
+      BarStressField::AtRecoveryPoint {
+        end: BarEnd::EndA,
+        point: 3,
+      },
+      BarStressField::AtRecoveryPoint {
+        end: BarEnd::EndA,
+        point: 4,
+      },
       BarStressField::Axial,
       BarStressField::MaxAt(BarEnd::EndA),
       BarStressField::MinAt(BarEnd::EndA),
-      BarStressField::SafetyMargin(NormalStressDirection::Tension)
+      BarStressField::SafetyMargin(NormalStressDirection::Tension),
     ];
     /// Order of columns in the second row.
     const ORDER_L2: &[BarStressField] = &[
-      BarStressField::AtRecoveryPoint { end: BarEnd::EndB, point: 1 },
-      BarStressField::AtRecoveryPoint { end: BarEnd::EndB, point: 2 },
-      BarStressField::AtRecoveryPoint { end: BarEnd::EndB, point: 3 },
-      BarStressField::AtRecoveryPoint { end: BarEnd::EndB, point: 4 },
+      BarStressField::AtRecoveryPoint {
+        end: BarEnd::EndB,
+        point: 1,
+      },
+      BarStressField::AtRecoveryPoint {
+        end: BarEnd::EndB,
+        point: 2,
+      },
+      BarStressField::AtRecoveryPoint {
+        end: BarEnd::EndB,
+        point: 3,
+      },
+      BarStressField::AtRecoveryPoint {
+        end: BarEnd::EndB,
+        point: 4,
+      },
       BarStressField::MaxAt(BarEnd::EndB),
       BarStressField::MinAt(BarEnd::EndB),
-      BarStressField::SafetyMargin(NormalStressDirection::Compression)
+      BarStressField::SafetyMargin(NormalStressDirection::Compression),
     ];
     let i0 = nth_natural(line, 0);
     let i1 = nth_natural(line, 1);
@@ -1083,28 +1166,20 @@ impl BlockDecoder for BarStressesDecoder {
             return LineResponse::Abort;
           }
         },
-        None => return LineResponse::BadFlavour
+        None => return LineResponse::BadFlavour,
       };
       // get data
       let vals: [f64; 8] = if let Some(arr) = extract_reals(line) {
         arr
       } else if let Some(arr7) = extract_reals::<7>(line) {
         [
-          arr7[0],
-          arr7[1],
-          arr7[2],
-          arr7[3],
-          arr7[4],
-          arr7[5],
-          arr7[6],
-          0.0
+          arr7[0], arr7[1], arr7[2], arr7[3], arr7[4], arr7[5], arr7[6], 0.0,
         ]
       } else {
         return LineResponse::Useless;
       };
-      let cols: BTreeMap<BarStressField, f64> = ORDER_L1.iter().copied()
-        .zip(vals)
-        .collect();
+      let cols: BTreeMap<BarStressField, f64> =
+        ORDER_L1.iter().copied().zip(vals).collect();
       self.curr = Some((eid, cols));
       return LineResponse::Data;
     } else if let Some((eid, mut cols)) = self.curr.take() {
@@ -1112,23 +1187,19 @@ impl BlockDecoder for BarStressesDecoder {
       let vals: [f64; 7] = if let Some(arr) = extract_reals(line) {
         arr
       } else if let Some(arr6) = extract_reals::<6>(line) {
-        [
-          arr6[0],
-          arr6[1],
-          arr6[2],
-          arr6[3],
-          arr6[4],
-          arr6[5],
-          0.0
-        ]
+        [arr6[0], arr6[1], arr6[2], arr6[3], arr6[4], arr6[5], 0.0]
       } else {
         warn!("non-data line whilst having an eid");
         return LineResponse::Abort;
       };
-      ORDER_L2.iter().copied().zip(vals)
-        .for_each(|(k, v)| { cols.insert(k, v); });
+      ORDER_L2.iter().copied().zip(vals).for_each(|(k, v)| {
+        cols.insert(k, v);
+      });
       if cols.len() == Self::MATWIDTH {
-        let eref = ElementRef { eid, etype: Some(ElementType::Bar) };
+        let eref = ElementRef {
+          eid,
+          etype: Some(ElementType::Bar),
+        };
         self.data.insert_row(eref, &cols);
         return LineResponse::Data;
       } else {
@@ -1160,7 +1231,7 @@ converting_decoder!(
 /// Decoder for ELAS1 element stresses.
 pub(crate) struct Elas1StressesDecoder {
   /// The data within.
-  data: RowBlock<f64, ElementRef, SingleStress, { Self::MATWIDTH }>
+  data: RowBlock<f64, ElementRef, SingleStress, { Self::MATWIDTH }>,
 }
 
 impl BlockDecoder for Elas1StressesDecoder {
@@ -1172,14 +1243,14 @@ impl BlockDecoder for Elas1StressesDecoder {
 
   fn new(_flavour: Flavour) -> Self {
     return Self {
-      data: RowBlock::new(SingleStress::canonical_cols())
+      data: RowBlock::new(SingleStress::canonical_cols()),
     };
   }
 
   fn unwrap(
     self,
     subcase: usize,
-    line_range: Option<(usize, usize)>
+    line_range: Option<(usize, usize)>,
   ) -> FinalBlock {
     return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
   }
@@ -1195,7 +1266,7 @@ impl BlockDecoder for Elas1StressesDecoder {
           let vals = [floats[0]];
           self.data.insert_raw(eref, &vals);
           added += 1;
-        },
+        }
         _ => {
           warn!("more than one float in elas1 stress/strain line {}", line);
           return LineResponse::Abort;
@@ -1226,7 +1297,7 @@ pub(crate) struct BushForcesDecoder {
   /// The flavour of F06 file we're decoding displacements for.
   flavour: Flavour,
   /// The displacement data.
-  data: RowBlock<f64, ElementRef, Dof, { Self::MATWIDTH }>
+  data: RowBlock<f64, ElementRef, Dof, { Self::MATWIDTH }>,
 }
 
 impl BlockDecoder for BushForcesDecoder {
@@ -1239,14 +1310,14 @@ impl BlockDecoder for BushForcesDecoder {
   fn new(flavour: Flavour) -> Self {
     return Self {
       flavour,
-      data: RowBlock::new(dof_cols())
+      data: RowBlock::new(dof_cols()),
     };
   }
 
   fn unwrap(
     self,
     subcase: usize,
-    line_range: Option<(usize, usize)>
+    line_range: Option<(usize, usize)>,
   ) -> FinalBlock {
     return self.data.finalise(Self::BLOCK_TYPE, subcase, line_range);
   }
@@ -1258,7 +1329,10 @@ impl BlockDecoder for BushForcesDecoder {
       return LineResponse::Useless;
     };
     if let Some(eid) = last_natural(line) {
-      let eref = ElementRef { eid, etype: Some(ElementType::Bush) };
+      let eref = ElementRef {
+        eid,
+        etype: Some(ElementType::Bush),
+      };
       self.data.insert_raw(eref, &dofs);
       return LineResponse::Data;
     } else {

@@ -6,13 +6,13 @@ use std::fmt::Display;
 
 use f06::prelude::*;
 use log::error;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::layout::*;
 use crate::prelude::index_fns::*;
 
-pub mod templates;
 pub mod index_fns;
+pub mod templates;
 
 /// Functions used to convert NasIndexes into CSV fields.
 pub type IndexFn = fn(NasIndex) -> Result<CsvField, ConversionError>;
@@ -32,7 +32,7 @@ pub enum ConversionError {
     /// The type of the passed block.
     got: BlockType,
     /// The type of block the converter expected.
-    expected: BlockType
+    expected: BlockType,
   },
   /// A value was missing from the block data.
   MissingDatum {
@@ -44,7 +44,7 @@ pub enum ConversionError {
   /// A row index has the wrong type (contains the index).
   BadRowIndexType(NasIndex),
   /// A column index has the wrong type (contains the index).
-  BadColIndexType(NasIndex)
+  BadColIndexType(NasIndex),
 }
 
 impl Display for ConversionError {
@@ -52,16 +52,16 @@ impl Display for ConversionError {
     return match self {
       Self::WrongBlockType { got, expected } => {
         write!(f, "wrong block type (got {}, expected {})", got, expected)
-      },
+      }
       Self::MissingDatum { row, col } => {
         write!(f, "missing datum at ({}, {})", row, col)
-      },
+      }
       Self::BadRowIndexType(ni) => {
         write!(f, "row index {} is of wrong/unexpected type", ni)
-      },
+      }
       Self::BadColIndexType(ni) => {
         write!(f, "col index {} is of wrong/unexpected type", ni)
-      },
+      }
     };
   }
 }
@@ -101,12 +101,13 @@ pub enum ColumnGenerator {
   /// Output a constant string.
   ConstantString(&'static str),
   /// Runs another generator, with a default for errors.
-  WithDefault(&'static ColumnGenerator, &'static CsvField)
+  WithDefault(&'static ColumnGenerator, &'static CsvField),
 }
 
 impl ColumnGenerator {
   /// Calls the generator to produce a CSV field, or an error.
-  pub fn convert(&self,
+  pub fn convert(
+    &self,
     block: &FinalBlock,
     flavour: Flavour,
     row: NasIndex,
@@ -131,11 +132,13 @@ impl ColumnGenerator {
       Self::SolTypeName => match flavour.soltype {
         Some(sol) => sol.to_string(),
         None => "?".to_owned(),
-      }.into(),
+      }
+      .into(),
       Self::SolverName => match flavour.solver {
         Some(solver) => solver.to_string(),
         None => "Unknown".to_string(),
-      }.into(),
+      }
+      .into(),
       Self::Subcase => block.subcase.into(),
       Self::ConstantNumber(x) => (*x).into(),
       Self::ConstantString(s) => s.to_string().into(),
@@ -157,7 +160,7 @@ pub struct BlockConverter {
   /// more than one CSV row.
   pub generators: &'static [RowGenerator],
   /// The headers for the row this produces.
-  pub headers: &'static [RowHeader]
+  pub headers: &'static [RowHeader],
 }
 
 impl BlockConverter {
@@ -167,20 +170,18 @@ impl BlockConverter {
   pub fn convert_block<'a>(
     &'a self,
     block: &'a FinalBlock,
-    flavour: &'a Flavour
+    flavour: &'a Flavour,
   ) -> Result<impl Iterator<Item = CsvRecord> + 'a, ConversionError> {
     if block.block_type != self.input_block_type {
-      return Err(
-        ConversionError::WrongBlockType {
-          got: block.block_type,
-          expected: self.input_block_type
-        }
-      );
+      return Err(ConversionError::WrongBlockType {
+        got: block.block_type,
+        expected: self.input_block_type,
+      });
     }
     return Ok(block.row_indexes.keys().flat_map(|row| {
       self.generators.iter().enumerate().map(|(irow, gens)| {
         let headers = &self.headers[irow];
-        let mut fields: [CsvField; NAS_CSV_COLS-1] = [
+        let mut fields: [CsvField; NAS_CSV_COLS - 1] = [
           CsvField::Blank,
           CsvField::Blank,
           CsvField::Blank,
@@ -190,7 +191,7 @@ impl BlockConverter {
           CsvField::Blank,
           CsvField::Blank,
           CsvField::Blank,
-          CsvField::Blank
+          CsvField::Blank,
         ];
         let mut gid: Option<usize> = None;
         let mut eid: Option<usize> = None;
@@ -205,8 +206,8 @@ impl BlockConverter {
                 "the {} block (subcase {}). Found error: {}. Attempted ",
                 "conversion: {:?}."
               ),
-              i+2,
-              irow+1,
+              i + 2,
+              irow + 1,
               *row,
               block.block_type.short_name(),
               block.subcase,
@@ -248,17 +249,15 @@ impl BlockConverter {
           etype,
           subcase,
           fields,
-          headers
-        }
+          headers,
+        };
       })
     }));
   }
 }
 
 /// Generates the 0-block for a file.
-pub fn zeroth_block(
-  file: &F06File
-) -> impl Iterator<Item = CsvRecord> + '_ {
+pub fn zeroth_block(file: &F06File) -> impl Iterator<Item = CsvRecord> + '_ {
   /// Name for unknown values
   const U: &str = "Unknown";
   /// Shorthand for ToString::to_string.
@@ -275,7 +274,7 @@ pub fn zeroth_block(
     ("#Fatals", Some(file.fatal_errors.len().to_string())),
     ("f06csv version", option_env!("CARGO_PKG_VERSION").map(ts)),
     ("f06csv authors", option_env!("CARGO_PKG_AUTHORS").map(ts)),
-    ("Part of", Some("the MYSTRAN project".to_owned()))
+    ("Part of", Some("the MYSTRAN project".to_owned())),
   ];
   // make it into fields
   return vvk.into_iter().map(|(k, v)| CsvRecord {
@@ -295,36 +294,39 @@ pub fn zeroth_block(
       CsvField::Blank,
       CsvField::Blank,
       CsvField::Blank,
-      CsvField::Blank
+      CsvField::Blank,
     ],
     headers: &[
-      "Key", "Value", HBLANK, HBLANK, HBLANK,
-      HBLANK, HBLANK, HBLANK, HBLANK, HBLANK
-    ]
-  })
+      "Key", "Value", HBLANK, HBLANK, HBLANK, HBLANK, HBLANK, HBLANK, HBLANK,
+      HBLANK,
+    ],
+  });
 }
 
 /// Generates all CSV records for a file.
 pub fn to_records<'s>(
   file: &'s F06File,
-  converters: &'s BTreeMap<BlockType, BlockConverter>
+  converters: &'s BTreeMap<BlockType, BlockConverter>,
 ) -> impl Iterator<Item = CsvRecord> + 's {
   // zeroth block
   let zeroth = zeroth_block(file);
   // sort the block refs by the output csv block id
   let mut block_refs = file.blocks.keys().collect::<Vec<_>>();
-  block_refs.sort_by_key(
-    |br| converters.get(&br.block_type)
+  block_refs.sort_by_key(|br| {
+    converters
+      .get(&br.block_type)
       .map(|c| usize::from(c.output_block_id))
       .unwrap_or(0)
-  );
+  });
   // get the blocks in the correct order
-  let blocks = block_refs.into_iter()
+  let blocks = block_refs
+    .into_iter()
     .flat_map(|br| file.blocks.get(br).unwrap())
-    .filter_map(
-      |b| converters.get(&b.block_type).map(
-        |c| c.convert_block(b, &file.flavour)
-      )
-    ).flatten();
+    .filter_map(|b| {
+      converters
+        .get(&b.block_type)
+        .map(|c| c.convert_block(b, &file.flavour))
+    })
+    .flatten();
   return zeroth.chain(blocks.flatten());
 }

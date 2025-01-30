@@ -11,8 +11,8 @@ use std::path::PathBuf;
 
 use clap::Parser;
 use csv::Terminator;
-use log::*;
 use f06::prelude::*;
+use log::*;
 use nas_csv::from_f06::templates::all_converters;
 use nas_csv::prelude::*;
 
@@ -130,16 +130,21 @@ fn main() -> Result<(), Box<dyn Error>> {
   f06.sort_all_blocks();
   info!("Done parsing.");
   // init the csv writer
-  let output: BufWriter<Box<dyn Write>> = BufWriter::new(
-    if let Some(ref op) = args.output {
+  let output: BufWriter<Box<dyn Write>> =
+    BufWriter::new(if let Some(ref op) = args.output {
       Box::new(File::create(op)?)
     } else {
       Box::new(io::stdout())
-    }
-  );
-  let delim_byte: u8 = args.delim.try_into()
+    });
+  let delim_byte: u8 = args
+    .delim
+    .try_into()
     .expect("Delimiter must not be a special character1");
-  let term = if args.crlf { Terminator::CRLF } else { Terminator::default() };
+  let term = if args.crlf {
+    Terminator::CRLF
+  } else {
+    Terminator::default()
+  };
   let mut wtr = csv::WriterBuilder::new()
     .delimiter(delim_byte)
     .terminator(term)
@@ -174,7 +179,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         } else {
           return None;
         }
-      }).max()
+      })
+      .max()
   } else {
     None
   };
@@ -185,7 +191,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         return s.to_owned();
       }
       let p1 = w - s.len();
-      let ps = p1/2;
+      let ps = p1 / 2;
       let pb = p1 - ps;
       let (lpad, rpad) = match args.fmtr.align {
         Alignment::None => return s.to_owned(),
@@ -193,12 +199,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         Alignment::Left => (0, p1),
         Alignment::Center => (pb, ps),
       };
-      return format!(
-        "{}{}{}",
-        " ".repeat(lpad),
-        s,
-        " ".repeat(rpad),
-      );
+      return format!("{}{}{}", " ".repeat(lpad), s, " ".repeat(rpad),);
     } else {
       return s.to_owned();
     }
@@ -219,7 +220,8 @@ fn main() -> Result<(), Box<dyn Error>> {
           wtr.write_record(rec.header_as_iter().map(pad))?;
         }
       }
-      wtr.write_record(rec.to_fields().map(|f| pad(&args.fmtr.to_string(f))))?;
+      wtr
+        .write_record(rec.to_fields().map(|f| pad(&args.fmtr.to_string(f))))?;
     }
   }
   info!("All done.");

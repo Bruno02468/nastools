@@ -1,10 +1,10 @@
 //! This module implements utility functions without much need for defining
 //! context or not enough of it to warrant them having their own modules.
 
+use serde::{Deserialize, Serialize};
 use std::cell::Cell;
 use std::collections::BTreeMap;
 use std::fmt::Write;
-use serde::{Serialize, Deserialize};
 
 use crate::elements::ElementType;
 
@@ -40,14 +40,8 @@ pub(crate) const SUS_WORDS: &[&str] = &[
 
 /// Words that make us ignore a block because it's definitely not gonna be
 /// supported.
-pub(crate) const BAD_WORDS: &[&str] = &[
-  "NASTRAN",
-  "CONTROL",
-  "BULK",
-  "ECHO",
-  "NODAL",
-  "GENERATOR"
-];
+pub(crate) const BAD_WORDS: &[&str] =
+  &["NASTRAN", "CONTROL", "BULK", "ECHO", "NODAL", "GENERATOR"];
 
 /// Decodes a Nastran-format floating point number. Hyper-lenient and doesn't
 /// require pulling a whole regex library.
@@ -56,11 +50,18 @@ pub(crate) fn decode_nasfloat(s: &str) -> Option<f64> {
   let mut ixs: [usize; 4] = [0, 0, 0, 0];
   // 0-1 = looking for mantissa start/end, 2-3 = looking for exponent start/end
   let step: Cell<usize> = 0.into();
-  let mut mark = |i| { ixs[step.get()] = i; step.replace(step.get() + 1); };
+  let mut mark = |i| {
+    ixs[step.get()] = i;
+    step.replace(step.get() + 1);
+  };
   let mut seen_chars: usize = 0;
   for (i, c) in s.chars().enumerate() {
     seen_chars += 1;
-    match (step.get() % 2, c.is_numeric() || c == '.', c == '+' || c == '-') {
+    match (
+      step.get() % 2,
+      c.is_numeric() || c == '.',
+      c == '+' || c == '-',
+    ) {
       // looking for number start. nothing yet. keep looking.
       (0, false, false) => continue,
       // looking for number start, found something. mark it and look for end.
@@ -70,11 +71,16 @@ pub(crate) fn decode_nasfloat(s: &str) -> Option<f64> {
       // looking for number end, saw not numerical/dot/sign. mark end.
       (1, false, false) => mark(i),
       // looking for number end, saw sign. mark end, mark start.
-      (1, _, true) => { mark(i); mark(i); },
+      (1, _, true) => {
+        mark(i);
+        mark(i);
+      }
       // should be unreachable
-      _ => panic!("unreachable branch 1 in decoding nasfloat \"{}\"", s)
+      _ => panic!("unreachable branch 1 in decoding nasfloat \"{}\"", s),
     };
-    if step.get() > 3 { break; }
+    if step.get() > 3 {
+      break;
+    }
   }
   // handle empty string
   if seen_chars == 0 {
@@ -94,7 +100,7 @@ pub(crate) fn decode_nasfloat(s: &str) -> Option<f64> {
     // found mantissa and exponent
     4 => return Some(mantissa()? * 10.0_f64.powi(exponent()?)),
     // should be unreachable
-    _ => panic!("unreachable branch 2 in returning nasfloat \"{}\"", s)
+    _ => panic!("unreachable branch 2 in returning nasfloat \"{}\"", s),
   };
 }
 
@@ -110,7 +116,7 @@ pub(crate) enum LineField<'s> {
   /// Field is an element type.
   ElementType(ElementType),
   /// Couldn't parse it.
-  NoIdea(&'s str)
+  NoIdea(&'s str),
 }
 
 impl<'s> LineField<'s> {
@@ -119,7 +125,9 @@ impl<'s> LineField<'s> {
     if let Ok(i) = s.parse::<isize>() {
       return Self::Integer(i);
     }
-    if let Ok(x) = s.parse::<f64>()/*.or(decode_nasfloat(s))*/ {
+    if let Ok(x) = s.parse::<f64>()
+    /*.or(decode_nasfloat(s))*/
+    {
       return Self::Real(x);
     }
     if s.len() == 1 {
@@ -135,10 +143,9 @@ impl<'s> LineField<'s> {
 }
 
 /// Breaks down a line into an iterator of fields.
-pub(crate) fn line_breakdown(
-  s: &str
-) -> impl Iterator<Item = LineField<'_>> {
-  return s.split(' ')
+pub(crate) fn line_breakdown(s: &str) -> impl Iterator<Item = LineField<'_>> {
+  return s
+    .split(' ')
     .filter(|subs| !subs.is_empty())
     .map(LineField::parse);
 }
@@ -152,11 +159,11 @@ pub(crate) fn extract_reals<const N: usize>(line: &str) -> Option<[f64; N]> {
       LineField::Real(x) if found < N => {
         arr[found] = x;
         found += 1;
-      },
+      }
       LineField::Real(_) if found == N => {
         return None;
-      },
-      _ => continue
+      }
+      _ => continue,
     }
   }
   if found == N {
@@ -175,8 +182,8 @@ pub(crate) fn lax_reals<const N: usize>(line: &str) -> Option<[f64; N]> {
       LineField::Real(x) if found < N => {
         arr[found] = x;
         found += 1;
-      },
-      _ => continue
+      }
+      _ => continue,
     }
   }
   if found == N {
@@ -191,11 +198,12 @@ pub(crate) fn nth_integer(line: &str, n: usize) -> Option<isize> {
   return line_breakdown(line)
     .filter_map(|field| {
       if let LineField::Integer(x) = field {
-        return Some(x)
+        return Some(x);
       } else {
         None
       }
-    }).nth(n);
+    })
+    .nth(n);
 }
 
 /// Returns the n-th integer in a line and casts it to a usize.
@@ -203,11 +211,12 @@ pub(crate) fn nth_natural(line: &str, n: usize) -> Option<usize> {
   return line_breakdown(line)
     .filter_map(|field| {
       if let LineField::Integer(x) = field {
-        return Some(x as usize)
+        return Some(x as usize);
       } else {
         None
       }
-    }).nth(n);
+    })
+    .nth(n);
 }
 
 /// Gets the N-th string in a line.
@@ -215,11 +224,12 @@ pub(crate) fn nth_string(line: &str, n: usize) -> Option<&str> {
   return line_breakdown(line)
     .filter_map(|field| {
       if let LineField::NoIdea(s) = field {
-        return Some(s)
+        return Some(s);
       } else {
         None
       }
-    }).nth(n);
+    })
+    .nth(n);
 }
 
 /// Gets the N-th element type in a line.
@@ -227,11 +237,12 @@ pub(crate) fn nth_etype(line: &str, n: usize) -> Option<ElementType> {
   return line_breakdown(line)
     .filter_map(|field| {
       if let LineField::ElementType(etype) = field {
-        return Some(etype)
+        return Some(etype);
       } else {
         None
       }
-    }).nth(n)
+    })
+    .nth(n);
 }
 
 /// Extracts all forms given by integers followed by some floats in a line.
@@ -239,10 +250,8 @@ pub(crate) fn nth_etype(line: &str, n: usize) -> Option<ElementType> {
 pub(crate) fn int_pattern(line: &str) -> BTreeMap<usize, Vec<f64>> {
   let mut res: BTreeMap<usize, Vec<f64>> = BTreeMap::new();
   let mut current_nat: Option<(usize, Vec<f64>)> = None;
-  let flush = |
-    r: &mut BTreeMap<usize, Vec<f64>>,
-    cur: &mut Option<(usize, Vec<f64>)>
-  | {
+  let flush = |r: &mut BTreeMap<usize, Vec<f64>>,
+               cur: &mut Option<(usize, Vec<f64>)>| {
     if let Some((i, v)) = cur.take() {
       r.insert(i, v);
     };
@@ -252,13 +261,13 @@ pub(crate) fn int_pattern(line: &str) -> BTreeMap<usize, Vec<f64>> {
       LineField::Integer(i) => {
         flush(&mut res, &mut current_nat);
         current_nat = Some((i as usize, Vec::new()));
-      },
+      }
       LineField::Real(x) => {
         if let Some((_, ref mut v)) = current_nat {
           v.push(x);
         }
-      },
-      _ => flush(&mut res, &mut current_nat)
+      }
+      _ => flush(&mut res, &mut current_nat),
     };
   }
   flush(&mut res, &mut current_nat);
@@ -268,8 +277,14 @@ pub(crate) fn int_pattern(line: &str) -> BTreeMap<usize, Vec<f64>> {
 /// Returns the last integer in a line.
 pub(crate) fn last_int(line: &str) -> Option<isize> {
   return line_breakdown(line)
-    .filter_map(|f| if let LineField::Integer(i) = f { Some(i) } else { None })
-    .last()
+    .filter_map(|f| {
+      if let LineField::Integer(i) = f {
+        Some(i)
+      } else {
+        None
+      }
+    })
+    .last();
 }
 
 /// Returns the last natural in a line.
@@ -356,7 +371,10 @@ pub(crate) fn check_header(line: &str) -> Option<String> {
     return Some(unspaced);
   }
   // check for element type names
-  if ElementType::all().iter().any(|et| unspaced.contains(et.name())) {
+  if ElementType::all()
+    .iter()
+    .any(|et| unspaced.contains(et.name()))
+  {
     return Some(unspaced);
   }
   return None;
@@ -372,7 +390,7 @@ pub struct PotentialHeader {
   /// Number of lines this takes up.
   pub span: usize,
   /// The unspaced text.
-  pub text: String
+  pub text: String,
 }
 
 impl AsRef<str> for PotentialHeader {
@@ -404,7 +422,7 @@ impl Ord for PotentialHeader {
 impl PotentialHeader {
   /// Returns the range of lines.
   pub fn lines(&self) -> impl Iterator<Item = usize> {
-    return self.start..(self.start+self.span);
+    return self.start..(self.start + self.span);
   }
 
   /// Merges this potential header with another, if possible.
@@ -435,7 +453,7 @@ pub fn fmt_f64<W: Write>(
   precision: usize,
   exp_pad: usize,
   capital_e: bool,
-  omit_plus: bool
+  omit_plus: bool,
 ) -> std::fmt::Result {
   let mut num = if omit_plus {
     format!(
