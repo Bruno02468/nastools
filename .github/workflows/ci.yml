@@ -1,0 +1,45 @@
+on:
+  push:
+    paths:
+      - "**.rs"
+      - "Cargo.toml"
+      - "rustfmt.toml"
+      - "Cargo.lock"
+  pull_request:
+    paths:
+      - "**.rs"
+      - "Cargo.toml"
+      - "rustfmt.toml"
+      - "Cargo.lock"
+
+jobs:
+  clippy:
+    name: Clippy Linting
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - name: check linting
+        run: cargo clippy --locked
+  fmt:
+    name: Check formatting
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - name: check formatting
+        run: cargo fmt --check
+  test:
+    name: Run Tests
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: run tests
+        run: cargo test --locked
