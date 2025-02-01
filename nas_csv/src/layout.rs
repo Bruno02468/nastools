@@ -39,7 +39,7 @@ pub enum CsvBlockId {
   SpcForces,
   /// The 8-block: eigenvectors.
   EigenVectors,
-  /// The 9-block: real eigenvalues
+  /// The 9-block: real eigenvalues.
   EigenValues,
 }
 
@@ -51,7 +51,13 @@ impl ValueEnum for CsvBlockId {
 
   fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
     let mut pv: PossibleValue = self.shorthand().into();
+
     pv = pv.aliases(self.aliases());
+
+    let help = self.help_string();
+    let pad_len = CsvBlockId::longest_help_len();
+    pv = pv.help(format!("{help:pad_len$} aliases: {:?}", self.aliases()));
+
     return Some(pv);
   }
 }
@@ -71,6 +77,36 @@ impl CsvBlockId {
       Self::EigenVectors,
       Self::EigenValues,
     ];
+  }
+
+  /// Returns the maximum length in bytes of all help strings.
+  pub(crate) const fn longest_help_len() -> usize {
+    let mut max = 0;
+    let mut i = 0;
+    while i < Self::all().len() {
+      let help_len = Self::all()[i].help_string().len();
+      if help_len > max {
+        max = help_len
+      }
+      i += 1;
+    }
+    max
+  }
+
+  /// Returns a short help string for the specified case
+  pub const fn help_string(&self) -> &'static str {
+    match self {
+      CsvBlockId::Metadata => "general solution info; subcase IDs, solution types, etc.",
+      CsvBlockId::Displacements => "displacements.",
+      CsvBlockId::Stresses => "stresses.",
+      CsvBlockId::Strains => "strains.",
+      CsvBlockId::EngForces => "element engineering forces.",
+      CsvBlockId::GridPointForces => "grid point force balance.",
+      CsvBlockId::AppliedForces => "applied forces.",
+      CsvBlockId::SpcForces => "forces of single-point constraint.",
+      CsvBlockId::EigenVectors => "eigenvectors.",
+      CsvBlockId::EigenValues => "real eigenvalues.",
+    }
   }
 
   /// Returns a constant name for this block ID.
@@ -123,8 +159,8 @@ impl CsvBlockId {
       ],
       Self::AppliedForces => &["6", "applied"],
       Self::SpcForces => &["7", "spcf", "spcforces"],
-      Self::EigenVectors => &["8", "eigenvec", "eigenvectors"],
-      Self::EigenValues => &["9", "eigenval", "eigenvalues"],
+      Self::EigenVectors => &["8", "eigenvectors"],
+      Self::EigenValues => &["9", "eigenvalues"],
     };
   }
 }
