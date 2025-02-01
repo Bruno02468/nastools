@@ -96,7 +96,9 @@ impl CsvBlockId {
   /// Returns a short help string for the specified case
   pub const fn help_string(&self) -> &'static str {
     match self {
-      CsvBlockId::Metadata => "general solution info; subcase IDs, solution types, etc.",
+      CsvBlockId::Metadata => {
+        "general solution info; subcase IDs, solution types, etc."
+      }
       CsvBlockId::Displacements => "displacements.",
       CsvBlockId::Stresses => "stresses.",
       CsvBlockId::Strains => "strains.",
