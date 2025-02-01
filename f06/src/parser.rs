@@ -136,7 +136,32 @@ impl OnePassParser {
       if let Some(li) = dec.last_index() {
         self.last_indexes.insert(dec.block_type(), li);
       }
-      let fb = dec.finalise(self.subcase, line_range);
+
+      // if eigen solution and on SC NASTRAN
+      let subcase = if self.file.flavour.solver == Some(Solver::Simcenter)
+        && self.file.blocks.iter().any(|b| {
+          b.0.block_type == BlockType::EigenVector
+            || b.0.block_type == BlockType::RealEigenValues
+        }) {
+        // not an eigen-specific block, so order is their subcase
+        if dec.block_type() != BlockType::EigenVector
+          || dec.block_type() != BlockType::RealEigenValues
+        {
+          let type_count = self
+            .file
+            .blocks
+            .iter()
+            .filter(|b| b.0.block_type == dec.block_type())
+            .count();
+          type_count + 1
+        } else {
+          self.subcase
+        }
+      } else {
+        self.subcase
+      };
+
+      let fb = dec.finalise(subcase, line_range);
       if !fb.row_indexes.is_empty() {
         self.file.insert_block(fb);
       }
@@ -246,7 +271,11 @@ impl OnePassParser {
           } else {
             // subcase is on this line for this specific scenario
             if bt == BlockType::EigenVector
-              && self.file.flavour.solver.is_some_and(|s| s == Solver::Simcenter)
+              && self
+                .file
+                .flavour
+                .solver
+                .is_some_and(|s| s == Solver::Simcenter)
             {
               // TODO: find a way to propagate both this and PotentialHeader back to the caller
               self.subcase = last_natural(&full_name).unwrap_or(self.subcase);

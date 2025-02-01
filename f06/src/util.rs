@@ -309,8 +309,12 @@ pub(crate) fn unspace(line: &str) -> Option<String> {
   let mut stop_at: usize = 0;
 
   // special case for SC NASTRAN eigen solutions
-  let line = if line.split_ascii_whitespace().next().is_some_and(|w| w == "CYCLES") {
-    &line[(line.find("R")?-1)..]
+  let line = if line
+    .split_ascii_whitespace()
+    .next()
+    .is_some_and(|w| w == "CYCLES")
+  {
+    &line[(line.find("R")? - 1)..]
   } else {
     line
   };

@@ -1448,11 +1448,7 @@ fn eigenvector_mystran() {
   assert_eq!(dec.data.data.as_ref().unwrap().column_iter().count(), 6);
   assert_eq!(dec.data.data.as_ref().unwrap().row_iter().count(), 5);
 
-  let grid_ids: Vec<_> = dec.data
-    .row_indexes
-    .keys()
-    .map(|k| k.gid)
-    .collect();
+  let grid_ids: Vec<_> = dec.data.row_indexes.keys().map(|k| k.gid).collect();
   assert_eq!(grid_ids, [1, 2, 3, 4, 5]);
 }
 
@@ -1625,7 +1621,13 @@ fn real_eigenvalues_scnastran() {
   for line in MYSTRAN_BLOCK.lines() {
     BlockDecoder::consume(&mut dec, line);
   }
-  assert!(dec.data.row_indexes().keys().copied().enumerate().all(|(i, idx)| idx.0 as usize == i + 1));
+  assert!(dec
+    .data
+    .row_indexes()
+    .keys()
+    .copied()
+    .enumerate()
+    .all(|(i, idx)| idx.0 as usize == i + 1));
   assert_eq!(dec.data.data.as_ref().unwrap().row_iter().count(), 21);
   assert_eq!(dec.data.data.as_ref().unwrap().column_iter().count(), 5);
 }
