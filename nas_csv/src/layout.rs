@@ -171,6 +171,8 @@ impl TryFrom<usize> for CsvBlockId {
       5 => CsvBlockId::GridPointForces,
       6 => CsvBlockId::AppliedForces,
       7 => CsvBlockId::SpcForces,
+      8 => CsvBlockId::EigenVectors,
+      9 => CsvBlockId::EigenValues,
       _ => return Err(()),
     });
   }
