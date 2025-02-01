@@ -149,6 +149,7 @@ impl NasIndex {
         ElementPoint::Midpoint(g) => g,
         _ => return None,
       },
+      NasIndex::GridPointCsys(g) => g.gid,
       _ => return None,
     });
   }
@@ -187,6 +188,7 @@ gen_nasindex!(
   PlateForceField,
   PlateStressField,
   PlateStrainField,
+  GridPointCsys,
   RealEigenValueField,
   EigenSolutionMode,
 );
@@ -870,6 +872,45 @@ gen_with_inner!(
   BarStrainField,
   BarStressField
 );
+
+/// A combination of a grid point reference and a coordinate system
+#[derive(
+  Copy,
+  Clone,
+  Debug,
+  Serialize,
+  Deserialize,
+  PartialOrd,
+  Ord,
+  PartialEq,
+  Eq,
+  derive_more::From,
+)]
+pub struct GridPointCsys {
+  /// A reference to the grid point.
+  pub gid: GridPointRef,
+  /// The coordinate system.
+  pub cid: CsysRef,
+}
+
+impl IndexType for GridPointCsys {
+  const INDEX_NAME: &'static str = "GRID POINT COORD SYS";
+}
+
+impl Display for GridPointCsys {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "{} ON {}", self.gid, self.cid)
+  }
+}
+
+impl From<(usize, usize)> for GridPointCsys {
+  fn from((gid, cid): (usize, usize)) -> Self {
+    Self {
+      gid: gid.into(),
+      cid: cid.into(),
+    }
+  }
+}
 
 /// Vibration mode of eigen solution
 #[derive(

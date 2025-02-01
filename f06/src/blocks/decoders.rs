@@ -1379,7 +1379,7 @@ pub struct EigenVectorDecoder {
 
 impl BlockDecoder for EigenVectorDecoder {
   type MatScalar = f64;
-  type RowIndex = GridPointRef;
+  type RowIndex = GridPointCsys;
   type ColumnIndex = Dof;
   const MATWIDTH: usize = SIXDOF;
   const BLOCK_TYPE: BlockType = BlockType::EigenVector;
@@ -1409,10 +1409,13 @@ impl BlockDecoder for EigenVectorDecoder {
     let Some(dof) = extract_reals::<SIXDOF>(line) else {
       return LineResponse::Useless;
     };
-    let Some(gid) = nth_integer(line, 0) else {
+    let Some(gid) = nth_natural(line, 0) else {
       return LineResponse::Unsupported;
     };
-    self.data.insert_raw((gid as usize).into(), &dof);
+    let Some(cid) = nth_natural(line, 1) else {
+      return LineResponse::Unsupported;
+    };
+    self.data.insert_raw((gid, cid).into(), &dof);
     LineResponse::Data
   }
 }
@@ -1455,7 +1458,11 @@ fn eigenvector_decoder() {
     .keys()
     .map(|k| k.grid_point_id().unwrap().gid)
     .collect();
-  assert_eq!(grid_ids, [1, 2, 3, 4, 5])
+  assert_eq!(grid_ids, [1, 2, 3, 4, 5]);
+  assert!(finalized
+    .row_indexes
+    .keys()
+    .all(|k| matches!(k, NasIndex::GridPointCsys(g) if g.cid.cid == 0)));
 }
 
 /// Decoder for real eigenvalues.
@@ -1505,7 +1512,7 @@ impl BlockDecoder for RealEigenValuesDecoder {
     let Some(dof) = extract_reals::<5>(line) else {
       return LineResponse::Useless;
     };
-    let Some(mode) = nth_integer(line, 0) else {
+    let Some(mode) = nth_natural(line, 0) else {
       return LineResponse::Unsupported;
     };
     self.data.insert_raw(EigenSolutionMode(mode as i32), &dof);

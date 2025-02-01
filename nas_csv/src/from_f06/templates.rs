@@ -838,13 +838,17 @@ pub const CT_EIGENVECTOR: BlockConverter = BlockConverter {
   output_block_id: CsvBlockId::EigenVectors,
   generators: &[cols!(
     Dof,
-    [ColumnGenerator::GridId, ColumnGenerator::Subcase,],
+    [
+      ColumnGenerator::GridId,
+      ColumnGenerator::RowIndexFn(&(ixfn_csys as IndexFn)),
+      ColumnGenerator::Subcase,
+    ],
     [DOF_TX, DOF_TY, DOF_TZ, DOF_RX, DOF_RY, DOF_RZ,],
     [],
-    [BLANK, BLANK,],
+    [BLANK,],
   )],
   headers: &[[
-    "GID", "Mode", "Fx", "Fy", "Fz", "Mx", "My", "Mz", HBLANK, HBLANK,
+    "GID", "CoordSys", "Mode", "Fx", "Fy", "Fz", "Mx", "My", "Mz", HBLANK,
   ]],
 };
 
