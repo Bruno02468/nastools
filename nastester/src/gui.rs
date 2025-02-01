@@ -636,7 +636,7 @@ impl Gui {
         #[cfg(debug_assertions)]
         {
           let guidebug = if ctx.debug_on_hover() { "ON" } else { "OFF" };
-          if ui.button(&format!("GUI debug {}", guidebug)).clicked() {
+          if ui.button(format!("GUI debug {}", guidebug)).clicked() {
             ctx.set_debug_on_hover(!ctx.debug_on_hover());
           }
         }
@@ -921,7 +921,7 @@ impl Gui {
                 let est_height = max_exn_lens as f32 * item_height;
                 body.row(est_height, |mut row| {
                   row.col(|ui| {
-                    ui.label(&i.to_string());
+                    ui.label(i.to_string());
                   });
                   row.col(|ui| {
                     self.combo_specifier(ui, BlockType::all(), |s| {

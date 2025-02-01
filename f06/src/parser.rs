@@ -322,7 +322,7 @@ impl OnePassParser {
         break;
       }
       buf.pop();
-      if buf.ends_with(&[b'\r']) {
+      if buf.ends_with(b"\r") {
         buf.pop();
       }
       let line = String::from_utf8_lossy(&buf);
