@@ -1,0 +1,397 @@
+   830013835
+
+ MYSTRAN Version 15.2.0   Apr 07 2024 MYSTRAN developed by Dr Bill Case
+*** Please report any problems to mystransolver@gmail.com ***                                                                                                                                                                                                   
+
+ >> MYSTRAN BEGIN  :  8/30/2024 at  1:38:35.197 The input file is EB-ALL-ELEM-TEST-GIV.DAT                                                                                                                                                                                                                                        
+
+
+ >> LINK  0 BEGIN
+
+
+ID ALL-ELEMS,STATICS                                                                                                                                                                                                                                            
+SOL 3                                                                                                                                                                                                                                                           
+CEND                                                                                                                                                                                                                                                            
+TITLE  = TEST OF ALL ELEMENTS                                                                                                                                                                                                                                   
+SUBTI  = TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                  
+LABEL  = EIGENVALUES                                                                                                                                                                                                                                            
+SPC    = 998                                                                                                                                                                                                                                                    
+METHOD = 2                                                                                                                                                                                                                                                      
+DISP          = ALL                                                                                                                                                                                                                                             
+ECHO          = UNSORT                                                                                                                                                                                                                                          
+MEFFMASS      = ALL                                                                                                                                                                                                                                             
+MPCFORCE      = ALL                                                                                                                                                                                                                                             
+OLOAD         = ALL                                                                                                                                                                                                                                             
+BEGIN BULK                                                                                                                                                                                                                                                      
+ECHO: loadb EIGRL   1                       4                       -1.     MASS                                                                                                                                                                                            
+ECHO: loadb EIGR    2       GIV                             4                       +E1                                                                                                                                                                                     
+ECHO:  nextc +E1     POINT   1023    3                                                                                                                                                                                                                                       
+ECHO: loadb EIGR    3       INV                     1       1                       +E1                                                                                                                                                                                     
+ECHO: loadb +E1     POINT   1023    3                                                                                                                                                                                                                                       
+ECHO: loadb EIGR    4       MGIV                    1       4                       +E1                                                                                                                                                                                     
+ECHO: loadb +E1     POINT   1023    3                                                                                                                                                                                                                                       
+ECHO: loadb GRID    1011              0.      0.      0.                                                                                                                                                                                                                    
+ECHO: loadb GRID    1012             50.      0.      0.                                                                                                                                                                                                                    
+ECHO: loadb GRID    1013            100.      0.      0.                            1                                                                                                                                                                                       
+ECHO: loadb GRID    1021              0.     50.      0.                                                                                                                                                                                                                    
+ECHO: loadb GRID    1022             50.     50.      0.                                                                                                                                                                                                                    
+ECHO: loadb GRID    1023            100.     50.      0.                            1                                                                                                                                                                                       
+ECHO: loadb GRID    1031              0.    100.      0.                                                                                                                                                                                                                    
+ECHO: loadb GRID    1032             50.    100.      0.                                                                                                                                                                                                                    
+ECHO: loadb GRID    1033            100.    100.      0.                            1                                                                                                                                                                                       
+ECHO: loadb GRID    1041              0.      0.    -50.                                                                                                                                                                                                                    
+ECHO: loadb GRID    1042             50.      0.    -50.                                                                                                                                                                                                                    
+ECHO: loadb GRID    1043            100.      0.    -50.                            1                                                                                                                                                                                       
+ECHO: loadb GRID    1051             50.     50.     20.            123456                                                                                                                                                                                                  
+ECHO: loadb CQUAD4  11      91      1011    1012    1022    1021                                                                                                                                                                                                            
+ECHO: loadb CQUAD4  12      91      1012    1013    1023    1022                                                                                                                                                                                                            
+ECHO: loadb CTRIA3  21      91      1021    1022    1032                                                                                                                                                                                                                    
+ECHO: loadb CTRIA3  22      91      1031    1021    1032                                                                                                                                                                                                                    
+ECHO: loadb CTRIA3  23      91      1022    1023    1032                                                                                                                                                                                                                    
+ECHO: loadb CTRIA3  24      91      1033    1032    1023                                                                                                                                                                                                                    
+ECHO: loadb PSHELL  91      20      .125    20              20                                                                                                                                                                                                              
+ECHO: loadb BAROR                                   0.      0.      1.                                                                                                                                                                                                      
+ECHO: loadb CBAR    1121    98      1011    1021                                                                                                                                                                                                                            
+ECHO: loadb CBAR    2131    98      1021    1031                                                                                                                                                                                                                            
+ECHO: loadb CBAR    1222    98      1012    1022                                                                                                                                                                                                                            
+ECHO: loadb CBAR    2232    98      1022    1032                                                                                                                                                                                                                            
+ECHO: loadb CBAR    1323    98      1013    1023                                                                                                                                                                                                                            
+ECHO: loadb CBAR    2333    98      1023    1033                                                                                                                                                                                                                            
+ECHO: loadb CBAR    1112    97      1011    1012                                                                                                                                                                                                                            
+ECHO: loadb CBAR    1213    97      1012    1013                                                                                                                                                                                                                            
+ECHO: loadb CBAR    2122    98      1021    1022                                                                                                                                                                                                                            
+ECHO: loadb CBAR    2223    98      1022    1023                                                                                                                                                                                                                            
+ECHO: loadb CBAR    3132    97      1031    1032                                                                                                                                                                                                                            
+ECHO: loadb CBAR    3233    97      1032    1033                                                                                                                                                                                                                            
+ECHO: loadb CBAR    4142    97      1041    1042                                                                                                                                                                                                                            
+ECHO: loadb CBAR    4243    97      1042    1043                                                                                                                                                                                                                            
+ECHO: loadb PBAR    97      20      2.0     2.      1.      2.5                     +PB97A                                                                                                                                                                                  
+ECHO:  nextc +PB97A   1.0     1.0     1.0    -1.0    -1.0    -1.0    -1.0     1.0                                                                                                                                                                                            
+ECHO: loadb PBAR    98      20      2.0     8.      1.      2.5                     +PB97A                                                                                                                                                                                  
+ECHO:  nextc +PB97A   1.0     1.0     1.0    -1.0    -1.0    -1.0    -1.0     1.0                                                                                                                                                                                            
+ECHO: loadb CROD    1141    92      1011    1041                                                                                                                                                                                                                            
+ECHO: loadb CROD    1242    92      1012    1042                                                                                                                                                                                                                            
+ECHO: loadb CROD    1343    92      1013    1043                                                                                                                                                                                                                            
+ECHO: loadb CROD    4131    92      1041    1031                                                                                                                                                                                                                            
+ECHO: loadb CROD    4232    92      1042    1032                                                                                                                                                                                                                            
+ECHO: loadb CROD    4333    92      1043    1033                                                                                                                                                                                                                            
+ECHO: loadb PROD    92      20      1.0                                                                                                                                                                                                                                     
+ECHO: loadb CELAS1  58      75      1022    3       1051    3                                                                                                                                                                                                               
+ECHO: loadb PELAS   75      1.5E+4          .75                                                                                                                                                                                                                             
+ECHO: loadb MAT1    20      10.+06  4.+06   .25     .1                              +MAT1                                                                                                                                                                                   
+ECHO:  nextc +MAT1   20000.  20000.  20000.                                                                                                                                                                                                                                  
+ECHO: loadb PLOAD2  1991    -.75    11      12      21      22      23      24                                                                                                                                                                                              
+ECHO: loadb FORCE   1992    1031            1000.   0.      1.      -3.                                                                                                                                                                                                     
+ECHO: loadb FORCE   1992    1032            1000.   0.      1.      -3.                                                                                                                                                                                                     
+ECHO: loadb FORCE   1992    1033            1000.   0.      1.      -3.                                                                                                                                                                                                     
+ECHO: loadb SPC1    998     123     1011    1012    1013                                                                                                                                                                                                                    
+ECHO: loadb SPC1    998     12 456  1041    1042    1043                                                                                                                                                                                                                    
+ECHO: loadb PARAM   ART_MASS Y      0.      1.E-6                                                                                                                                                                                                                           
+ECHO: loadb PARAM   SOLLIB   BANDED                                                                                                                                                                                                                                         
+ECHO: loadb PARAM   WTMASS   .002591                                                                                                                                                                                                                                        
+ECHO: loadb DEBUG   185     1                                                       GET MODES EVEN IF NO MASS                                                                                                                                                               
+ECHO: loadb DEBUG   192     2                                                       GPFO SUMMARY                                                                                                                                                                            
+ECHO: loadb DEBUG   200     1                                                       ANS                                                                                                                                                                                     
+ECHO: loadb ENDDATA                                                                                                                                                                                                                                                         
+
+
+
+
+       O U T P U T   F R O M   T H E   G R I D   P O I N T   W E I G H T   G E N E R A T O R   F O R   O V E R A L L   M O D E L
+                                             (reference point is basic coord system origin)
+
+                                                      Total mass =  3.135410E+02
+
+                                                             X             Y             Z
+                                       C.G. location :  5.000000E+01  4.441859E+01 -7.059764E+00
+                                        (relative to reference point in basic coordinate system)
+
+
+                             6x6 Rigid body mass matrix - about reference point in basic coordinate system
+                      ***                                                                                     ***
+                      *  3.135410E+02  0.000000E+00  0.000000E+00  *  0.000000E+00 -2.213525E+03 -1.392705E+04  *
+                      *  0.000000E+00  3.135410E+02  0.000000E+00  *  2.213525E+03  0.000000E+00  1.567705E+04  *
+                      *  0.000000E+00  0.000000E+00  3.135410E+02  *  1.392705E+04 -1.567705E+04  0.000000E+00  *
+                      *  ************  ************  ************  *  ************  ************  ************  *
+                      *  0.000000E+00  0.000000E+00  0.000000E+00  *  1.222131E+06 -6.963525E+05  1.106763E+05  *
+                      *  0.000000E+00  0.000000E+00  0.000000E+00  * -6.963525E+05  1.331681E+06  0.000000E+00  *
+                      *  0.000000E+00  0.000000E+00  0.000000E+00  *  1.106763E+05  0.000000E+00  2.332459E+06  *
+                      ***                                                                                     ***
+
+
+                                    M.O.I. matrix - about reference point in basic coordinate system
+                                             ***                                        ***
+                                             *  1.222131E+06 -6.963525E+05  1.106763E+05  *
+                                             * -6.963525E+05  1.331681E+06  0.000000E+00  *
+                                             *  1.106763E+05  0.000000E+00  2.332459E+06  *
+                                             ***                                        ***
+
+
+                                  M.O.I. matrix - about above c.g. location in basic coordinate system
+                                             ***                                        ***
+                                             *  5.878844E+05  3.492460E-10 -4.365575E-11  *
+                                             *  3.492460E-10  5.322010E+05 -9.832169E+04  *
+                                             * -4.365575E-11 -9.832169E+04  9.299868E+05  *
+                                             ***                                        ***
+
+
+                                     M.O.I. matrix - about above c.g. location in principal directions
+                                             ***                                        ***
+                                             *  5.092256E+05 -2.584939E-26 -2.910383E-11  *
+                                             *  2.326445E-25  5.878844E+05  0.000000E+00  *
+                                             * -1.455192E-11  1.033976E-25  9.529622E+05  *
+                                             ***                                        ***
+
+
+                                     Transformation from basic coordinates to principal directions
+                                             ***                                        ***
+                                             * -4.197251E-15  9.737674E-01  2.275458E-01  *
+                                             *  1.000000E+00  4.011118E-15  1.280423E-15  *
+                                             * -3.341206E-16 -2.275458E-01  9.737674E-01  *
+                                             ***                                        ***
+
+
+
+ >> LINK  0 END
+
+
+ >> LINK  1 BEGIN
+
+               DEALLOCATED  8.76E-02 MB MEMORY FROM ARRAY STF3
+
+               DEALLOCATED  3.12E-04 MB MEMORY FROM ARRAY STFKEY
+               DEALLOCATED  8.76E-02 MB MEMORY FROM ARRAY STF3
+
+ >> LINK  1 END
+
+
+ >> LINK  2 BEGIN
+
+
+
+
+ *INFORMATION: AUTOSPC Summary, Overall: after identification of all AUTOSPC's                                                               
+
+                                     AUTOSPC_RAT = 1.000000E-08
+
+                       Number of DOF's identified for AUTOSPC in component  1         =            0
+                       Number of DOF's identified for AUTOSPC in component  2         =            0
+                       Number of DOF's identified for AUTOSPC in component  3         =            0
+                       Number of DOF's identified for AUTOSPC in component  4         =            0
+                       Number of DOF's identified for AUTOSPC in component  5         =            0
+                       Number of DOF's identified for AUTOSPC in component  6         =            0
+                                                                                        ------------
+                       Total number of DOF's identified overall                       =            0
+
+
+ >> LINK  2 END
+
+
+ >> LINK  4 BEGIN
+
+
+ >> LINK  4 END
+
+
+ >> LINK  5 BEGIN
+
+
+                           E I G E N V A L U E   A N A L Y S I S   S U M M A R Y   (GIV     )
+(BANDED solution)
+
+                                NUMBER OF EIGENVALUES EXTRACTED  . . . . . .         4
+
+                                LARGEST OFF-DIAGONAL GENERALIZED MASS TERM     2.4E-16 (Vecs renormed to 1.0 at grid-comp    1023-3)
+
+                                                                       . . .         4
+                                          MODE PAIR . . . . . . . . . .
+                                                                       . . .         1
+
+                                NUMBER OF OFF DIAGONAL GENERALIZED MASS
+                                TERMS FAILING CRITERION OF  1.0E-04. . . . .         0
+
+
+
+                                            R E A L   E I G E N V A L U E S
+    MODE  EXTRACTION      EIGENVALUE           RADIANS              CYCLES            GENERALIZED         GENERALIZED        
+   NUMBER   ORDER                                                                        MASS              STIFFNESS
+
+        1       1        4.689177E+04        2.165451E+02        3.446422E+01        1.753011E-01        8.220177E+03
+        2       2        6.110502E+04        2.471943E+02        3.934219E+01        1.865203E-01        1.139733E+04
+        3       3        1.568010E+05        3.959811E+02        6.302235E+01        9.966686E+00        1.562787E+06
+        4       4        2.162213E+05        4.649960E+02        7.400642E+01        4.732180E+00        1.023198E+06
+
+
+
+
+ >> LINK  5 END
+
+
+ >> LINK  9 BEGIN
+
+
+
+ OUTPUT FOR EIGENVECTOR        1
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ EIGENVALUES                                                                                                                                                                                                                                                     
+
+                                                         E I G E N V E C T O R
+                                              (in global coordinate system at each grid)
+           GRID     COORD      T1            T2            T3            R1            R2            R3
+                     SYS
+           1011        0  0.0           0.0           0.0          -2.827551E-02 -2.025978E-03 -1.486824E-05
+           1012        0  0.0           0.0           0.0           3.383482E-11 -2.291833E-04 -6.965641E-06
+           1013        0  0.0           0.0           0.0           2.827551E-02 -2.025978E-03 -1.486824E-05
+
+           1021        0  3.142853E-03  5.919512E-03 -1.000000E+00 -1.678397E-03 -1.908613E-02 -1.221326E-04
+           1022        0  3.091671E-03 -2.150895E-11  8.901110E-10 -6.061723E-12 -1.989347E-02 -1.139699E-04
+           1023        0  3.142853E-03 -5.919513E-03  1.000000E+00  1.678397E-03 -1.908613E-02 -1.221326E-04
+
+           1031        0  1.187458E-02  1.029189E-02 -1.682119E-01  2.500847E-02 -5.024658E-03 -2.060121E-04
+           1032        0  1.079808E-02 -4.791486E-11 -6.194145E-10 -4.232060E-11 -3.566729E-03 -1.952362E-04
+           1033        0  1.187458E-02 -1.029189E-02  1.682119E-01 -2.500847E-02 -5.024658E-03 -2.060121E-04
+
+           1041        0  0.0           0.0          -1.210189E-02  0.0           0.0           0.0         
+           1042        0  0.0           0.0           2.853705E-12  0.0           0.0           0.0         
+           1043        0  0.0           0.0           1.210189E-02  0.0           0.0           0.0         
+
+           1051        0  0.0           0.0           0.0           0.0           0.0           0.0         
+                         ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    1.187458E-02  1.029189E-02  1.000000E+00  2.827551E-02  0.0           0.0         
+                MIN* :    0.0          -1.029189E-02 -1.000000E+00 -2.827551E-02 -1.989347E-02 -2.060121E-04
+
+                ABS* :    1.187458E-02  1.029189E-02  1.000000E+00  2.827551E-02  1.989347E-02  2.060121E-04
+                *for output set
+
+
+ OUTPUT FOR EIGENVECTOR        2
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ EIGENVALUES                                                                                                                                                                                                                                                     
+
+                                                         E I G E N V E C T O R
+                                              (in global coordinate system at each grid)
+           GRID     COORD      T1            T2            T3            R1            R2            R3
+                     SYS
+           1011        0  0.0           0.0           0.0           2.860625E-02  2.205356E-03 -2.998609E-06
+           1012        0  0.0           0.0           0.0           1.015034E-02  1.198840E-12 -4.820194E-13
+           1013        0  0.0           0.0           0.0           2.860625E-02 -2.205356E-03  2.998606E-06
+
+           1021        0 -1.132493E-04 -3.646525E-03  1.000000E+00  1.629481E-03  1.979496E-02  1.878939E-05
+           1022        0  1.764386E-10 -1.870262E-03  3.069688E-01  4.268396E-04  9.297348E-11 -4.438925E-12
+           1023        0  1.132497E-04 -3.646525E-03  1.000000E+00  1.629482E-03 -1.979496E-02 -1.878940E-05
+
+           1031        0 -1.353008E-03 -7.719941E-03  1.633178E-01 -2.540563E-02  5.434293E-03  7.801846E-05
+           1032        0  4.273724E-10 -3.445312E-03  4.206216E-02 -9.180912E-03 -6.045228E-11 -6.209485E-12
+           1033        0  1.353009E-03 -7.719942E-03  1.633178E-01 -2.540563E-02 -5.434293E-03 -7.801847E-05
+
+           1041        0  0.0           0.0           1.217644E-02  0.0           0.0           0.0         
+           1042        0  0.0           0.0           3.088329E-03  0.0           0.0           0.0         
+           1043        0  0.0           0.0           1.217644E-02  0.0           0.0           0.0         
+
+           1051        0  0.0           0.0           0.0           0.0           0.0           0.0         
+                         ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    1.353009E-03  0.0           1.000000E+00  2.860625E-02  1.979496E-02  7.801846E-05
+                MIN* :   -1.353008E-03 -7.719942E-03  0.0          -2.540563E-02 -1.979496E-02 -7.801847E-05
+
+                ABS* :    1.353009E-03  7.719942E-03  1.000000E+00  2.860625E-02  1.979496E-02  7.801847E-05
+                *for output set
+
+
+ OUTPUT FOR EIGENVECTOR        3
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ EIGENVALUES                                                                                                                                                                                                                                                     
+
+                                                         E I G E N V E C T O R
+                                              (in global coordinate system at each grid)
+           GRID     COORD      T1            T2            T3            R1            R2            R3
+                     SYS
+           1011        0  0.0           0.0           0.0           3.112373E-02  1.417945E-02 -6.170254E-04
+           1012        0  0.0           0.0           0.0          -4.854200E-02  3.055507E-12 -1.792626E-11
+           1013        0  0.0           0.0           0.0           3.112372E-02 -1.417945E-02  6.170253E-04
+
+           1021        0  3.468145E-02  5.764510E-02  1.000000E+00 -7.251023E-03  1.274599E-01  3.872147E-04
+           1022        0  3.721535E-09  1.187616E-01 -3.257211E+00 -8.839292E-02  1.614640E-10 -3.727031E-11
+           1023        0 -3.468144E-02  5.764509E-02  1.000000E+00 -7.251022E-03 -1.274599E-01 -3.872148E-04
+
+           1031        0 -1.896613E-02  9.602348E-02 -7.103556E-01 -4.987277E-02  2.316471E-01  3.098695E-03
+           1032        0  5.135784E-09  2.554092E-01 -8.868264E+00 -1.198134E-01 -7.779969E-10 -7.276355E-11
+           1033        0  1.896615E-02  9.602347E-02 -7.103556E-01 -4.987277E-02 -2.316471E-01 -3.098696E-03
+
+           1041        0  0.0           0.0          -4.947754E-02  0.0           0.0           0.0         
+           1042        0  0.0           0.0          -6.982610E-01  0.0           0.0           0.0         
+           1043        0  0.0           0.0          -4.947753E-02  0.0           0.0           0.0         
+
+           1051        0  0.0           0.0           0.0           0.0           0.0           0.0         
+                         ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    3.468145E-02  2.554092E-01  1.000000E+00  3.112373E-02  2.316471E-01  3.098695E-03
+                MIN* :   -3.468144E-02  0.0          -8.868264E+00 -1.198134E-01 -2.316471E-01 -3.098696E-03
+
+                ABS* :    3.468145E-02  2.554092E-01  8.868264E+00  1.198134E-01  2.316471E-01  3.098696E-03
+                *for output set
+
+
+ OUTPUT FOR EIGENVECTOR        4
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ EIGENVALUES                                                                                                                                                                                                                                                     
+
+                                                         E I G E N V E C T O R
+                                              (in global coordinate system at each grid)
+           GRID     COORD      T1            T2            T3            R1            R2            R3
+                     SYS
+           1011        0  0.0           0.0           0.0           1.763426E-02  2.090689E-02  1.247864E-04
+           1012        0  0.0           0.0           0.0          -1.688819E-01  3.764982E-12 -1.846096E-12
+           1013        0  0.0           0.0           0.0           1.763425E-02 -2.090689E-02 -1.247864E-04
+
+           1021        0 -9.023613E-03 -3.954754E-02  1.000000E+00  1.301927E-02  1.874362E-01  4.227138E-05
+           1022        0  1.473102E-09 -4.136330E-02 -5.625212E+00  2.357245E-02  1.573687E-10 -6.025697E-11
+           1023        0  9.023616E-03 -3.954755E-02  1.000000E+00  1.301927E-02 -1.874362E-01 -4.227150E-05
+
+           1031        0 -5.112567E-03 -7.717864E-02  1.300939E+00  8.968471E-03 -7.415586E-03 -1.806059E-04
+           1032        0  5.481503E-09 -8.460347E-02  2.361553E+00  2.149067E-01 -1.130945E-09 -8.618940E-11
+           1033        0  5.112578E-03 -7.717865E-02  1.300939E+00  8.968474E-03  7.415584E-03  1.806057E-04
+
+           1041        0  0.0           0.0           9.822315E-02  0.0           0.0           0.0         
+           1042        0  0.0           0.0           1.871276E-01  0.0           0.0           0.0         
+           1043        0  0.0           0.0           9.822315E-02  0.0           0.0           0.0         
+
+           1051        0  0.0           0.0           0.0           0.0           0.0           0.0         
+                         ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    9.023616E-03  0.0           2.361553E+00  2.149067E-01  1.874362E-01  1.806057E-04
+                MIN* :   -9.023613E-03 -8.460347E-02 -5.625212E+00 -1.688819E-01 -1.874362E-01 -1.806059E-04
+
+                ABS* :    9.023616E-03  8.460347E-02  5.625212E+00  2.149067E-01  1.874362E-01  1.806059E-04
+                *for output set
+------------------------------------------------------------------------------------------------------------------------------------
+ TEST OF ALL ELEMENTS                                                                                                                                                                                                                                            
+ TRUSS SUPPORTED SHELF                                                                                                                                                                                                                                           
+ EIGENVALUES                                                                                                                                                                                                                                                     
+
+                                  E F F E C T I V E   M O D A L   M A S S E S   O R   W E I G H T S
+                                                   (in coordinate system        0)
+                                     Units are same as units for mass input in the Bulk Data Deck
+                                        Reference point is the basic coordinate system origin
+
+             MODE     CYCLES          T1            T2            T3            R1            R2            R3
+              NUM
+                1  3.446422E+01  2.468975E-02  8.728596E-14  9.249229E-15  0.000000E+00  5.405849E+00  0.000000E+00
+                2  3.934219E+01  3.337721E-15  8.720030E-03  1.112779E+02  0.000000E+00  6.665725E-16  0.000000E+00
+                3  6.302235E+01  1.403474E-14  1.481631E-01  6.352826E+01  0.000000E+00  1.713474E-15  0.000000E+00
+                4  7.400642E+01  1.694344E-18  6.926797E-02  6.569999E-01  0.000000E+00  2.970631E-17  0.000000E+00
+                                 ------------  ------------  ------------  ------------  ------------  ------------
+                 Sum all modes:  2.468975E-02  2.261511E-01  1.754632E+02  0.000000E+00  5.405849E+00  0.000000E+00
+              Total model mass:  3.135410E+02  3.135410E+02  3.135410E+02  1.222131E+06  1.331681E+06  2.332459E+06
+        Modes % of total mass*:         0.01%         0.07%        55.96%         0.00%         0.00%         0.00%
+
+ *If all modes are calculated the % of total mass should be 100% of the free mass (i.e. not counting mass at constrained DOF's).
+  Percentages are only printed for components that have finite model mass.
+                                                               -----
+
+ >> LINK  9 END
+
+    Total CPU time =  5.45E+00 seconds
+
+ >> MYSTRAN END    :  8/30/2024 at  1:38:41.673

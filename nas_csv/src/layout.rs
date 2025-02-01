@@ -20,7 +20,6 @@ pub type RowHeader = [&'static str; NAS_CSV_COLS - 1];
 #[derive(
   Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord,
 )]
-#[non_exhaustive]
 pub enum CsvBlockId {
   /// The 0-block: general solution info; subcase IDs, solution types, etc.
   Metadata,
@@ -38,6 +37,10 @@ pub enum CsvBlockId {
   AppliedForces,
   /// The 7-block: forces of single-point constraint.
   SpcForces,
+  /// The 8-block: eigenvectors.
+  EigenVectors,
+  /// The 9-block: real eigenvalues
+  EigenValues,
 }
 
 // this impl allow numerical shorthands
@@ -65,6 +68,8 @@ impl CsvBlockId {
       Self::GridPointForces,
       Self::AppliedForces,
       Self::SpcForces,
+      Self::EigenVectors,
+      Self::EigenValues,
     ];
   }
 
@@ -79,6 +84,8 @@ impl CsvBlockId {
       Self::GridPointForces => "GridPointForces",
       Self::AppliedForces => "AppliedForces",
       Self::SpcForces => "SpcForces",
+      Self::EigenVectors => "EigenVectors",
+      Self::EigenValues => "EigenValues",
     };
   }
 
@@ -93,6 +100,8 @@ impl CsvBlockId {
       Self::GridPointForces => "gpforce",
       Self::AppliedForces => "load",
       Self::SpcForces => "spcfor",
+      Self::EigenVectors => "eigenvec",
+      Self::EigenValues => "eigenval",
     };
   }
 
@@ -114,6 +123,8 @@ impl CsvBlockId {
       ],
       Self::AppliedForces => &["6", "applied"],
       Self::SpcForces => &["7", "spcf", "spcforces"],
+      Self::EigenVectors => &["8", "eigenvec", "eigenvectors"],
+      Self::EigenValues => &["9", "eigenval", "eigenvalues"],
     };
   }
 }
@@ -135,6 +146,8 @@ impl From<CsvBlockId> for usize {
       CsvBlockId::GridPointForces => 5,
       CsvBlockId::AppliedForces => 6,
       CsvBlockId::SpcForces => 7,
+      CsvBlockId::EigenVectors => 8,
+      CsvBlockId::EigenValues => 9,
     };
   }
 }

@@ -102,7 +102,9 @@ impl OnePassParser {
   /// Tries to detect a change in subcase.
   fn detect_subcase(&self, line: &str) -> Option<usize> {
     let bd: Vec<_> = line_breakdown(line).collect();
-    if line.contains("OUTPUT FOR SUBCASE") {
+    if line.contains("OUTPUT FOR SUBCASE")
+      || line.contains("OUTPUT FOR EIGENVECTOR")
+    {
       return bd
         .into_iter()
         .filter_map(|field| {

@@ -36,6 +36,8 @@ pub(crate) const SUS_WORDS: &[&str] = &[
   "COORD",
   "SYSTEM",
   "LOCAL",
+  "EIGENVECTOR",
+  "EIGENVALUES",
 ];
 
 /// Words that make us ignore a block because it's definitely not gonna be

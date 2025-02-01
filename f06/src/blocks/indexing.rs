@@ -187,6 +187,8 @@ gen_nasindex!(
   PlateForceField,
   PlateStressField,
   PlateStrainField,
+  RealEigenValueField,
+  EigenSolutionMode,
 );
 
 /// All field indexing types must implement this trait.
@@ -868,3 +870,44 @@ gen_with_inner!(
   BarStrainField,
   BarStressField
 );
+
+/// Vibration mode of eigen solution
+#[derive(
+  Copy,
+  Clone,
+  Debug,
+  Serialize,
+  Deserialize,
+  PartialOrd,
+  Ord,
+  PartialEq,
+  Eq,
+  derive_more::From,
+)]
+pub struct EigenSolutionMode(pub i32);
+
+impl IndexType for EigenSolutionMode {
+  const INDEX_NAME: &'static str = "EIGEN SOLUTION MODE";
+}
+
+impl Display for EigenSolutionMode {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.write_str("MODE")
+  }
+}
+
+from_enum!(
+  "Field Values for Real Eigenvalues",
+  RealEigenValueField,
+  [
+    (EigenValue, "EIGENVALUE"),
+    (Radians, "RADIANS"),
+    (Cycles, "CYCLES"),
+    (GeneralizedMass, "GENERALIZED MASS"),
+    (GeneralizedStiffness, "GENERALIZED STIFFNESS"),
+  ]
+);
+
+impl IndexType for RealEigenValueField {
+  const INDEX_NAME: &'static str = "EIGENVALUE FIELDS";
+}

@@ -1363,3 +1363,182 @@ converting_decoder!(
   BlockType::BushStrains,
   6
 );
+
+/// Decoder for eigenvectors.
+pub struct EigenVectorDecoder {
+  /// The flavour of F06 file we're decoding eigenvectors for.
+  flavour: Flavour,
+  /// The eigenvector data
+  data: RowBlock<
+    <Self as BlockDecoder>::MatScalar,
+    <Self as BlockDecoder>::RowIndex,
+    <Self as BlockDecoder>::ColumnIndex,
+    { Self::MATWIDTH },
+  >,
+}
+
+impl BlockDecoder for EigenVectorDecoder {
+  type MatScalar = f64;
+  type RowIndex = GridPointRef;
+  type ColumnIndex = Dof;
+  const MATWIDTH: usize = SIXDOF;
+  const BLOCK_TYPE: BlockType = BlockType::EigenVector;
+
+  fn new(flavour: Flavour) -> Self {
+    Self {
+      flavour,
+      data: RowBlock::new(dof_cols()),
+    }
+  }
+
+  fn unwrap(
+    self,
+    subcase: usize,
+    line_range: Option<(usize, usize)>,
+  ) -> FinalBlock {
+    self.data.finalise(Self::BLOCK_TYPE, subcase, line_range)
+  }
+
+  // TODO: validate correctness for NX NASTRAN
+  fn consume(&mut self, line: &str) -> LineResponse {
+    const USELESS_DATA: [&str; 3] = ["MAX", "MIN", "ABS"];
+
+    if USELESS_DATA.iter().any(|u| line.contains(u)) {
+      return LineResponse::Useless;
+    }
+    let Some(dof) = extract_reals::<SIXDOF>(line) else {
+      return LineResponse::Useless;
+    };
+    let Some(gid) = nth_integer(line, 0) else {
+      return LineResponse::Unsupported;
+    };
+    self.data.insert_raw((gid as usize).into(), &dof);
+    LineResponse::Data
+  }
+}
+
+#[test]
+fn eigenvector_decoder() {
+  const TEST_BLOCK: &str =
+  "                                            (in global coordinate system at each grid)
+           GRID     COORD      T1            T2            T3            R1            R2            R3
+                     SYS
+              1        0  0.0           0.0           0.0           0.0           0.0           0.0
+              2        0  0.0           0.0          -4.544341E-01  0.0           2.526497E-02  0.0
+              3        0  0.0           0.0          -8.281750E-01  0.0          -1.678897E-03  0.0
+              4        0  0.0           0.0          -2.724529E-01  0.0          -4.038712E-02  0.0
+              5        0  0.0           0.0           1.000000E+00  0.0          -5.615361E-02  0.0
+                         ------------- ------------- ------------- ------------- ------------- -------------
+                MAX* :    0.0           0.0           1.000000E+00  0.0           2.526497E-02  0.0
+                MIN* :    0.0           0.0          -8.281750E-01  0.0          -5.615361E-02  0.0
+
+                ABS* :    0.0           0.0           1.000000E+00  0.0           5.615361E-02  0.0
+                *for output set
+  ";
+  let mut dec = EigenVectorDecoder::new(Flavour {
+    solver: Some(Solver::Mystran),
+    soltype: Some(SolType::Eigenvalue),
+  });
+  for line in TEST_BLOCK.lines() {
+    BlockDecoder::consume(&mut dec, line);
+  }
+  let finalized = dec.unwrap(1, None);
+  dbg!(&finalized);
+  let Some(FinalDMat::Reals(mat)) = finalized.data else {
+    panic!("wrong FinalDMat type")
+  };
+  assert_eq!(mat.column_iter().count(), 6);
+  assert_eq!(mat.row_iter().count(), 5);
+
+  let grid_ids: Vec<_> = finalized
+    .row_indexes
+    .keys()
+    .map(|k| k.grid_point_id().unwrap().gid)
+    .collect();
+  assert_eq!(grid_ids, [1, 2, 3, 4, 5])
+}
+
+/// Decoder for real eigenvalues.
+pub struct RealEigenValuesDecoder {
+  /// The flavour of F06 file we're decoding eigenvectors for.
+  flavour: Flavour,
+  /// The eigenvalue data
+  data: RowBlock<
+    <Self as BlockDecoder>::MatScalar,
+    <Self as BlockDecoder>::RowIndex,
+    <Self as BlockDecoder>::ColumnIndex,
+    { Self::MATWIDTH },
+  >,
+}
+
+impl BlockDecoder for RealEigenValuesDecoder {
+  type MatScalar = f64;
+  type RowIndex = EigenSolutionMode;
+  type ColumnIndex = RealEigenValueField;
+  const MATWIDTH: usize = 5;
+  const BLOCK_TYPE: BlockType = BlockType::RealEigenValues;
+
+  fn new(flavour: Flavour) -> Self {
+    // TODO: validate order for NX NASTRAN
+    let col_idxs = RealEigenValueField::all()
+      .iter()
+      .copied()
+      .enumerate()
+      .map(|(i, f)| (f, i))
+      .collect();
+
+    Self {
+      flavour,
+      data: RowBlock::new(col_idxs),
+    }
+  }
+
+  fn unwrap(
+    self,
+    subcase: usize,
+    line_range: Option<(usize, usize)>,
+  ) -> FinalBlock {
+    self.data.finalise(Self::BLOCK_TYPE, subcase, line_range)
+  }
+
+  fn consume(&mut self, line: &str) -> LineResponse {
+    let Some(dof) = extract_reals::<5>(line) else {
+      return LineResponse::Useless;
+    };
+    let Some(mode) = nth_integer(line, 0) else {
+      return LineResponse::Unsupported;
+    };
+    self.data.insert_raw(EigenSolutionMode(mode as i32), &dof);
+    LineResponse::Data
+  }
+}
+
+#[test]
+fn real_eigenvalues_decoder() {
+  const MYSTRAN_BLOCK: &str =
+  "
+      MODE  EXTRACTION      EIGENVALUE           RADIANS              CYCLES            GENERALIZED         GENERALIZED
+     NUMBER   ORDER                                                                        MASS              STIFFNESS
+
+        1       1        4.509067E+03        6.714959E+01        1.068719E+01        6.800571E-04        3.066423E+00
+        2       2        1.557785E+05        3.946879E+02        6.281653E+01        9.499997E-04        1.479896E+02
+        3       3        1.092406E+06        1.045182E+03        1.663460E+02        2.094704E-03        2.288268E+03
+        4       4        3.318753E+06        1.821744E+03        2.899396E+02        1.147843E-02        3.809406E+04
+  ";
+
+  let mut dec = RealEigenValuesDecoder::new(Flavour {
+    solver: Some(Solver::Mystran),
+    soltype: Some(SolType::Eigenvalue),
+  });
+
+  for line in MYSTRAN_BLOCK.lines() {
+    BlockDecoder::consume(&mut dec, line);
+  }
+  let mut row_idxs = dec.data.row_indexes().keys().copied();
+
+  assert_eq!(row_idxs.next(), Some(EigenSolutionMode(1)));
+  assert_eq!(row_idxs.next(), Some(EigenSolutionMode(2)));
+  assert_eq!(row_idxs.next(), Some(EigenSolutionMode(3)));
+  assert_eq!(row_idxs.next(), Some(EigenSolutionMode(4)));
+  assert_eq!(row_idxs.next(), None);
+}

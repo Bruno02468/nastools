@@ -357,6 +357,26 @@ gen_block_types!(
       )
     ]
   },
+  // eigenvectors
+  {
+    "Eigenvector",
+    EigenVector,
+    EigenVectorDecoder,
+    None,
+    [
+      "EIGENVECTOR",
+    ]
+  },
+  // real eigenvalues
+  {
+    "Real Eigenvalues",
+    RealEigenValues,
+    RealEigenValuesDecoder,
+    None,
+    [
+      "REAL EIGENVALUES",
+    ]
+  },
 );
 
 impl Display for BlockType {
