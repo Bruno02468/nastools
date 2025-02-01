@@ -1,0 +1,603 @@
+1
+ 
+ 
+ 
+ 
+                                                             
+                    Unpublished Work. © 2024 Siemens        
+                         All Rights Reserved.                
+                                                             
+               This software and related documentation are   
+                    proprietary to Siemens Industry          
+                             Software Inc.                   
+                                                             
+              Siemens and the Siemens logo are registered    
+             trademarks of Siemens Trademark GmbH & Co. KG.  
+            Simcenter is a trademark, or registered trademark
+                of Siemens Industry Software Inc. or its     
+             subsidiaries in the United States and in other  
+             countries.  Simcenter NASTRAN is a registered   
+               trademark of Siemens Industry Software Inc.   
+            All other trademarks, registered trademarks or   
+               service marks belong to their respective      
+                        holders.                             
+                                                             
+           LIMITATIONS TO U.S. GOVERNMENT RIGHTS. UNPUBLISHED
+           - RIGHTS RESERVED UNDER THE COPYRIGHT LAWS OF THE 
+            UNITED STATES. This computer software and related
+               computer software documentation have been     
+            developed exclusively at private expense and are 
+           provided subject to the following rights:  If this
+               computer software and computer  software      
+            documentation qualify as "commercial items" (as  
+             that term is defined in FAR 2.101), their use,  
+            duplication or disclosure by the U.S. Government 
+           is subject to the protections and restrictions as 
+            set forth in the Siemens commercial license for  
+            software and/or documentation, as prescribed in  
+           FAR 12.212 and FAR 27.405(b)(2)(i) (for civilian  
+             agencies) and in DFARS 227.7202-1(a) and DFARS  
+           227.7202-3(a) (for the Department of Defense), or 
+           any successor or similar regulation, as applicable
+           or as amended from time to time.  If this computer
+           software and computer documentation do not qualify
+            as "commercial items", then they are "restricted 
+           computer software" and are provided with "restric-
+            tive rights", and their use, duplication or dis- 
+            closure by the U.S. Government is subject to the 
+            protections and restrictions as set forth in FAR 
+           27.404(b) and FAR 52-227-14 (for civilian agencies
+           ), and DFARS 227.7203-5(c) and DFARS 252.227-7014 
+           (for the Department of Defense), or any successor 
+           or similar regulation, as applicable or as amended
+           from time to time. Siemens Industry Software Inc. 
+           5800 Granite Parkway, Suite 600, Plano, TX 75024  
+ 
+
+                * * * * * * * * * * * * * * * * * * * *
+                * * * * * * * * * * * * * * * * * * * *
+                * *                                 * *
+                * *                                 * *
+                * *                                 * *
+                * *                                 * *
+                * *     Simcenter Nastran 2412      * *
+                * *                                 * *
+                * *       VERSION - 2412.0072       * *
+                * *                                 * *
+                * *          OCT  3, 2024           * *
+                * *                                 * *
+                * *                                 * *
+                * *AMD64 Family 23 Model 8 Stepping * *
+                * *                                 * *
+                * * MODEL AMD Ryzen 5 2600 Six-Core * *
+                * *                                 * *
+                * *           Windows 10            * *
+                * *                                 * *
+                * *       Compiled for X86-64       * *
+                * *                                 * *
+                * * * * * * * * * * * * * * * * * * * *
+                * * * * * * * * * * * * * * * * * * * *
+1 
+  
+                      Welcome to Simcenter Nastran
+                      ----------------------------
+  
+  
+ This "news" information can be turned off by setting "news=no" in the runtime
+ configuration (RC) file.  The "news" keyword can be set in the system RC file
+ for global, or multi-user control, and in a local file for local control.
+ Individual jobs can be controlled by setting news to yes or no on the command
+ line.
+1                                                                          FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE     1
+                                                                                                                                    
+0        N A S T R A N    F I L E    A N D    S Y S T E M    P A R A M E T E R    E C H O                                           
+0                                                                                                                                   
+                                                                                                                                    
+                                                                                                                                    
+     NASTRAN BUFFSIZE=32769 $(F:/FEMAP/NASTRAN/CONF/NASTRAN.RCF[4])                  
+     NASTRAN BUFFPOOL=11774                                                          
+     NASTRAN DIAGA=128 DIAGB=0 $(F:/FEMAP/NASTRAN/CONF/NASTRAN.RCF[10])              
+     NASTRAN REAL=4286709760 $(MEMORY LIMIT FOR MPI AND OTHER SPECIALIZED MODULES)   
+     INIT MASTER(S)                                                                  
+     NASTRAN SYSTEM(442)=-1,SYSTEM(319)=1                                            
+1                                                                          FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE     2
+                                                                                                                                    
+0        N A S T R A N    E X E C U T I V E    C O N T R O L    E C H O                                                             
+0                                                                                                                                   
+                                                                                                                                    
+                                                                                                                                    
+     ID ALL,FEMAP                                                                            
+     SOL SEMODES                                                                             
+     CEND                                                                                    
+1    TEST OF ALL ELEMENTS                                                  FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE     3
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     EIGENVALUES                                                                                                                   
+0                                        C A S E    C O N T R O L    E C H O                                                        
+                 COMMAND                                                                                                            
+                 COUNT                                                                                                              
+                  1        TITLE = TEST OF ALL ELEMENTS                                                          
+                  2        SUBTITLE = TRUSS SUPPORTED SHELF                                                      
+                  3        LABEL = EIGENVALUES                                                                   
+                  4        ECHO = UNSORT                                                                         
+                  5        DISPLACEMENT(PRINT) = ALL                                                             
+                  6        SPCFORCE(PRINT) = ALL                                                                 
+                  7        METHOD = 2                                                                            
+                  8        SPC = 998                                                                             
+                  9      BEGIN BULK                                                                              
+1    TEST OF ALL ELEMENTS                                                  FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE     4
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     EIGENVALUES                                                                                                                   
+0                                             I N P U T   B U L K   D A T A   E C H O                                               
+                                                                                                                                    
+                              .   1  ..   2  ..   3  ..   4  ..   5  ..   6  ..   7  ..   8  ..   9  ..  10  .                      
+                              PARAM   SOLLIB   SPARSE                                                         
+                              $ ***************************************************************************   
+                              $   WRITTEN BY : FEMAP                                                          
+                              $   VERSION    : 2412.0                                                         
+                              $   TRANSLATOR : SIMCENTER NASTRAN                                              
+                              $   FROM MODEL :                                                                
+                              $   DATE       : SAT FEB  1 20:42:17 2025                                       
+                              $   OUTPUT TO  : F:\FEMAP_OUT\                                                  
+                              $ ***************************************************************************   
+                              $                                                                               
+                              PARAM,PRGPST,NO                                                                 
+                              PARAM,POST,-1                                                                   
+                              PARAM,OGEOM,NO                                                                  
+                              PARAM,AUTOSPC,NO                                                                
+                              PARAM,WTMASS,.002591                                                            
+                              EIGR           2     GIV                               4                +       
+                              +          POINT    1023       3                                                
+                              CORD2C         1       0      0.      0.      0.      0.      0.      1.+FEMAPC1
+                              +FEMAPC1      1.      0.      1.                                                
+                              CORD2S         2       0      0.      0.      0.      0.      0.      1.+FEMAPC2
+                              +FEMAPC2      1.      0.      1.                                                
+                              $ FEMAP CONSTRAINT SET 998 : NASTRAN SPC 998                                    
+                              SPC1         998     123    1011                                                
+                              SPC1         998     123    1012                                                
+                              SPC1         998     123    1013                                                
+                              SPC1         998   12456    1041                                                
+                              SPC1         998   12456    1042                                                
+                              SPC1         998   12456    1043                                                
+                              $ FEMAP PROPERTY 75 : DOF SPRING PROPERTY                                       
+                              PELAS         75  15000.      0.     .75                                        
+                              $ FEMAP PROPERTY 91 : PLATE PROPERTY                                            
+                              PSHELL        91      20    .125      20              20              0.        
+                              $ FEMAP PROPERTY 92 : ROD PROPERTY                                              
+                              PROD          92      20      1.      0.      0.      0.                        
+                              $ FEMAP PROPERTY 97 : BAR PROPERTY                                              
+                              PBAR          97      20      2.      2.      1.     2.5      0.        +       
+                              +             1.      1.      1.     -1.     -1.     -1.     -1.      1.+       
+                              +                             0.                                                
+                              $ FEMAP PROPERTY 98 : BAR PROPERTY                                              
+                              PBAR          98      20      2.      8.      1.     2.5      0.        +       
+                              +             1.      1.      1.     -1.     -1.     -1.     -1.      1.+       
+                              +                             0.                                                
+                              $ FEMAP MATERIAL 20 : ISOTROPIC MATERIAL                                        
+                              MAT1          20    1.+74000000.     .25      .1      0.      0.        +       
+                              +         20000.  20000.  20000.                                                
+                              GRID        1011       0      0.      0.      0.       0                        
+                              GRID        1012       0     50.      0.      0.       0                        
+                              GRID        1013       0    100.      0.      0.       0                        
+                              GRID        1021       0      0.     50.      0.       0                        
+                              GRID        1022       0     50.     50.      0.       0                        
+1    TEST OF ALL ELEMENTS                                                  FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE     5
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     EIGENVALUES                                                                                                                   
+0                                             I N P U T   B U L K   D A T A   E C H O                                               
+                                                                                                                                    
+                              .   1  ..   2  ..   3  ..   4  ..   5  ..   6  ..   7  ..   8  ..   9  ..  10  .                      
+                              GRID        1023       0    100.     50.      0.       0                        
+                              GRID        1031       0      0.    100.      0.       0                        
+                              GRID        1032       0     50.    100.      0.       0                        
+                              GRID        1033       0    100.    100.      0.       0                        
+                              GRID        1041       0      0.      0.    -50.       0                        
+                              GRID        1042       0     50.      0.    -50.       0                        
+                              GRID        1043       0    100.      0.    -50.       0                        
+                              GRID        1051       0     50.     50.     20.       0  123456                
+                              CQUAD4        11      91    1011    1012    1022    1021                        
+                              CQUAD4        12      91    1012    1013    1023    1022                        
+                              CTRIA3        21      91    1021    1022    1032                                
+                              CTRIA3        22      91    1031    1021    1032                                
+                              CTRIA3        23      91    1022    1023    1032                                
+                              CTRIA3        24      91    1033    1032    1023                                
+                              CELAS1        58      75    1022       3    1051       3                        
+                              CBAR        1112      97    1011    1012      0.      0.      1.                
+                              CBAR        1121      98    1011    1021      0.      0.      1.                
+                              CROD        1141      92    1011    1041                                        
+                              CBAR        1213      97    1012    1013      0.      0.      1.                
+                              CBAR        1222      98    1012    1022      0.      0.      1.                
+                              CROD        1242      92    1012    1042                                        
+                              CBAR        1323      98    1013    1023      0.      0.      1.                
+                              CROD        1343      92    1013    1043                                        
+                              CBAR        2122      98    1021    1022      0.      0.      1.                
+                              CBAR        2131      98    1021    1031      0.      0.      1.                
+                              CBAR        2223      98    1022    1023      0.      0.      1.                
+                              CBAR        2232      98    1022    1032      0.      0.      1.                
+                              CBAR        2333      98    1023    1033      0.      0.      1.                
+                              CBAR        3132      97    1031    1032      0.      0.      1.                
+                              CBAR        3233      97    1032    1033      0.      0.      1.                
+                              CROD        4131      92    1041    1031                                        
+                              CBAR        4142      97    1041    1042      0.      0.      1.                
+                              CROD        4232      92    1042    1032                                        
+                              CBAR        4243      97    1042    1043      0.      0.      1.                
+                              CROD        4333      92    1043    1033                                        
+                              ENDDATA
+0                             INPUT BULK DATA ENTRY COUNT =          86
+0                       TOTAL COUNT=        70
+1    TEST OF ALL ELEMENTS                                                  FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE     6
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     EIGENVALUES                                                                                                                   
+0
+0
+0
+ 
+
+
+                                        M O D E L   S U M M A R Y
+
+                                   NUMBER OF GRID     POINTS   =       13
+ 
+ 
+                                   NUMBER OF CBAR     ELEMENTS =       14
+                                   NUMBER OF CELAS1   ELEMENTS =        1
+                                   NUMBER OF CQUAD4   ELEMENTS =        2
+                                   NUMBER OF CROD     ELEMENTS =        6
+                                   NUMBER OF CTRIA3   ELEMENTS =        4
+ 
+ *** USER INFORMATION MESSAGE 4109 (OUTPBN2)
+     THE LABEL IS NX2412   FOR FORTRAN UNIT 12
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =        7 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =        8 RECORDS.)
+     (TOTAL DATA WRITTEN FOR TAPE LABEL =       17 WORDS.)
+ *** USER INFORMATION MESSAGE 4114 (OUTPBN2)
+     DATA BLOCK PVT0     WRITTEN ON FORTRAN UNIT  12, TRL =
+                    101                28                 0                 0                 0                 0                 0
+     (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =    65538 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =       28 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =       19 RECORDS.)
+     (TOTAL DATA WRITTEN FOR DATA BLOCK =       54 WORDS.)
+ *** USER INFORMATION MESSAGE 4114 (OUTPBN2)
+     DATA BLOCK CASECC   WRITTEN ON FORTRAN UNIT  12, TRL =
+                    101                 1                 0              1200                 0                 0                 0
+     (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =    65538 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =     1200 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =       19 RECORDS.)
+     (TOTAL DATA WRITTEN FOR DATA BLOCK =     1226 WORDS.)
+1    TEST OF ALL ELEMENTS                                                  FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE     7
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     EIGENVALUES                                                                                                                   
+0                                                                                                                                   
+                                                                                                                                    
+                                                                                                                                    
+ *** USER INFORMATION MESSAGE 4114 (OUTPBN2)
+     DATA BLOCK EQEXINS  WRITTEN ON FORTRAN UNIT  12, TRL =
+                    101                13                 0                 0                 0                 0                 0
+     (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =    65538 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =       26 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =       24 RECORDS.)
+     (TOTAL DATA WRITTEN FOR DATA BLOCK =       82 WORDS.)
+1    TEST OF ALL ELEMENTS                                                  FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE     8
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     EIGENVALUES                                                                                                                   
+ *** USER INFORMATION MESSAGE 7310 (VECPRN)
+     ORIGIN OF SUPERELEMENT BASIC COORDINATE SYSTEM WILL BE USED AS REFERENCE LOCATION.
+     RESULTANTS ABOUT ORIGIN OF SUPERELEMENT BASIC COORDINATE SYSTEM IN SUPERELEMENT BASIC SYSTEM COORDINATES.
+0                                                  OLOAD    RESULTANT       
+  SUBCASE/    LOAD
+  DAREA ID    TYPE       T1            T2            T3            R1            R2            R3
+0        1     FX    0.000000E+00     ----          ----          ----       0.000000E+00  0.000000E+00                             
+               FY       ----       0.000000E+00     ----       0.000000E+00     ----       0.000000E+00                             
+               FZ       ----          ----       0.000000E+00  0.000000E+00  0.000000E+00     ----                                  
+               MX       ----          ----          ----       0.000000E+00     ----          ----                                  
+               MY       ----          ----          ----          ----       0.000000E+00     ----                                  
+               MZ       ----          ----          ----          ----          ----       0.000000E+00                             
+             TOTALS  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00  0.000000E+00                             
+ *** USER INFORMATION MESSAGE - SINGULARITIES FOUND USING EIGENVALUE METHOD
+ ***       0 SINGULARITIES FOUND         0 SINGULARITIES ELIMINATED
+1    TEST OF ALL ELEMENTS                                                  FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE     9
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     EIGENVALUES                                                                                                                   
+0                                                                                                                                   
+                                                                                                                                    
+                                                                                                                                    
+ *** USER INFORMATION MESSAGE 4415 (PRTPRN)
+     THE FOLLOWING A-SET DEGREES OF FREEDOM HAVE EITHER NULL MASSES OR NULL MASSES AND STIFFNESS.
+     User information:
+     If the listed degrees of freedom have null mass for the GIV, HOU,
+     MHOU, or MGIV methods, they are automatically omitted.  For the
+     INV method, or for direct frequency or direct transient response,
+     they are given the auto-elimination operation.  Inspect the listed
+     degrees of freedom to ensure that masses or stiffnesses are not
+     left out inadvertently.
+1    TEST OF ALL ELEMENTS                                                  FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE    10
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     EIGENVALUES                                                                                                                   
+0                VAXW                                                                                                               
+     POINT           VALUE     POINT           VALUE     POINT           VALUE     POINT           VALUE     POINT           VALUE  
+                                                                                                                                    
+
+ COLUMN           1
+       1011 R1  1.00000E+00      1011 R2  1.00000E+00      1011 R3  1.00000E+00      1012 R1  1.00000E+00      1012 R2  1.00000E+00
+       1012 R3  1.00000E+00      1013 R1  1.00000E+00      1013 R2  1.00000E+00      1013 R3  1.00000E+00      1021 R1  1.00000E+00
+       1021 R2  1.00000E+00      1021 R3  1.00000E+00      1022 R1  1.00000E+00      1022 R2  1.00000E+00      1022 R3  1.00000E+00
+       1023 R1  1.00000E+00      1023 R2  1.00000E+00      1023 R3  1.00000E+00      1031 R1  1.00000E+00      1031 R2  1.00000E+00
+       1031 R3  1.00000E+00      1032 R1  1.00000E+00      1032 R2  1.00000E+00      1032 R3  1.00000E+00      1033 R1  1.00000E+00
+       1033 R2  1.00000E+00      1033 R3  1.00000E+00
+ *** SYSTEM INFORMATION MESSAGE 6916 (DFMSYN)
+     DECOMP ORDERING METHOD CHOSEN: DEFAULT, ORDERING METHOD USED: BEND
+ *** SYSTEM INFORMATION MESSAGE 6916 (DFMSYN)
+     DECOMP ORDERING METHOD CHOSEN: DEFAULT, ORDERING METHOD USED: BEND
+ *** USER INFORMATION MESSAGE 5458 (REIG)
+     REGULAR GIVENS METHOD IS SELECTED .
+     User information:
+     The exact text of this message depends on the METHOD field on the
+     selected EIGR Bulk Data entry.  This message indicates the
+     eigensolution status (all eigenvalues found, not all found, etc.).
+1    TEST OF ALL ELEMENTS                                                  FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE    11
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     EIGENVALUES                                                                                                                   
+ 
+                                              R E A L   E I G E N V A L U E S
+   MODE    EXTRACTION      EIGENVALUE            RADIANS             CYCLES            GENERALIZED         GENERALIZED
+    NO.       ORDER                                                                       MASS              STIFFNESS
+        1        20        4.690559E+04        2.165770E+02        3.446930E+01        1.753081E-01        8.222928E+03
+        2        21        6.113262E+04        2.472501E+02        3.935108E+01        1.865598E-01        1.140489E+04
+        3        19        1.568042E+05        3.959851E+02        6.302299E+01        9.966058E+00        1.562720E+06
+        4        18        2.163330E+05        4.651161E+02        7.402553E+01        4.716262E+00        1.020283E+06
+        5        16        2.885671E+05        5.371845E+02        8.549556E+01        0.0                 0.0
+        6        17        3.162935E+05        5.623998E+02        8.950871E+01        0.0                 0.0
+        7        15        1.028630E+06        1.014214E+03        1.614171E+02        0.0                 0.0
+        8        10        4.670556E+06        2.161147E+03        3.439572E+02        0.0                 0.0
+        9        13        5.985235E+06        2.446474E+03        3.893684E+02        0.0                 0.0
+       10        14        6.138342E+06        2.477568E+03        3.943171E+02        0.0                 0.0
+       11        11        6.832876E+06        2.613977E+03        4.160274E+02        0.0                 0.0
+       12        12        7.011209E+06        2.647869E+03        4.214214E+02        0.0                 0.0
+       13         9        1.140055E+07        3.376469E+03        5.373818E+02        0.0                 0.0
+       14         8        1.437963E+07        3.792048E+03        6.035232E+02        0.0                 0.0
+       15         7        1.889738E+07        4.347112E+03        6.918643E+02        0.0                 0.0
+       16         6        2.477192E+07        4.977140E+03        7.921364E+02        0.0                 0.0
+       17         5        3.338171E+07        5.777691E+03        9.195480E+02        0.0                 0.0
+       18         4        3.980928E+07        6.309460E+03        1.004182E+03        0.0                 0.0
+       19         3        4.313654E+07        6.567841E+03        1.045304E+03        0.0                 0.0
+       20         2        5.013103E+07        7.080327E+03        1.126869E+03        0.0                 0.0
+       21         1        5.639166E+07        7.509438E+03        1.195164E+03        0.0                 0.0
+1    TEST OF ALL ELEMENTS                                                  FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE    12
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     EIGENVALUES                                                                                                                   
+1    TEST OF ALL ELEMENTS                                                  FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE    13
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     EIGENVALUES                                                                                                                   
+ *** USER INFORMATION MESSAGE 7310 (VECPRN)
+     ORIGIN OF SUPERELEMENT BASIC COORDINATE SYSTEM WILL BE USED AS REFERENCE LOCATION.
+     RESULTANTS ABOUT ORIGIN OF SUPERELEMENT BASIC COORDINATE SYSTEM IN SUPERELEMENT BASIC SYSTEM COORDINATES.
+0                                                  SPCFORCE RESULTANT       
+  SUBCASE/    LOAD
+  DAREA ID    TYPE       T1            T2            T3            R1            R2            R3
+0        1     FX   -1.582973E+02     ----          ----          ----      -8.532320E-27  0.000000E+00                             
+               FY       ----      -1.136546E-06     ----      -1.006119E-07     ----       1.870352E+04                             
+               FZ       ----          ----       3.685866E-09  2.760159E-07  4.460061E+05     ----                                  
+               MX       ----          ----          ----       0.000000E+00     ----          ----                                  
+               MY       ----          ----          ----          ----       2.324569E+03     ----                                  
+               MZ       ----          ----          ----          ----          ----       0.000000E+00                             
+             TOTALS -1.582973E+02 -1.136546E-06  3.685866E-09  1.754039E-07  4.483307E+05  1.870352E+04                             
+0        2     FX    8.610385E-08     ----          ----          ----       4.827303E-14  0.000000E+00                             
+               FY       ----      -1.255458E+02     ----       5.430785E+05     ----      -6.277291E+03                             
+               FZ       ----          ----       1.418063E+04  2.306018E+05 -7.090317E+05     ----                                  
+               MX       ----          ----          ----       0.000000E+00     ----          ----                                  
+               MY       ----          ----          ----          ----       9.188170E-10     ----                                  
+               MZ       ----          ----          ----          ----          ----       0.000000E+00                             
+             TOTALS  8.610385E-08 -1.255458E+02  1.418063E+04  7.736803E+05 -7.090317E+05 -6.277291E+03                             
+0        3     FX    1.136978E-07     ----          ----          ----      -3.596263E-12  0.000000E+00                             
+               FY       ----       9.701147E+03     ----      -1.537991E+07     ----       4.850574E+05                             
+               FZ       ----          ----      -2.007792E+05 -2.439714E+06  1.003896E+07     ----                                  
+               MX       ----          ----          ----       0.000000E+00     ----          ----                                  
+               MY       ----          ----          ----          ----       1.753506E-09     ----                                  
+               MZ       ----          ----          ----          ----          ----       0.000000E+00                             
+             TOTALS  1.136978E-07  9.701147E+03 -2.007792E+05 -1.781963E+07  1.003896E+07  4.850574E+05                             
+0        4     FX    1.415501E-07     ----          ----          ----       2.384693E-12  0.000000E+00                             
+               FY       ----      -6.298712E+03     ----       7.330664E+06     ----      -3.149356E+05                             
+               FZ       ----          ----      -1.931615E+04 -4.211860E+06  9.658074E+05     ----                                  
+               MX       ----          ----          ----       0.000000E+00     ----          ----                                  
+               MY       ----          ----          ----          ----      -1.699846E-09     ----                                  
+               MZ       ----          ----          ----          ----          ----       0.000000E+00                             
+             TOTALS  1.415501E-07 -6.298712E+03 -1.931615E+04  3.118803E+06  9.658074E+05 -3.149356E+05                             
+ *** USER INFORMATION MESSAGE 4114 (OUTPBN2)
+     DATA BLOCK OQG1     WRITTEN ON FORTRAN UNIT  12, TRL =
+                    101                 0               416                 0                 0                 0                 0
+     (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =    65538 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      146 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =       54 RECORDS.)
+     (TOTAL DATA WRITTEN FOR DATA BLOCK =     1059 WORDS.)
+ *** USER INFORMATION MESSAGE 4114 (OUTPBN2)
+     DATA BLOCK LAMA     WRITTEN ON FORTRAN UNIT  12, TRL =
+                    101                21                 0                 0                 0                 0                 0
+     (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =    65538 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      147 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =       24 RECORDS.)
+     (TOTAL DATA WRITTEN FOR DATA BLOCK =      323 WORDS.)
+ *** USER INFORMATION MESSAGE 4114 (OUTPBN2)
+     DATA BLOCK OUGV1    WRITTEN ON FORTRAN UNIT  12, TRL =
+                    101                 0               416                 0                 0                 0                 0
+     (MAXIMUM POSSIBLE FORTRAN RECORD SIZE =    65538 WORDS.)
+     (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      146 WORDS.)
+     (NUMBER OF FORTRAN RECORDS WRITTEN =       54 RECORDS.)
+     (TOTAL DATA WRITTEN FOR DATA BLOCK =     1059 WORDS.)
+1    TEST OF ALL ELEMENTS                                                  FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE    14
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     EIGENVALUES                                                                                                                   
+      EIGENVALUE =  4.690559E+04
+          CYCLES =  3.446930E+01         R E A L   E I G E N V E C T O R   N O .          1
+ 
+      POINT ID.   TYPE          T1             T2             T3             R1             R2             R3
+          1011      G      0.0            0.0            0.0           -2.829738E-02  -2.008511E-03  -1.518392E-05
+          1012      G      0.0            0.0            0.0           -9.640926E-15  -1.967828E-04  -9.286148E-06
+          1013      G      0.0            0.0            0.0            2.829738E-02  -2.008511E-03  -1.518392E-05
+          1021      G      3.172335E-03   5.972628E-03  -1.000000E+00  -1.686930E-03  -1.908592E-02  -1.254869E-04
+          1022      G      3.118271E-03   4.318837E-13  -3.680211E-13  -4.781039E-16  -1.989973E-02  -1.146969E-04
+          1023      G      3.172335E-03  -5.972628E-03   1.000000E+00   1.686930E-03  -1.908592E-02  -1.254869E-04
+          1031      G      1.195772E-02   1.034674E-02  -1.683852E-01   2.501002E-02  -5.024651E-03  -2.066621E-04
+          1032      G      1.088048E-02  -1.695941E-14  -4.737612E-14   8.779720E-15  -3.555772E-03  -1.909985E-04
+          1033      G      1.195772E-02  -1.034674E-02   1.683852E-01  -2.501002E-02  -5.024651E-03  -2.066621E-04
+          1041      G      0.0            0.0           -1.210713E-02   0.0            0.0            0.0
+          1042      G      0.0            0.0           -2.943262E-15   0.0            0.0            0.0
+          1043      G      0.0            0.0            1.210713E-02   0.0            0.0            0.0
+          1051      G      0.0            0.0            0.0            0.0            0.0            0.0
+1    TEST OF ALL ELEMENTS                                                  FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE    15
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     EIGENVALUES                                                                                                                   
+      EIGENVALUE =  6.113262E+04
+          CYCLES =  3.935108E+01         R E A L   E I G E N V E C T O R   N O .          2
+ 
+      POINT ID.   TYPE          T1             T2             T3             R1             R2             R3
+          1011      G      0.0            0.0            0.0           -2.862474E-02  -2.109472E-03   3.178664E-06
+          1012      G      0.0            0.0            0.0           -1.013113E-02  -5.164212E-17   1.833837E-17
+          1013      G      0.0            0.0            0.0           -2.862474E-02   2.109472E-03  -3.178664E-06
+          1021      G      1.136305E-04   3.655270E-03  -1.000000E+00  -1.635780E-03  -1.980095E-02  -2.088091E-05
+          1022      G      1.390726E-14   1.861779E-03  -3.074691E-01  -4.171312E-04  -5.303132E-15  -2.171536E-15
+          1023      G     -1.136305E-04   3.655270E-03  -1.000000E+00  -1.635780E-03   1.980095E-02   2.088091E-05
+          1031      G      1.355692E-03   7.728543E-03  -1.634101E-01   2.540833E-02  -5.430457E-03  -7.611664E-05
+          1032      G      4.101135E-15   3.439771E-03  -4.201433E-02   9.187521E-03  -1.290417E-15   1.740077E-16
+          1033      G     -1.355692E-03   7.728543E-03  -1.634101E-01   2.540833E-02   5.430457E-03   7.611664E-05
+          1041      G      0.0            0.0           -1.218264E-02   0.0            0.0            0.0
+          1042      G      0.0            0.0           -3.085451E-03   0.0            0.0            0.0
+          1043      G      0.0            0.0           -1.218264E-02   0.0            0.0            0.0
+          1051      G      0.0            0.0            0.0            0.0            0.0            0.0
+1    TEST OF ALL ELEMENTS                                                  FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE    16
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     EIGENVALUES                                                                                                                   
+      EIGENVALUE =  1.568042E+05
+          CYCLES =  6.302299E+01         R E A L   E I G E N V E C T O R   N O .          3
+ 
+      POINT ID.   TYPE          T1             T2             T3             R1             R2             R3
+          1011      G      0.0            0.0            0.0           -3.114585E-02  -1.364481E-02   6.232376E-04
+          1012      G      0.0            0.0            0.0            4.844012E-02  -2.887586E-16  -5.415353E-16
+          1013      G      0.0            0.0            0.0           -3.114585E-02   1.364481E-02  -6.232376E-04
+          1021      G     -3.482622E-02  -5.741584E-02  -1.000000E+00   7.225643E-03  -1.274609E-01  -4.893070E-04
+          1022      G      3.768602E-14  -1.190890E-01   3.252951E+00   8.841522E-02  -2.882966E-14  -2.361758E-15
+          1023      G      3.482622E-02  -5.741584E-02  -1.000000E+00   7.225643E-03   1.274609E-01   4.893070E-04
+          1031      G      1.901638E-02  -9.585326E-02   7.100241E-01   4.986043E-02  -2.317566E-01  -3.014448E-03
+          1032      G      1.713997E-14  -2.556996E-01   8.869685E+00   1.199275E-01  -1.885644E-15   5.119603E-16
+          1033      G     -1.901638E-02  -9.585326E-02   7.100241E-01   4.986043E-02   2.317566E-01   3.014448E-03
+          1041      G      0.0            0.0            4.947891E-02   0.0            0.0            0.0
+          1042      G      0.0            0.0            6.983317E-01   0.0            0.0            0.0
+          1043      G      0.0            0.0            4.947891E-02   0.0            0.0            0.0
+          1051      G      0.0            0.0            0.0            0.0            0.0            0.0
+1    TEST OF ALL ELEMENTS                                                  FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE    17
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     EIGENVALUES                                                                                                                   
+      EIGENVALUE =  2.163330E+05
+          CYCLES =  7.402553E+01         R E A L   E I G E N V E C T O R   N O .          4
+ 
+      POINT ID.   TYPE          T1             T2             T3             R1             R2             R3
+          1011      G      0.0            0.0            0.0           -1.784537E-02  -1.991141E-02  -1.244397E-04
+          1012      G      0.0            0.0            0.0            1.689572E-01  -3.594943E-16  -7.820579E-16
+          1013      G      0.0            0.0            0.0           -1.784537E-02   1.991141E-02   1.244397E-04
+          1021      G      9.031904E-03   3.953749E-02  -1.000000E+00  -1.309015E-02  -1.874126E-01  -3.349282E-05
+          1022      G      5.631406E-14   4.129383E-02   5.615814E+00  -2.341982E-02  -3.505873E-14  -3.092876E-15
+          1023      G     -9.031904E-03   3.953749E-02  -1.000000E+00  -1.309015E-02   1.874126E-01   3.349282E-05
+          1031      G      5.147679E-03   7.718235E-02  -1.302239E+00  -8.952033E-03   7.225054E-03   1.708938E-04
+          1032      G      2.788087E-14   8.444247E-02  -2.354308E+00  -2.145707E-01   4.536302E-15   1.409571E-15
+          1033      G     -5.147679E-03   7.718235E-02  -1.302239E+00  -8.952033E-03  -7.225054E-03  -1.708938E-04
+          1041      G      0.0            0.0           -9.832847E-02   0.0            0.0            0.0
+          1042      G      0.0            0.0           -1.865488E-01   0.0            0.0            0.0
+          1043      G      0.0            0.0           -9.832847E-02   0.0            0.0            0.0
+          1051      G      0.0            0.0            0.0            0.0            0.0            0.0
+1    TEST OF ALL ELEMENTS                                                  FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE    18
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     EIGENVALUES                                                                                                                   
+1    TEST OF ALL ELEMENTS                                                  FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE    19
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     EIGENVALUES                                                                                                                   
+      EIGENVALUE =  4.690559E+04
+                               F O R C E S   O F   S I N G L E - P O I N T   C O N S T R A I N T
+ 
+      POINT ID.   TYPE          T1             T2             T3             R1             R2             R3
+          1011      G     -5.247241E+02  -5.037857E+03   4.460061E+03   0.0            0.0            0.0
+          1012      G      8.911509E+02  -5.657664E-07   1.706978E-09   0.0            0.0            0.0
+          1013      G     -5.247241E+02   5.037857E+03  -4.460061E+03   0.0            0.0            0.0
+          1041      G     -3.267183E-16   4.850822E+03   0.0            0.0            5.811423E+02   0.0
+          1042      G     -7.942572E-29   2.803195E-09   0.0            0.0            1.162285E+03   0.0
+          1043      G      3.267183E-16  -4.850822E+03   0.0            0.0            5.811423E+02   0.0
+          1051      G      0.0            0.0            5.520317E-09   0.0            0.0            0.0
+1    TEST OF ALL ELEMENTS                                                  FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE    20
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     EIGENVALUES                                                                                                                   
+      EIGENVALUE =  6.113262E+04
+                               F O R C E S   O F   S I N G L E - P O I N T   C O N S T R A I N T
+ 
+      POINT ID.   TYPE          T1             T2             T3             R1             R2             R3
+          1011      G     -2.234185E+02  -3.268413E+03   4.420548E+03   0.0            0.0            0.0
+          1012      G      8.526738E-08  -4.450290E+03   7.275003E+02   0.0            0.0            0.0
+          1013      G      2.234185E+02  -3.268413E+03   4.420548E+03   0.0            0.0            0.0
+          1041      G     -4.284716E-16   4.857469E+03   0.0            0.0            4.366650E+02   0.0
+          1042      G     -1.085174E-16   1.146632E+03   0.0            0.0            4.594085E-10   0.0
+          1043      G     -4.284716E-16   4.857469E+03   0.0            0.0           -4.366650E+02   0.0
+          1051      G      0.0            0.0            4.612037E+03   0.0            0.0            0.0
+1    TEST OF ALL ELEMENTS                                                  FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE    21
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     EIGENVALUES                                                                                                                   
+      EIGENVALUE =  1.568042E+05
+                               F O R C E S   O F   S I N G L E - P O I N T   C O N S T R A I N T
+ 
+      POINT ID.   TYPE          T1             T2             T3             R1             R2             R3
+          1011      G      1.882031E+04   8.455255E+04  -6.108283E+03   0.0            0.0            0.0
+          1012      G      1.426571E-07   1.481943E+05  -1.397684E+05   0.0            0.0            0.0
+          1013      G     -1.882031E+04   8.455255E+04  -6.108283E+03   0.0            0.0            0.0
+          1041      G      4.463602E-15  -1.677368E+04   0.0            0.0            3.114494E+04   0.0
+          1042      G      6.299806E-14  -2.740509E+05   0.0            0.0            8.776624E-10   0.0
+          1043      G      4.463602E-15  -1.677368E+04   0.0            0.0           -3.114494E+04   0.0
+          1051      G      0.0            0.0           -4.879427E+04   0.0            0.0            0.0
+1    TEST OF ALL ELEMENTS                                                  FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE    22
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     EIGENVALUES                                                                                                                   
+      EIGENVALUE =  2.163330E+05
+                               F O R C E S   O F   S I N G L E - P O I N T   C O N S T R A I N T
+ 
+      POINT ID.   TYPE          T1             T2             T3             R1             R2             R3
+          1011      G     -6.019548E+03  -4.317472E+04   2.248376E+04   0.0            0.0            0.0
+          1012      G      1.879877E-07  -6.656255E+04   1.995353E+04   0.0            0.0            0.0
+          1013      G      6.019548E+03  -4.317472E+04   2.248376E+04   0.0            0.0            0.0
+          1041      G     -1.223798E-14   3.754969E+04   0.0            0.0           -4.234576E+03   0.0
+          1042      G     -2.321790E-14   7.151389E+04   0.0            0.0           -8.494681E-10   0.0
+          1043      G     -1.223798E-14   3.754969E+04   0.0            0.0            4.234576E+03   0.0
+          1051      G      0.0            0.0           -8.423721E+04   0.0            0.0            0.0
+1    TEST OF ALL ELEMENTS                                                  FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE    23
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     EIGENVALUES                                                                                                                   
+ *** USER INFORMATION MESSAGE 4110 (OUTPBN2)
+                                 END-OF-DATA SIMULATION ON FORTRAN UNIT 12
+                                 (MAXIMUM SIZE OF FORTRAN RECORDS WRITTEN =      1 WORDS.)
+                                       (NUMBER OF FORTRAN RECORDS WRITTEN =      1 RECORDS.)
+                                       (TOTAL DATA WRITTEN FOR EOF MARKER =      1 WORDS.)
+1    TEST OF ALL ELEMENTS                                                  FEBRUARY   1, 2025  SIMCENTER NASTRAN 10/ 3/24   PAGE    24
+      TRUSS SUPPORTED SHELF                                                                                                         
+0     EIGENVALUES                                                                                                                   
+ * * * *  D B D I C T   P R I N T  * * * *      SUBDMAP = PRTSUM  ,  DMAP STATEMENT NO.     28
+
+
+
+0                                   * * * *  A N A L Y S I S  S U M M A R Y  T A B L E  * * * *
+0 SEID  PEID PROJ VERS APRCH      SEMG SEMR SEKR SELG SELR MODES DYNRED SOLLIN PVALID SOLNL LOOPID DESIGN CYCLE SENSITIVITY
+ --------------------------------------------------------------------------------------------------------------------------
+     0     0    1    1 '        '    T    T    T    T    T     T      F      T      0     F     -1            0           F
+0SEID = SUPERELEMENT ID.
+ PEID = PRIMARY SUPERELEMENT ID OF IMAGE SUPERELEMENT.
+ PROJ = PROJECT ID NUMBER.
+ VERS = VERSION ID.
+ APRCH = BLANK FOR STRUCTURAL ANALYSIS.  HEAT FOR HEAT TRANSFER ANALYSIS.
+ SEMG = STIFFNESS AND MASS MATRIX GENERATION STEP.
+ SEMR = MASS MATRIX REDUCTION STEP (INCLUDES EIGENVALUE SOLUTION FOR MODES).
+ SEKR = STIFFNESS MATRIX REDUCTION STEP.
+ SELG = LOAD MATRIX GENERATION STEP.
+ SELR = LOAD MATRIX REDUCTION STEP. 
+ MODES = T (TRUE) IF NORMAL MODES OR BUCKLING MODES CALCULATED.
+ DYNRED = T (TRUE) MEANS GENERALIZED DYNAMIC AND/OR COMPONENT MODE REDUCTION PERFORMED.
+ SOLLIN = T (TRUE) IF LINEAR SOLUTION EXISTS IN DATABASE.
+ PVALID = P-DISTRIBUTION ID OF P-VALUE FOR P-ELEMENTS
+ LOOPID = THE LAST LOOPID VALUE USED IN THE NONLINEAR ANALYSIS.  USEFUL FOR RESTARTS.
+ SOLNL = T (TRUE) IF NONLINEAR SOLUTION EXISTS IN DATABASE.
+ DESIGN CYCLE = THE LAST DESIGN CYCLE (ONLY VALID IN OPTIMIZATION).
+ SENSITIVITY = SENSITIVITY MATRIX GENERATION FLAG.
+1                                        * * * END OF JOB * * *
+ 
+ 

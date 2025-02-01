@@ -297,7 +297,7 @@ pub(crate) fn last_natural(line: &str) -> Option<usize> {
 /// Checks if a character is an uppercase letter or a digit.
 fn upper_or_digit_or_special(ch: char) -> bool {
   /// Allowed special characters in a spaced header line.
-  const SPEC: &str = "()[]-";
+  const SPEC: &str = "()[]-.";
   return ch.is_ascii_uppercase() || ch.is_ascii_digit() || SPEC.contains(ch);
 }
 
@@ -307,6 +307,14 @@ pub(crate) fn unspace(line: &str) -> Option<String> {
   let mut cap: usize = 0;
   let mut last: char = ' ';
   let mut stop_at: usize = 0;
+
+  // special case for SC NASTRAN eigen solutions
+  let line = if line.split_ascii_whitespace().next().is_some_and(|w| w == "CYCLES") {
+    &line[(line.find("R")?-1)..]
+  } else {
+    line
+  };
+
   for ch in line.chars() {
     stop_at += 1;
     if upper_or_digit_or_special(ch) {

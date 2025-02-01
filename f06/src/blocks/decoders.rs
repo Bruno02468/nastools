@@ -1379,7 +1379,7 @@ pub struct EigenVectorDecoder {
 
 impl BlockDecoder for EigenVectorDecoder {
   type MatScalar = f64;
-  type RowIndex = GridPointCsys;
+  type RowIndex = GridPointRef;
   type ColumnIndex = Dof;
   const MATWIDTH: usize = SIXDOF;
   const BLOCK_TYPE: BlockType = BlockType::EigenVector;
@@ -1412,16 +1412,16 @@ impl BlockDecoder for EigenVectorDecoder {
     let Some(gid) = nth_natural(line, 0) else {
       return LineResponse::Unsupported;
     };
-    let Some(cid) = nth_natural(line, 1) else {
-      return LineResponse::Unsupported;
-    };
-    self.data.insert_raw((gid, cid).into(), &dof);
+    // let Some(cid) = nth_natural(line, 1) else {
+    //   return LineResponse::Unsupported;
+    // };
+    self.data.insert_raw((gid).into(), &dof);
     LineResponse::Data
   }
 }
 
 #[test]
-fn eigenvector_decoder() {
+fn eigenvector_mystran() {
   const TEST_BLOCK: &str =
   "                                            (in global coordinate system at each grid)
            GRID     COORD      T1            T2            T3            R1            R2            R3
@@ -1445,24 +1445,60 @@ fn eigenvector_decoder() {
   for line in TEST_BLOCK.lines() {
     BlockDecoder::consume(&mut dec, line);
   }
-  let finalized = dec.unwrap(1, None);
-  dbg!(&finalized);
-  let Some(FinalDMat::Reals(mat)) = finalized.data else {
-    panic!("wrong FinalDMat type")
-  };
-  assert_eq!(mat.column_iter().count(), 6);
-  assert_eq!(mat.row_iter().count(), 5);
+  assert_eq!(dec.data.data.as_ref().unwrap().column_iter().count(), 6);
+  assert_eq!(dec.data.data.as_ref().unwrap().row_iter().count(), 5);
 
-  let grid_ids: Vec<_> = finalized
+  let grid_ids: Vec<_> = dec.data
     .row_indexes
     .keys()
-    .map(|k| k.grid_point_id().unwrap().gid)
+    .map(|k| k.gid)
     .collect();
   assert_eq!(grid_ids, [1, 2, 3, 4, 5]);
-  assert!(finalized
-    .row_indexes
-    .keys()
-    .all(|k| matches!(k, NasIndex::GridPointCsys(g) if g.cid.cid == 0)));
+}
+
+#[test]
+fn eigenvector_scnastran() {
+  const TEST_BLOCK: &str = "
+      POINT ID.   TYPE          T1             T2             T3             R1             R2             R3
+          1011      G      0.0            0.0            0.0           -1.784537E-02  -1.991141E-02  -1.244397E-04
+          1012      G      0.0            0.0            0.0            1.689572E-01  -3.594943E-16  -7.820579E-16
+          1013      G      0.0            0.0            0.0           -1.784537E-02   1.991141E-02   1.244397E-04
+          1021      G      9.031904E-03   3.953749E-02  -1.000000E+00  -1.309015E-02  -1.874126E-01  -3.349282E-05
+          1022      G      5.631406E-14   4.129383E-02   5.615814E+00  -2.341982E-02  -3.505873E-14  -3.092876E-15
+          1023      G     -9.031904E-03   3.953749E-02  -1.000000E+00  -1.309015E-02   1.874126E-01   3.349282E-05
+          1031      G      5.147679E-03   7.718235E-02  -1.302239E+00  -8.952033E-03   7.225054E-03   1.708938E-04
+          1032      G      2.788087E-14   8.444247E-02  -2.354308E+00  -2.145707E-01   4.536302E-15   1.409571E-15
+          1033      G     -5.147679E-03   7.718235E-02  -1.302239E+00  -8.952033E-03  -7.225054E-03  -1.708938E-04
+          1041      G      0.0            0.0           -9.832847E-02   0.0            0.0            0.0
+          1042      G      0.0            0.0           -1.865488E-01   0.0            0.0            0.0
+          1043      G      0.0            0.0           -9.832847E-02   0.0            0.0            0.0
+          1051      G      0.0            0.0            0.0            0.0            0.0            0.0
+  ";
+  let mut dec = EigenVectorDecoder::new(Flavour {
+    solver: Some(Solver::Simcenter),
+    soltype: Some(SolType::Eigenvalue),
+  });
+  for line in TEST_BLOCK.lines() {
+    BlockDecoder::consume(&mut dec, line);
+  }
+
+  assert_eq!(dec.data.data.as_ref().unwrap().row_iter().count(), 13);
+
+  let mut gids = dec.data.row_indexes().keys().map(|k| k.gid);
+  assert_eq!(gids.next(), Some(1011));
+  assert_eq!(gids.next(), Some(1012));
+  assert_eq!(gids.next(), Some(1013));
+  assert_eq!(gids.next(), Some(1021));
+  assert_eq!(gids.next(), Some(1022));
+  assert_eq!(gids.next(), Some(1023));
+  assert_eq!(gids.next(), Some(1031));
+  assert_eq!(gids.next(), Some(1032));
+  assert_eq!(gids.next(), Some(1033));
+  assert_eq!(gids.next(), Some(1041));
+  assert_eq!(gids.next(), Some(1042));
+  assert_eq!(gids.next(), Some(1043));
+  assert_eq!(gids.next(), Some(1051));
+  assert_eq!(gids.next(), None);
 }
 
 /// Decoder for real eigenvalues.
@@ -1521,7 +1557,7 @@ impl BlockDecoder for RealEigenValuesDecoder {
 }
 
 #[test]
-fn real_eigenvalues_decoder() {
+fn real_eigenvalues_mystran() {
   const MYSTRAN_BLOCK: &str =
   "
       MODE  EXTRACTION      EIGENVALUE           RADIANS              CYCLES            GENERALIZED         GENERALIZED
@@ -1548,4 +1584,48 @@ fn real_eigenvalues_decoder() {
   assert_eq!(row_idxs.next(), Some(EigenSolutionMode(3)));
   assert_eq!(row_idxs.next(), Some(EigenSolutionMode(4)));
   assert_eq!(row_idxs.next(), None);
+
+  assert_eq!(dec.data.data.as_ref().unwrap().row_iter().count(), 4);
+  assert_eq!(dec.data.data.as_ref().unwrap().column_iter().count(), 5);
+}
+
+#[test]
+fn real_eigenvalues_scnastran() {
+  const MYSTRAN_BLOCK: &str =
+  "   MODE    EXTRACTION      EIGENVALUE            RADIANS             CYCLES            GENERALIZED         GENERALIZED
+    NO.       ORDER                                                                       MASS              STIFFNESS
+        1        20        4.690559E+04        2.165770E+02        3.446930E+01        1.753081E-01        8.222928E+03
+        2        21        6.113262E+04        2.472501E+02        3.935108E+01        1.865598E-01        1.140489E+04
+        3        19        1.568042E+05        3.959851E+02        6.302299E+01        9.966058E+00        1.562720E+06
+        4        18        2.163330E+05        4.651161E+02        7.402553E+01        4.716262E+00        1.020283E+06
+        5        16        2.885671E+05        5.371845E+02        8.549556E+01        0.0                 0.0
+        6        17        3.162935E+05        5.623998E+02        8.950871E+01        0.0                 0.0
+        7        15        1.028630E+06        1.014214E+03        1.614171E+02        0.0                 0.0
+        8        10        4.670556E+06        2.161147E+03        3.439572E+02        0.0                 0.0
+        9        13        5.985235E+06        2.446474E+03        3.893684E+02        0.0                 0.0
+       10        14        6.138342E+06        2.477568E+03        3.943171E+02        0.0                 0.0
+       11        11        6.832876E+06        2.613977E+03        4.160274E+02        0.0                 0.0
+       12        12        7.011209E+06        2.647869E+03        4.214214E+02        0.0                 0.0
+       13         9        1.140055E+07        3.376469E+03        5.373818E+02        0.0                 0.0
+       14         8        1.437963E+07        3.792048E+03        6.035232E+02        0.0                 0.0
+       15         7        1.889738E+07        4.347112E+03        6.918643E+02        0.0                 0.0
+       16         6        2.477192E+07        4.977140E+03        7.921364E+02        0.0                 0.0
+       17         5        3.338171E+07        5.777691E+03        9.195480E+02        0.0                 0.0
+       18         4        3.980928E+07        6.309460E+03        1.004182E+03        0.0                 0.0
+       19         3        4.313654E+07        6.567841E+03        1.045304E+03        0.0                 0.0
+       20         2        5.013103E+07        7.080327E+03        1.126869E+03        0.0                 0.0
+       21         1        5.639166E+07        7.509438E+03        1.195164E+03        0.0                 0.0
+  ";
+
+  let mut dec = RealEigenValuesDecoder::new(Flavour {
+    solver: Some(Solver::Mystran),
+    soltype: Some(SolType::Eigenvalue),
+  });
+
+  for line in MYSTRAN_BLOCK.lines() {
+    BlockDecoder::consume(&mut dec, line);
+  }
+  assert!(dec.data.row_indexes().keys().copied().enumerate().all(|(i, idx)| idx.0 as usize == i + 1));
+  assert_eq!(dec.data.data.as_ref().unwrap().row_iter().count(), 21);
+  assert_eq!(dec.data.data.as_ref().unwrap().column_iter().count(), 5);
 }

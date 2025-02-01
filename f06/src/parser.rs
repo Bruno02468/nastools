@@ -244,6 +244,14 @@ impl OnePassParser {
             );
             return ParserResponse::BeginningWithoutSolver;
           } else {
+            // subcase is on this line for this specific scenario
+            if bt == BlockType::EigenVector
+              && self.file.flavour.solver.is_some_and(|s| s == Solver::Simcenter)
+            {
+              // TODO: find a way to propagate both this and PotentialHeader back to the caller
+              self.subcase = last_natural(&full_name).unwrap_or(self.subcase);
+            }
+
             // ok, begin the block then.
             let mut dec = bt.init_decoder(self.file.flavour);
             if dec.good_header(&full_name) {

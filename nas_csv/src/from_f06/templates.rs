@@ -840,15 +840,14 @@ pub const CT_EIGENVECTOR: BlockConverter = BlockConverter {
     Dof,
     [
       ColumnGenerator::GridId,
-      ColumnGenerator::RowIndexFn(&(ixfn_csys as IndexFn)),
       ColumnGenerator::Subcase,
     ],
     [DOF_TX, DOF_TY, DOF_TZ, DOF_RX, DOF_RY, DOF_RZ,],
     [],
-    [BLANK,],
+    [BLANK, BLANK,],
   )],
   headers: &[[
-    "GID", "CoordSys", "Mode", "Fx", "Fy", "Fz", "Mx", "My", "Mz", HBLANK,
+    "GID", "Mode", "Fx", "Fy", "Fz", "Mx", "My", "Mz", HBLANK, HBLANK,
   ]],
 };
 
