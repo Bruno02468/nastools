@@ -213,7 +213,7 @@ pub(crate) fn nth_natural(line: &str, n: usize) -> Option<usize> {
   return line_breakdown(line)
     .filter_map(|field| {
       if let LineField::Integer(x) = field {
-        return Some(x as usize);
+        return x.try_into().ok();
       } else {
         None
       }
@@ -291,7 +291,7 @@ pub(crate) fn last_int(line: &str) -> Option<isize> {
 
 /// Returns the last natural in a line.
 pub(crate) fn last_natural(line: &str) -> Option<usize> {
-  return last_int(line).map(|i| i as usize);
+  return last_int(line).and_then(|i| i.try_into().ok());
 }
 
 /// Checks if a character is an uppercase letter or a digit.
