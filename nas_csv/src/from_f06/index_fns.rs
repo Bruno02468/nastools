@@ -23,6 +23,7 @@ pub fn ixfn_gid(index: NasIndex) -> Result<CsvField, ConversionError> {
         ElementPoint::Corner(g) => g.gid,
         _ => return bad_col_type(index),
       },
+      NasIndex::GridPointCsys(g) => g.gid.gid,
       _ => return bad_col_type(index),
     }
     .into(),
@@ -74,5 +75,21 @@ pub fn ixfn_fo(index: NasIndex) -> Result<CsvField, ConversionError> {
     );
   } else {
     return Err(ConversionError::BadColIndexType(index));
+  }
+}
+
+/// Extracts the Eigen solution mode
+pub fn ixfn_eigen_mode(index: NasIndex) -> Result<CsvField, ConversionError> {
+  match index {
+    NasIndex::EigenSolutionMode(m) => Ok(CsvField::Natural(m.0 as usize)),
+    idx => Err(ConversionError::BadRowIndexType(idx)),
+  }
+}
+
+/// Extracts a Coordinate System ID
+pub fn ixfn_csys(index: NasIndex) -> Result<CsvField, ConversionError> {
+  match index {
+    NasIndex::GridPointCsys(idx) => Ok(CsvField::Natural(idx.cid.cid)),
+    idx => Err(ConversionError::BadRowIndexType(idx)),
   }
 }

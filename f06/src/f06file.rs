@@ -118,8 +118,8 @@ impl F06File {
           let full_ok = can_merge.is_ok() && (conflicts.is_empty() || !clean);
           if !full_ok {
             debug!("a merge failed! check this out:");
-            debug!("{:#?}", can_merge);
-            debug!("{:#?}", conflicts);
+            debug!("{:?}", can_merge);
+            debug!("{:?}", conflicts);
           }
           return full_ok;
         })

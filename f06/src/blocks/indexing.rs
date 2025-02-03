@@ -149,6 +149,7 @@ impl NasIndex {
         ElementPoint::Midpoint(g) => g,
         _ => return None,
       },
+      NasIndex::GridPointCsys(g) => g.gid,
       _ => return None,
     });
   }
@@ -187,6 +188,9 @@ gen_nasindex!(
   PlateForceField,
   PlateStressField,
   PlateStrainField,
+  GridPointCsys,
+  RealEigenValueField,
+  EigenSolutionMode,
 );
 
 /// All field indexing types must implement this trait.
@@ -868,3 +872,83 @@ gen_with_inner!(
   BarStrainField,
   BarStressField
 );
+
+/// A combination of a grid point reference and a coordinate system
+#[derive(
+  Copy,
+  Clone,
+  Debug,
+  Serialize,
+  Deserialize,
+  PartialOrd,
+  Ord,
+  PartialEq,
+  Eq,
+  derive_more::From,
+)]
+pub struct GridPointCsys {
+  /// A reference to the grid point.
+  pub gid: GridPointRef,
+  /// The coordinate system.
+  pub cid: CsysRef,
+}
+
+impl IndexType for GridPointCsys {
+  const INDEX_NAME: &'static str = "GRID POINT COORD SYS";
+}
+
+impl Display for GridPointCsys {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "{} ON {}", self.gid, self.cid)
+  }
+}
+
+impl From<(usize, usize)> for GridPointCsys {
+  fn from((gid, cid): (usize, usize)) -> Self {
+    Self {
+      gid: gid.into(),
+      cid: cid.into(),
+    }
+  }
+}
+
+/// Vibration mode of eigen solution
+#[derive(
+  Copy,
+  Clone,
+  Debug,
+  Serialize,
+  Deserialize,
+  PartialOrd,
+  Ord,
+  PartialEq,
+  Eq,
+  derive_more::From,
+)]
+pub struct EigenSolutionMode(pub i32);
+
+impl IndexType for EigenSolutionMode {
+  const INDEX_NAME: &'static str = "EIGEN SOLUTION MODE";
+}
+
+impl Display for EigenSolutionMode {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.write_str("MODE")
+  }
+}
+
+from_enum!(
+  "Field Values for Real Eigenvalues",
+  RealEigenValueField,
+  [
+    (EigenValue, "EIGENVALUE"),
+    (Radians, "RADIANS"),
+    (Cycles, "CYCLES"),
+    (GeneralizedMass, "GENERALIZED MASS"),
+    (GeneralizedStiffness, "GENERALIZED STIFFNESS"),
+  ]
+);
+
+impl IndexType for RealEigenValueField {
+  const INDEX_NAME: &'static str = "EIGENVALUE FIELDS";
+}

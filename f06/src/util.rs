@@ -36,6 +36,8 @@ pub(crate) const SUS_WORDS: &[&str] = &[
   "COORD",
   "SYSTEM",
   "LOCAL",
+  "EIGENVECTOR",
+  "EIGENVALUES",
 ];
 
 /// Words that make us ignore a block because it's definitely not gonna be
@@ -211,7 +213,7 @@ pub(crate) fn nth_natural(line: &str, n: usize) -> Option<usize> {
   return line_breakdown(line)
     .filter_map(|field| {
       if let LineField::Integer(x) = field {
-        return Some(x as usize);
+        return x.try_into().ok();
       } else {
         None
       }
@@ -289,13 +291,13 @@ pub(crate) fn last_int(line: &str) -> Option<isize> {
 
 /// Returns the last natural in a line.
 pub(crate) fn last_natural(line: &str) -> Option<usize> {
-  return last_int(line).map(|i| i as usize);
+  return last_int(line).and_then(|i| i.try_into().ok());
 }
 
 /// Checks if a character is an uppercase letter or a digit.
 fn upper_or_digit_or_special(ch: char) -> bool {
   /// Allowed special characters in a spaced header line.
-  const SPEC: &str = "()[]-";
+  const SPEC: &str = "()[]-.";
   return ch.is_ascii_uppercase() || ch.is_ascii_digit() || SPEC.contains(ch);
 }
 
@@ -305,6 +307,18 @@ pub(crate) fn unspace(line: &str) -> Option<String> {
   let mut cap: usize = 0;
   let mut last: char = ' ';
   let mut stop_at: usize = 0;
+
+  // special case for SC NASTRAN eigen solutions
+  let line = if line
+    .split_ascii_whitespace()
+    .next()
+    .is_some_and(|w| w == "CYCLES")
+  {
+    &line[(line.find("R")? - 1)..]
+  } else {
+    line
+  };
+
   for ch in line.chars() {
     stop_at += 1;
     if upper_or_digit_or_special(ch) {

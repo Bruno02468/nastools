@@ -16,13 +16,22 @@ use log::*;
 use nas_csv::from_f06::templates::all_converters;
 use nas_csv::prelude::*;
 
-/// The arguments passed to the converter.
+/// help template for clap args parser
+const HELP_TEMPLATE: &str = "{name} - {version}
+{about-section}
+{usage-heading}
+{tab}{usage}
+
+{all-args}
+{after-help}";
+
+/// A command-line utility to convert NASTRAN F06 output to CSV.
 #[derive(Clone, Debug, Parser)]
 #[command(
   name = "f06csv",
   author,
   version,
-  about = "A command-line utility to convert Nastran F06 output to CSV."
+  help_template = HELP_TEMPLATE,
 )]
 struct Cli {
   /// Path to write output to.
@@ -85,7 +94,7 @@ struct Cli {
   /// The delimiter used in the CSV.
   #[arg(short = 'd', long, default_value = ",", verbatim_doc_comment)]
   delim: char,
-  /// Use CRLF (Windows) line breaks. Default is Unix (LF).
+  /// Use CRLF (Windows) line breaks. Default is LF (Unix).
   #[arg(long = "crlf", verbatim_doc_comment)]
   crlf: bool,
   /// Formatting options.

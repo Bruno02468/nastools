@@ -20,7 +20,6 @@ pub type RowHeader = [&'static str; NAS_CSV_COLS - 1];
 #[derive(
   Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord,
 )]
-#[non_exhaustive]
 pub enum CsvBlockId {
   /// The 0-block: general solution info; subcase IDs, solution types, etc.
   Metadata,
@@ -38,6 +37,10 @@ pub enum CsvBlockId {
   AppliedForces,
   /// The 7-block: forces of single-point constraint.
   SpcForces,
+  /// The 8-block: eigenvectors.
+  EigenVectors,
+  /// The 9-block: real eigenvalues.
+  EigenValues,
 }
 
 // this impl allow numerical shorthands
@@ -48,7 +51,13 @@ impl ValueEnum for CsvBlockId {
 
   fn to_possible_value(&self) -> Option<clap::builder::PossibleValue> {
     let mut pv: PossibleValue = self.shorthand().into();
+
     pv = pv.aliases(self.aliases());
+
+    let help = self.help_string();
+    let pad_len = CsvBlockId::longest_help_len();
+    pv = pv.help(format!("{help:pad_len$} aliases: {:?}", self.aliases()));
+
     return Some(pv);
   }
 }
@@ -65,7 +74,41 @@ impl CsvBlockId {
       Self::GridPointForces,
       Self::AppliedForces,
       Self::SpcForces,
+      Self::EigenVectors,
+      Self::EigenValues,
     ];
+  }
+
+  /// Returns the maximum length in bytes of all help strings.
+  pub(crate) const fn longest_help_len() -> usize {
+    let mut max = 0;
+    let mut i = 0;
+    while i < Self::all().len() {
+      let help_len = Self::all()[i].help_string().len();
+      if help_len > max {
+        max = help_len
+      }
+      i += 1;
+    }
+    max
+  }
+
+  /// Returns a short help string for the specified case
+  pub const fn help_string(&self) -> &'static str {
+    match self {
+      CsvBlockId::Metadata => {
+        "general solution info; subcase IDs, solution types, etc."
+      }
+      CsvBlockId::Displacements => "displacements.",
+      CsvBlockId::Stresses => "stresses.",
+      CsvBlockId::Strains => "strains.",
+      CsvBlockId::EngForces => "element engineering forces.",
+      CsvBlockId::GridPointForces => "grid point force balance.",
+      CsvBlockId::AppliedForces => "applied forces.",
+      CsvBlockId::SpcForces => "forces of single-point constraint.",
+      CsvBlockId::EigenVectors => "eigenvectors.",
+      CsvBlockId::EigenValues => "real eigenvalues.",
+    }
   }
 
   /// Returns a constant name for this block ID.
@@ -79,6 +122,8 @@ impl CsvBlockId {
       Self::GridPointForces => "GridPointForces",
       Self::AppliedForces => "AppliedForces",
       Self::SpcForces => "SpcForces",
+      Self::EigenVectors => "EigenVectors",
+      Self::EigenValues => "EigenValues",
     };
   }
 
@@ -93,6 +138,8 @@ impl CsvBlockId {
       Self::GridPointForces => "gpforce",
       Self::AppliedForces => "load",
       Self::SpcForces => "spcfor",
+      Self::EigenVectors => "eigenvec",
+      Self::EigenValues => "eigenval",
     };
   }
 
@@ -114,6 +161,8 @@ impl CsvBlockId {
       ],
       Self::AppliedForces => &["6", "applied"],
       Self::SpcForces => &["7", "spcf", "spcforces"],
+      Self::EigenVectors => &["8", "eigenvectors"],
+      Self::EigenValues => &["9", "eigenvalues"],
     };
   }
 }
@@ -135,6 +184,8 @@ impl From<CsvBlockId> for usize {
       CsvBlockId::GridPointForces => 5,
       CsvBlockId::AppliedForces => 6,
       CsvBlockId::SpcForces => 7,
+      CsvBlockId::EigenVectors => 8,
+      CsvBlockId::EigenValues => 9,
     };
   }
 }
@@ -158,6 +209,8 @@ impl TryFrom<usize> for CsvBlockId {
       5 => CsvBlockId::GridPointForces,
       6 => CsvBlockId::AppliedForces,
       7 => CsvBlockId::SpcForces,
+      8 => CsvBlockId::EigenVectors,
+      9 => CsvBlockId::EigenValues,
       _ => return Err(()),
     });
   }

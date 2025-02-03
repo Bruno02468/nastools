@@ -96,6 +96,8 @@ pub enum ColumnGenerator {
   SolverName,
   /// Output the subcase.
   Subcase,
+  // /// Output the Eigen Mode.
+  // EigenMode,
   /// Output a constant number.
   ConstantNumber(F06Number),
   /// Output a constant string.

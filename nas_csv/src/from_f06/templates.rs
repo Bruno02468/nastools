@@ -137,6 +137,9 @@ pub const ALL_CONVERTERS: &[BlockConverter] = &[
   CT_APPLIED_FORCES,
   // spc forces
   CT_SPC_FORCES,
+  // eigen solutions
+  CT_EIGENVECTOR,
+  CT_REAL_EIGENVALUES,
 ];
 
 /// Returns all the converters in this source file, coded per-type.
@@ -826,5 +829,52 @@ pub const CT_SPC_FORCES: BlockConverter = BlockConverter {
   )],
   headers: &[[
     "GID", "Subcase", "Fx", "Fy", "Fz", "Mx", "My", "Mz", HBLANK, HBLANK,
+  ]],
+};
+
+/// Conversion template for EIGENVECTOR
+pub const CT_EIGENVECTOR: BlockConverter = BlockConverter {
+  input_block_type: BlockType::EigenVector,
+  output_block_id: CsvBlockId::EigenVectors,
+  generators: &[cols!(
+    Dof,
+    [ColumnGenerator::GridId, ColumnGenerator::Subcase,],
+    [DOF_TX, DOF_TY, DOF_TZ, DOF_RX, DOF_RY, DOF_RZ,],
+    [],
+    [BLANK, BLANK,],
+  )],
+  headers: &[[
+    "GID", "Mode", "Fx", "Fy", "Fz", "Mx", "My", "Mz", HBLANK, HBLANK,
+  ]],
+};
+
+/// Conversion template for REAL EIGENVALUES
+pub const CT_REAL_EIGENVALUES: BlockConverter = BlockConverter {
+  input_block_type: BlockType::RealEigenValues,
+  output_block_id: CsvBlockId::EigenValues,
+  generators: &[cols!(
+    RealEigenValueField,
+    [ColumnGenerator::RowIndexFn(&(ixfn_eigen_mode as IndexFn)),],
+    [
+      RealEigenValueField::EigenValue,
+      RealEigenValueField::Radians,
+      RealEigenValueField::Cycles,
+      RealEigenValueField::GeneralizedMass,
+      RealEigenValueField::GeneralizedStiffness,
+    ],
+    [],
+    [BLANK, BLANK, BLANK, BLANK,],
+  )],
+  headers: &[[
+    "Mode",
+    "Eigenvalue",
+    "Radians",
+    "Cycles",
+    "GeneralizedMass",
+    "GeneralizedStiffness",
+    HBLANK,
+    HBLANK,
+    HBLANK,
+    HBLANK,
   ]],
 };
