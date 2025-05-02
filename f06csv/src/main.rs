@@ -100,6 +100,11 @@ struct Cli {
   /// Formatting options.
   #[command(flatten)]
   fmtr: CsvFormatting,
+  /// Limit output to specific columns (numbers 1 thru 11)
+  ///
+  /// Can be specified more than once, or comma-separated.
+  #[arg(short = 'c', long = "cols", num_args = 0.., value_delimiter = ',')]
+  cols: Vec<usize>,
   /// Output extra/debug info while parsing and converting.
   #[arg(short = 'v', long = "verbose", verbatim_doc_comment)]
   verbose: bool,
@@ -148,7 +153,7 @@ fn main() -> Result<(), Box<dyn Error>> {
   let delim_byte: u8 = args
     .delim
     .try_into()
-    .expect("Delimiter must not be a special character1");
+    .expect("Delimiter must not be a special character!");
   let term = if args.crlf {
     Terminator::CRLF
   } else {
@@ -163,6 +168,15 @@ fn main() -> Result<(), Box<dyn Error>> {
     return v.is_empty()
       || x.is_none()
       || x.as_ref().is_some_and(|k| v.contains(k));
+  }
+  /// Filter an iterator over columns.
+  fn col_filter<T, I: Iterator<Item = T>>(
+    it: I,
+    a: &Cli
+  ) -> impl Iterator<Item=T> + use<'_, T, I> {
+    return it.enumerate()
+      .filter(|(i, _x)| a.cols.is_empty() || a.cols.contains(&(i+1)))
+      .map(|t| t.1)
   }
   // should we write a record?
   let should_write = |r: &CsvRecord, a: &Cli| -> bool {
@@ -179,11 +193,12 @@ fn main() -> Result<(), Box<dyn Error>> {
       .filter_map(|rec| {
         if should_write(&rec, &args) && rec.block_id != CsvBlockId::Metadata {
           let h = if args.headers {
-            rec.header_as_iter().map(|f| f.len()).max()
+            col_filter(rec.header_as_iter(), &args).map(|f| f.len()).max()
           } else {
             None
           };
-          let n = rec.to_fields().map(|f| args.fmtr.to_string(f).len()).max();
+          let n = col_filter(rec.to_fields(), &args)
+            .map(|f| args.fmtr.to_string(f).len()).max();
           return n.max(h);
         } else {
           return None;
@@ -226,11 +241,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         if last_header != Some((cur_header, cur_bid)) || was_none {
           // header change
           last_header = Some((cur_header, cur_bid));
-          wtr.write_record(rec.header_as_iter().map(pad))?;
+          wtr.write_record(col_filter(rec.header_as_iter(), &args).map(pad))?;
         }
       }
-      wtr
-        .write_record(rec.to_fields().map(|f| pad(&args.fmtr.to_string(f))))?;
+      let flds = col_filter(rec.to_fields(), &args);
+      wtr.write_record(flds.map(|f| pad(&args.fmtr.to_string(f))))?;
     }
   }
   info!("All done.");
