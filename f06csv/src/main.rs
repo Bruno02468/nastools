@@ -172,11 +172,12 @@ fn main() -> Result<(), Box<dyn Error>> {
   /// Filter an iterator over columns.
   fn col_filter<T, I: Iterator<Item = T>>(
     it: I,
-    a: &Cli
-  ) -> impl Iterator<Item=T> + use<'_, T, I> {
-    return it.enumerate()
-      .filter(|(i, _x)| a.cols.is_empty() || a.cols.contains(&(i+1)))
-      .map(|t| t.1)
+    a: &Cli,
+  ) -> impl Iterator<Item = T> + use<'_, T, I> {
+    return it
+      .enumerate()
+      .filter(|(i, _x)| a.cols.is_empty() || a.cols.contains(&(i + 1)))
+      .map(|t| t.1);
   }
   // should we write a record?
   let should_write = |r: &CsvRecord, a: &Cli| -> bool {
@@ -193,12 +194,15 @@ fn main() -> Result<(), Box<dyn Error>> {
       .filter_map(|rec| {
         if should_write(&rec, &args) && rec.block_id != CsvBlockId::Metadata {
           let h = if args.headers {
-            col_filter(rec.header_as_iter(), &args).map(|f| f.len()).max()
+            col_filter(rec.header_as_iter(), &args)
+              .map(|f| f.len())
+              .max()
           } else {
             None
           };
           let n = col_filter(rec.to_fields(), &args)
-            .map(|f| args.fmtr.to_string(f).len()).max();
+            .map(|f| args.fmtr.to_string(f).len())
+            .max();
           return n.max(h);
         } else {
           return None;
