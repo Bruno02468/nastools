@@ -167,6 +167,14 @@ impl NasIndex {
       _ => return None,
     });
   }
+
+  /// Returns the degree of freedom associated with this index, if it has one.
+  pub fn dof(&self) -> Option<Dof> {
+    if let Self::Dof(d) = self {
+      return Some(*d);
+    }
+    return None;
+  }
 }
 
 gen_nasindex!(

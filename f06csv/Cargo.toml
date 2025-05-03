@@ -13,9 +13,9 @@ csv = "1.3"
 derive_more = "0.99"
 
 [dependencies.f06]
-version = "0.4"
+version = "0.5"
 path = "../f06"
 
 [dependencies.nas_csv]
-version = "0.4"
+version = "0.5"
 path = "../nas_csv"
