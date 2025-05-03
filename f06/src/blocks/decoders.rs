@@ -1498,7 +1498,7 @@ fn eigenvector_scnastran() {
 }
 
 /// Decoder for real eigenvalues.
-pub struct RealEigenValuesDecoder {
+pub struct RealEigenvaluesDecoder {
   /// The flavour of F06 file we're decoding eigenvectors for.
   flavour: Flavour,
   /// The eigenvalue data
@@ -1510,16 +1510,16 @@ pub struct RealEigenValuesDecoder {
   >,
 }
 
-impl BlockDecoder for RealEigenValuesDecoder {
+impl BlockDecoder for RealEigenvaluesDecoder {
   type MatScalar = f64;
   type RowIndex = EigenSolutionMode;
-  type ColumnIndex = RealEigenValueField;
+  type ColumnIndex = RealEigenvalueField;
   const MATWIDTH: usize = 5;
-  const BLOCK_TYPE: BlockType = BlockType::RealEigenValues;
+  const BLOCK_TYPE: BlockType = BlockType::RealEigenvalues;
 
   fn new(flavour: Flavour) -> Self {
     // TODO: validate order for NX NASTRAN
-    let col_idxs = RealEigenValueField::all()
+    let col_idxs = RealEigenvalueField::all()
       .iter()
       .copied()
       .enumerate()
@@ -1565,7 +1565,7 @@ fn real_eigenvalues_mystran() {
         4       4        3.318753E+06        1.821744E+03        2.899396E+02        1.147843E-02        3.809406E+04
   ";
 
-  let mut dec = RealEigenValuesDecoder::new(Flavour {
+  let mut dec = RealEigenvaluesDecoder::new(Flavour {
     solver: Some(Solver::Mystran),
     soltype: Some(SolType::Eigenvalue),
   });
@@ -1613,7 +1613,7 @@ fn real_eigenvalues_scnastran() {
        21         1        5.639166E+07        7.509438E+03        1.195164E+03        0.0                 0.0
   ";
 
-  let mut dec = RealEigenValuesDecoder::new(Flavour {
+  let mut dec = RealEigenvaluesDecoder::new(Flavour {
     solver: Some(Solver::Mystran),
     soltype: Some(SolType::Eigenvalue),
   });

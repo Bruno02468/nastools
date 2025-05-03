@@ -141,11 +141,11 @@ impl OnePassParser {
       let subcase = if self.file.flavour.solver == Some(Solver::Simcenter)
         && self.file.blocks.iter().any(|b| {
           b.0.block_type == BlockType::EigenVector
-            || b.0.block_type == BlockType::RealEigenValues
+            || b.0.block_type == BlockType::RealEigenvalues
         }) {
         // not an eigen-specific block, so order is their subcase
         if dec.block_type() != BlockType::EigenVector
-          || dec.block_type() != BlockType::RealEigenValues
+          || dec.block_type() != BlockType::RealEigenvalues
         {
           let type_count = self
             .file

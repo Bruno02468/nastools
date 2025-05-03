@@ -189,7 +189,7 @@ gen_nasindex!(
   PlateStressField,
   PlateStrainField,
   GridPointCsys,
-  RealEigenValueField,
+  RealEigenvalueField,
   EigenSolutionMode,
 );
 
@@ -939,9 +939,9 @@ impl Display for EigenSolutionMode {
 
 from_enum!(
   "Field Values for Real Eigenvalues",
-  RealEigenValueField,
+  RealEigenvalueField,
   [
-    (EigenValue, "EIGENVALUE"),
+    (Eigenvalue, "EIGENVALUE"),
     (Radians, "RADIANS"),
     (Cycles, "CYCLES"),
     (GeneralizedMass, "GENERALIZED MASS"),
@@ -949,6 +949,6 @@ from_enum!(
   ]
 );
 
-impl IndexType for RealEigenValueField {
+impl IndexType for RealEigenvalueField {
   const INDEX_NAME: &'static str = "EIGENVALUE FIELDS";
 }

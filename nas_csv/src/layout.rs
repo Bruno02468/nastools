@@ -40,7 +40,7 @@ pub enum CsvBlockId {
   /// The 8-block: eigenvectors.
   EigenVectors,
   /// The 9-block: real eigenvalues.
-  EigenValues,
+  Eigenvalues,
 }
 
 // this impl allow numerical shorthands
@@ -75,7 +75,7 @@ impl CsvBlockId {
       Self::AppliedForces,
       Self::SpcForces,
       Self::EigenVectors,
-      Self::EigenValues,
+      Self::Eigenvalues,
     ];
   }
 
@@ -107,7 +107,7 @@ impl CsvBlockId {
       CsvBlockId::AppliedForces => "applied forces.",
       CsvBlockId::SpcForces => "forces of single-point constraint.",
       CsvBlockId::EigenVectors => "eigenvectors.",
-      CsvBlockId::EigenValues => "real eigenvalues.",
+      CsvBlockId::Eigenvalues => "real eigenvalues.",
     }
   }
 
@@ -123,7 +123,7 @@ impl CsvBlockId {
       Self::AppliedForces => "AppliedForces",
       Self::SpcForces => "SpcForces",
       Self::EigenVectors => "EigenVectors",
-      Self::EigenValues => "EigenValues",
+      Self::Eigenvalues => "Eigenvalues",
     };
   }
 
@@ -139,7 +139,7 @@ impl CsvBlockId {
       Self::AppliedForces => "load",
       Self::SpcForces => "spcfor",
       Self::EigenVectors => "eigenvec",
-      Self::EigenValues => "eigenval",
+      Self::Eigenvalues => "eigenval",
     };
   }
 
@@ -162,7 +162,7 @@ impl CsvBlockId {
       Self::AppliedForces => &["6", "applied"],
       Self::SpcForces => &["7", "spcf", "spcforces"],
       Self::EigenVectors => &["8", "eigenvectors"],
-      Self::EigenValues => &["9", "eigenvalues"],
+      Self::Eigenvalues => &["9", "eigenvalues"],
     };
   }
 }
@@ -185,7 +185,7 @@ impl From<CsvBlockId> for usize {
       CsvBlockId::AppliedForces => 6,
       CsvBlockId::SpcForces => 7,
       CsvBlockId::EigenVectors => 8,
-      CsvBlockId::EigenValues => 9,
+      CsvBlockId::Eigenvalues => 9,
     };
   }
 }
@@ -210,7 +210,7 @@ impl TryFrom<usize> for CsvBlockId {
       6 => CsvBlockId::AppliedForces,
       7 => CsvBlockId::SpcForces,
       8 => CsvBlockId::EigenVectors,
-      9 => CsvBlockId::EigenValues,
+      9 => CsvBlockId::Eigenvalues,
       _ => return Err(()),
     });
   }

@@ -850,17 +850,17 @@ pub const CT_EIGENVECTOR: BlockConverter = BlockConverter {
 
 /// Conversion template for REAL EIGENVALUES
 pub const CT_REAL_EIGENVALUES: BlockConverter = BlockConverter {
-  input_block_type: BlockType::RealEigenValues,
-  output_block_id: CsvBlockId::EigenValues,
+  input_block_type: BlockType::RealEigenvalues,
+  output_block_id: CsvBlockId::Eigenvalues,
   generators: &[cols!(
-    RealEigenValueField,
+    RealEigenvalueField,
     [ColumnGenerator::RowIndexFn(&(ixfn_eigen_mode as IndexFn)),],
     [
-      RealEigenValueField::EigenValue,
-      RealEigenValueField::Radians,
-      RealEigenValueField::Cycles,
-      RealEigenValueField::GeneralizedMass,
-      RealEigenValueField::GeneralizedStiffness,
+      RealEigenvalueField::Eigenvalue,
+      RealEigenvalueField::Radians,
+      RealEigenvalueField::Cycles,
+      RealEigenvalueField::GeneralizedMass,
+      RealEigenvalueField::GeneralizedStiffness,
     ],
     [],
     [BLANK, BLANK, BLANK, BLANK,],

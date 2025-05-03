@@ -370,8 +370,8 @@ gen_block_types!(
   // real eigenvalues
   {
     "Real Eigenvalues",
-    RealEigenValues,
-    RealEigenValuesDecoder,
+    RealEigenvalues,
+    RealEigenvaluesDecoder,
     None,
     [
       "REAL EIGENVALUES",
