@@ -38,7 +38,7 @@ pub enum CsvBlockId {
   /// The 7-block: forces of single-point constraint.
   SpcForces,
   /// The 8-block: eigenvectors.
-  EigenVectors,
+  Eigenvectors,
   /// The 9-block: real eigenvalues.
   Eigenvalues,
 }
@@ -74,7 +74,7 @@ impl CsvBlockId {
       Self::GridPointForces,
       Self::AppliedForces,
       Self::SpcForces,
-      Self::EigenVectors,
+      Self::Eigenvectors,
       Self::Eigenvalues,
     ];
   }
@@ -106,7 +106,7 @@ impl CsvBlockId {
       CsvBlockId::GridPointForces => "grid point force balance.",
       CsvBlockId::AppliedForces => "applied forces.",
       CsvBlockId::SpcForces => "forces of single-point constraint.",
-      CsvBlockId::EigenVectors => "eigenvectors.",
+      CsvBlockId::Eigenvectors => "eigenvectors.",
       CsvBlockId::Eigenvalues => "real eigenvalues.",
     }
   }
@@ -122,7 +122,7 @@ impl CsvBlockId {
       Self::GridPointForces => "GridPointForces",
       Self::AppliedForces => "AppliedForces",
       Self::SpcForces => "SpcForces",
-      Self::EigenVectors => "EigenVectors",
+      Self::Eigenvectors => "Eigenvectors",
       Self::Eigenvalues => "Eigenvalues",
     };
   }
@@ -138,7 +138,7 @@ impl CsvBlockId {
       Self::GridPointForces => "gpforce",
       Self::AppliedForces => "load",
       Self::SpcForces => "spcfor",
-      Self::EigenVectors => "eigenvec",
+      Self::Eigenvectors => "eigenvec",
       Self::Eigenvalues => "eigenval",
     };
   }
@@ -161,7 +161,7 @@ impl CsvBlockId {
       ],
       Self::AppliedForces => &["6", "applied"],
       Self::SpcForces => &["7", "spcf", "spcforces"],
-      Self::EigenVectors => &["8", "eigenvectors"],
+      Self::Eigenvectors => &["8", "eigenvectors"],
       Self::Eigenvalues => &["9", "eigenvalues"],
     };
   }
@@ -184,7 +184,7 @@ impl From<CsvBlockId> for usize {
       CsvBlockId::GridPointForces => 5,
       CsvBlockId::AppliedForces => 6,
       CsvBlockId::SpcForces => 7,
-      CsvBlockId::EigenVectors => 8,
+      CsvBlockId::Eigenvectors => 8,
       CsvBlockId::Eigenvalues => 9,
     };
   }
@@ -209,7 +209,7 @@ impl TryFrom<usize> for CsvBlockId {
       5 => CsvBlockId::GridPointForces,
       6 => CsvBlockId::AppliedForces,
       7 => CsvBlockId::SpcForces,
-      8 => CsvBlockId::EigenVectors,
+      8 => CsvBlockId::Eigenvectors,
       9 => CsvBlockId::Eigenvalues,
       _ => return Err(()),
     });

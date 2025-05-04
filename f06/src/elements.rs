@@ -7,6 +7,7 @@ use std::fmt::Display;
 
 use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
+use serde_with::{DeserializeFromStr, SerializeDisplay};
 
 /// Broadly-defined element categories.
 #[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
@@ -34,7 +35,8 @@ macro_rules! gen_elems {
   ) => {
     /// Known element types.
     #[derive(
-      Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, ValueEnum
+      Copy, Clone, Debug, PartialEq, Eq, ValueEnum, SerializeDisplay,
+      DeserializeFromStr,
     )]
     #[clap(rename_all = "UPPER")]
     #[allow(missing_docs)]
@@ -67,14 +69,14 @@ macro_rules! gen_elems {
     }
 
     impl FromStr for ElementType {
-      type Err = ();
+      type Err = String;
 
       fn from_str(s: &str) -> Result<Self, Self::Err> {
         return match s {
           $(
             $nm => Ok(Self::$vn),
           )*
-          _ => return Err(())
+          _ => return Err(format!("invalid element type \"{}\"", s))
         };
       }
     }

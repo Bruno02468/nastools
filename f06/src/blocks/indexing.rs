@@ -300,6 +300,15 @@ pub struct ElementRef {
   pub etype: Option<ElementType>,
 }
 
+impl From<usize> for ElementRef {
+  fn from(value: usize) -> Self {
+    return Self {
+      eid: value,
+      etype: None,
+    };
+  }
+}
+
 impl FromStr for ElementRef {
   type Err = <usize as FromStr>::Err;
 

@@ -1365,7 +1365,7 @@ converting_decoder!(
 );
 
 /// Decoder for eigenvectors.
-pub struct EigenVectorDecoder {
+pub struct EigenvectorDecoder {
   /// The flavour of F06 file we're decoding eigenvectors for.
   flavour: Flavour,
   /// The eigenvector data
@@ -1377,12 +1377,12 @@ pub struct EigenVectorDecoder {
   >,
 }
 
-impl BlockDecoder for EigenVectorDecoder {
+impl BlockDecoder for EigenvectorDecoder {
   type MatScalar = f64;
   type RowIndex = GridPointRef;
   type ColumnIndex = Dof;
   const MATWIDTH: usize = SIXDOF;
-  const BLOCK_TYPE: BlockType = BlockType::EigenVector;
+  const BLOCK_TYPE: BlockType = BlockType::Eigenvector;
 
   fn new(flavour: Flavour) -> Self {
     Self {
@@ -1438,7 +1438,7 @@ fn eigenvector_mystran() {
                 ABS* :    0.0           0.0           1.000000E+00  0.0           5.615361E-02  0.0
                 *for output set
   ";
-  let mut dec = EigenVectorDecoder::new(Flavour {
+  let mut dec = EigenvectorDecoder::new(Flavour {
     solver: Some(Solver::Mystran),
     soltype: Some(SolType::Eigenvalue),
   });
@@ -1470,7 +1470,7 @@ fn eigenvector_scnastran() {
           1043      G      0.0            0.0           -9.832847E-02   0.0            0.0            0.0
           1051      G      0.0            0.0            0.0            0.0            0.0            0.0
   ";
-  let mut dec = EigenVectorDecoder::new(Flavour {
+  let mut dec = EigenvectorDecoder::new(Flavour {
     solver: Some(Solver::Simcenter),
     soltype: Some(SolType::Eigenvalue),
   });

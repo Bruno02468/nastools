@@ -140,11 +140,11 @@ impl OnePassParser {
       // if eigen solution and on SC NASTRAN
       let subcase = if self.file.flavour.solver == Some(Solver::Simcenter)
         && self.file.blocks.iter().any(|b| {
-          b.0.block_type == BlockType::EigenVector
+          b.0.block_type == BlockType::Eigenvector
             || b.0.block_type == BlockType::RealEigenvalues
         }) {
         // not an eigen-specific block, so order is their subcase
-        if dec.block_type() != BlockType::EigenVector
+        if dec.block_type() != BlockType::Eigenvector
           || dec.block_type() != BlockType::RealEigenvalues
         {
           let type_count = self
@@ -270,7 +270,7 @@ impl OnePassParser {
             return ParserResponse::BeginningWithoutSolver;
           } else {
             // subcase is on this line for this specific scenario
-            if bt == BlockType::EigenVector
+            if bt == BlockType::Eigenvector
               && self
                 .file
                 .flavour

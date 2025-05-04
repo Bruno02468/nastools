@@ -2,9 +2,10 @@
 //! to them, such as names for detection and decoder instantiation subroutines.
 
 use std::fmt::Display;
+use std::str::FromStr;
 
 use convert_case::{Case, Casing};
-use serde::{Deserialize, Serialize};
+use serde_with::{DeserializeFromStr, SerializeDisplay};
 
 use crate::blocks::decoders::*;
 use crate::prelude::*;
@@ -24,8 +25,8 @@ macro_rules! gen_block_types {
   ) => {
     /// This contains all the known data blocks.
     #[derive(
-      Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd,
-      Ord
+      Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, SerializeDisplay,
+      DeserializeFromStr
     )]
     #[non_exhaustive]
     pub enum BlockType {
@@ -360,8 +361,8 @@ gen_block_types!(
   // eigenvectors
   {
     "Eigenvector",
-    EigenVector,
-    EigenVectorDecoder,
+    Eigenvector,
+    EigenvectorDecoder,
     None,
     [
       "EIGENVECTOR",
@@ -382,5 +383,20 @@ gen_block_types!(
 impl Display for BlockType {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     return write!(f, "{}", self.desc());
+  }
+}
+
+impl FromStr for BlockType {
+  type Err = String;
+
+  fn from_str(s: &str) -> Result<Self, Self::Err> {
+    for cand in Self::all() {
+      let snk = cand.snake_case_name();
+      let l = [cand.desc(), cand.short_name(), snk.as_str()];
+      if l.iter().any(|p| p.eq_ignore_ascii_case(s)) {
+        return Ok(*cand);
+      }
+    }
+    return Err(format!("invalid block type name \"{}\"", s));
   }
 }

@@ -7,4 +7,4 @@ members = [
   "nas_csv",
   "f06csv",
   "nastester"
-]
+, "f06magic"]

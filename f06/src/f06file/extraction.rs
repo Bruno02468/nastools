@@ -24,6 +24,16 @@ pub enum Specifier<A> {
   AllExcept(Vec<A>),
 }
 
+impl<A> FromIterator<A> for Specifier<A> {
+  fn from_iter<T: IntoIterator<Item = A>>(iter: T) -> Self {
+    let v: Vec<A> = iter.into_iter().collect();
+    if v.is_empty() {
+      return Self::All;
+    }
+    return Self::List(v);
+  }
+}
+
 /// This is a specifier type.
 #[derive(
   Debug, Copy, Clone, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
@@ -112,16 +122,21 @@ impl<A: PartialEq> Specifier<A> {
   pub fn filter_fn(&self, item: &A) -> bool {
     return match self {
       Self::All => true,
-      Self::List(l) => l.contains(item),
-      Self::AllExcept(l) => !l.contains(item),
+      Self::List(l) => l.is_empty() || l.contains(item),
+      Self::AllExcept(l) => l.is_empty() || !l.contains(item),
     };
   }
 
   /// Use this as a lax filter (None means fail but All means All).
   pub fn lax_filter(&self, item: &Option<A>) -> bool {
-    if matches!(self, Self::All) {
-      return true;
-    }
+    match self {
+      Specifier::All => return true,
+      Specifier::List(v) | Self::AllExcept(v) => {
+        if v.is_empty() {
+          return true;
+        }
+      }
+    };
     return match item {
       Some(v) => self.filter_fn(v),
       None => false,

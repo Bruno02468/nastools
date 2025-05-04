@@ -94,6 +94,9 @@ struct Cli {
   /// The delimiter used in the CSV.
   #[arg(short = 'd', long, default_value = ",", verbatim_doc_comment)]
   delim: char,
+  /// Use a tab as delimiter. Overrides --delim.
+  #[arg(long = "tab", verbatim_doc_comment)]
+  tab: bool,
   /// Use CRLF (Windows) line breaks. Default is LF (Unix).
   #[arg(long = "crlf", verbatim_doc_comment)]
   crlf: bool,
@@ -116,7 +119,7 @@ struct Cli {
 
 fn main() -> Result<(), Box<dyn Error>> {
   // init cli stuff
-  let args = Cli::parse();
+  let mut args = Cli::parse();
   let log_level = if args.verbose {
     LevelFilter::Debug
   } else {
@@ -150,10 +153,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     } else {
       Box::new(io::stdout())
     });
+  if args.tab {
+    args.delim = '\t';
+  }
   let delim_byte: u8 = args
     .delim
     .try_into()
-    .expect("Delimiter must not be a special character!");
+    .expect("Delimiter must be an ASCII character!");
   let term = if args.crlf {
     Terminator::CRLF
   } else {

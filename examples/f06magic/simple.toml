@@ -1,0 +1,51 @@
+[files]
+mystran_all_elem = "examples/mystran/SB-ALL-ELEM-TEST.F06"
+scnastran_all_elem = "examples/scnastran/SB-ALL-ELEM-TEST_scnas_postexport.f06"
+
+[[extraction]]
+name = "everything"
+
+[[extraction]]
+name = "nodal translations"
+block = "displacements"
+dofs = ["tx", "ty", "tz"]
+
+[[extraction]]
+name = "1d elem stresses"
+blocks = [
+  "Elas1Stresses",
+  "rod_stresses",
+  "bar_stresses"
+]
+
+[[extraction]]
+name = "2d elem stresses"
+blocks = [
+  "tria_stresses",
+  "quad_stresses"
+]
+
+[[criteria]]
+name = "must be equal"
+max_difference = 0.0
+
+[[criteria]]
+name = "within 10%"
+max_ratio = 1.1
+
+[[comparison]]
+name = "sb-all-elem, equal translations"
+reference_f06 = "scnastran_all_elem"
+test_f06 = "mystran_all_elem"
+extraction = "nodal translations"
+criteria = "must be equal"
+
+[[comparison]]
+name = "sb-all-elem, 1d/2d stresses within 10%"
+reference_f06 = "scnastran_all_elem"
+test_f06 = "mystran_all_elem"
+extractions = [
+  "1d elem stresses",
+  "2d elem stresses"
+]
+criteria = "within 10%"

@@ -2,7 +2,9 @@
 
 use nalgebra::{Scalar, Vector3};
 use serde::{Deserialize, Serialize};
+use serde_with::{DeserializeFromStr, SerializeDisplay};
 use std::fmt::Display;
+use std::str::FromStr;
 
 /// Stupid constant so the code is more readable.
 pub const SIXDOF: usize = 6;
@@ -154,7 +156,15 @@ impl Axis {
 
 /// The six degrees of freedom.
 #[derive(
-  Copy, Clone, Debug, Serialize, Deserialize, PartialOrd, Ord, PartialEq, Eq,
+  Copy,
+  Clone,
+  Debug,
+  PartialOrd,
+  Ord,
+  PartialEq,
+  Eq,
+  SerializeDisplay,
+  DeserializeFromStr,
 )]
 pub struct Dof {
   /// The type of DOF (translational or rotational).
@@ -206,6 +216,22 @@ impl TryFrom<usize> for Dof {
 impl Display for Dof {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     return write!(f, "{}{}", self.dof_type.letter(), self.axis.letter());
+  }
+}
+
+impl FromStr for Dof {
+  type Err = String;
+
+  fn from_str(s: &str) -> Result<Self, Self::Err> {
+    return Ok(match s.to_lowercase().as_str() {
+      "tx" => DOF_TX,
+      "ty" => DOF_TY,
+      "tz" => DOF_TZ,
+      "rx" => DOF_RX,
+      "ry" => DOF_RY,
+      "rz" => DOF_RZ,
+      _ => return Err(format!("invalid DoF string \"{}\"", s)),
+    });
   }
 }
 

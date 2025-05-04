@@ -834,8 +834,8 @@ pub const CT_SPC_FORCES: BlockConverter = BlockConverter {
 
 /// Conversion template for EIGENVECTOR
 pub const CT_EIGENVECTOR: BlockConverter = BlockConverter {
-  input_block_type: BlockType::EigenVector,
-  output_block_id: CsvBlockId::EigenVectors,
+  input_block_type: BlockType::Eigenvector,
+  output_block_id: CsvBlockId::Eigenvectors,
   generators: &[cols!(
     Dof,
     [ColumnGenerator::GridId, ColumnGenerator::Subcase,],
